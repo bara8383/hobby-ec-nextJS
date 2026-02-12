@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import AddToCartButton from "@/components/AddToCartButton";
 import JsonLd from "@/components/JsonLd";
 import { getProductById } from "@/lib/products";
-import { createMetadata } from "@/lib/seo";
+import { createMetadata, toAbsoluteUrl } from "@/lib/seo";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -55,7 +55,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             priceCurrency: "JPY",
             price: product.price,
             availability: "https://schema.org/InStock",
-            url: `https://example.com/products/${product.id}`
+            url: toAbsoluteUrl(`/products/${product.id}`)
           }
         }}
       />
