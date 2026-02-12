@@ -602,3 +602,7 @@ jobs:
 ---
 
 このドキュメントをベースに、次フェーズで `infra/terraform/` 実コードを段階的に実装すれば、学習効率と実運用性を両立しやすいです。
+
+## ローカル検証テンプレート
+
+LocalStack を使ったローカル検証環境は `docs/localstack-aws-serverless-template.md` を参照してください。
