@@ -13,6 +13,8 @@
 - `docs/nextjs/02-page-structure.md`
 - `docs/nextjs/03-seo-implementation-checklist.md`
 - `docs/nextjs/04-chat-roadmap.md`
+- `docs/nextjs/05-requirements-definition-expanded.md`
+- `docs/nextjs/06-basic-design-expanded.md`
 
 ## 既存ドキュメントとの関係
 
