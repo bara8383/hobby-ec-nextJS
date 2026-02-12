@@ -6,23 +6,6 @@
 2. **SEO 対策（metadata API・構造化データ・クロール最適化）**
 3. **リアルタイムチャット機能（段階的導入）**
 
-## 読む順番（推奨）
-
-- `docs/basic-designs/00-priority-and-principles.md`
-- `docs/basic-designs/01-folder-structure.md`
-- `docs/basic-designs/02-page-structure.md`
-- `docs/detailed-designs/03-seo-implementation-checklist.md`
-- `docs/proposals/04-chat-roadmap.md`
-- `docs/requirements-definitions/nextjs-ec-requirements-definition-v1.md`
-- `docs/basic-designs/nextjs-ec-basic-design-v1.md`
-- `docs/detailed-designs/nextjs-ec-detailed-design-v1.md`
-
-## 既存ドキュメントとの関係
-
-- Next.js + SEO の統合ガイド: `docs/nextjs-ec-seo-guide.md`
-- AWS 将来構成: `docs/aws-infra-future-plan.md`
-- LocalStack 検証テンプレート: `docs/localstack-aws-serverless-template.md`
-
 ## 公式一次情報（必読）
 
 - App Router: https://nextjs.org/docs/app
