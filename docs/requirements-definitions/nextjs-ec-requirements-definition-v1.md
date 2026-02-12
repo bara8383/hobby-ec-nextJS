@@ -8,6 +8,8 @@
 1. Next.js App Router を中心とした現代的なWeb実装の学習
 2. SEOを意識した情報設計・実装
 3. 将来的なチャット接客機能の段階的導入
+4. AWS本番運用を見据えたサーバーレス構成への拡張
+5. LocalStack を用いたローカル検証基盤の標準化
 
 ---
 
@@ -20,13 +22,16 @@
 - 最小限の決済連携（Route Handler経由）
 - チャット機能（現時点は学習用の基本導線）
 - 運用を見据えた拡張可能なフォルダ・責務分離
+- 将来AWS移行を想定した API / 認証 / データ層の責務定義
+- LocalStack での S3 / API Gateway / Lambda / DynamoDB / Cognito(代替) 検証
 
 ### 2.2 対象外（Out of Scope）
 
-- 会員登録・ログインなどの本格認証
+- 会員登録・ログインなどの本格認証の本番実装
 - 在庫連動を伴う外部基幹システム連携
-- 本番監視（APM、分散トレーシング）
+- 本番監視（APM、分散トレーシング）の実装完了
 - 多言語展開（i18n）
+- AWS本番アカウントへの直接デプロイ運用
 
 ---
 
@@ -34,6 +39,7 @@
 
 - **学習者/開発者**: Next.jsのベストプラクティスを学びたい
 - **サイト運営者（想定）**: SEO流入とCV導線を改善したい
+- **インフラ担当（将来）**: Terraform を用いて環境差分を制御したい
 - **エンドユーザー**: 商品を比較し、迷わず購入・DLしたい
 
 ---
@@ -64,6 +70,21 @@
 - FR-11: 商品一覧・詳細に構造化データを設定する
 - FR-12: robots/sitemapを提供し、クロール対象を制御する
 
+### 4.5 AWS将来拡張（要求定義）
+
+- FR-13: フロント配信は CloudFront + S3(Private/OAC) 前提で設計する
+- FR-14: API は `/api/*` で集約し、CloudFront 配下で同一ドメイン提供可能とする
+- FR-15: 認証は Cognito User Pool JWT を API Gateway で検証可能な責務分離にする
+- FR-16: データ層は DynamoDB を初期標準とし、Aurora Serverless v2 へ切替可能な抽象化を持つ
+- FR-17: IaC は Terraform 前提で、`envs/dev` と `envs/prod` を分離する
+
+### 4.6 LocalStack ローカル検証（要求定義）
+
+- FR-18: ローカル環境で S3 / Lambda / API Gateway / DynamoDB の結合確認ができる
+- FR-19: `docker compose up` 後に最短で商品 API を疎通確認できる
+- FR-20: Next.js 静的出力を S3 へ同期して配信導線を検証できる
+- FR-21: 認証方式は Cognito 固定とせず、Keycloak 代替を許容する
+
 ---
 
 ## 5. 非機能要件
@@ -72,21 +93,33 @@
 
 - NFR-01: 初期表示はServer Componentを基本として不要なクライアントJSを抑制
 - NFR-02: ページ単位でキャッシュ戦略（静的生成/再検証/動的）を明示
+- NFR-03: CloudFront 経由配信を前提に静的資産の圧縮・キャッシュ最適化を行う
 
 ### 5.2 可用性/障害分離
 
-- NFR-03: チャット障害が発生しても商品閲覧・購入フローは停止しない
-- NFR-04: 外部API障害時はユーザー向けに最低限の失敗メッセージを返す
+- NFR-04: チャット障害が発生しても商品閲覧・購入フローは停止しない
+- NFR-05: 外部API障害時はユーザー向けに最低限の失敗メッセージを返す
+- NFR-06: API・認証・データ層の障害影響を機能単位で局所化できる構成を保つ
 
 ### 5.3 保守性
 
-- NFR-05: SEOロジックは `src/lib/seo.ts` を中心に集約し重複を防ぐ
-- NFR-06: 画面責務（app）・部品（components）・業務ロジック（lib/actions）を分離する
+- NFR-07: SEOロジックは `src/lib/seo.ts` を中心に集約し重複を防ぐ
+- NFR-08: 画面責務（app）・部品（components）・業務ロジック（lib/actions）を分離する
+- NFR-09: 将来的なモノレポ化（apps/services/packages/infra）に移行しやすい依存関係を保つ
+- NFR-10: Terraform module を frontend/auth/api/data 単位で分割可能な設計とする
 
 ### 5.4 セキュリティ
 
-- NFR-07: 決済・注文処理はServer Action/Route Handler側で実行し、クライアントから機密情報を露出しない
-- NFR-08: 外部入力（チャットメッセージ等）は検証・サニタイズ可能な構造で扱う
+- NFR-11: 決済・注文処理はServer Action/Route Handler側で実行し、クライアントから機密情報を露出しない
+- NFR-12: 外部入力（チャットメッセージ等）は検証・サニタイズ可能な構造で扱う
+- NFR-13: S3 は public access block を有効にし、CloudFront OAC 経由のみアクセス可能とする
+- NFR-14: API は Authorization ヘッダを透過し、JWT 検証可能な境界を維持する
+
+### 5.5 運用・検証容易性
+
+- NFR-15: LocalStack のバージョン差分を考慮し、docker image タグ固定を推奨する
+- NFR-16: 初期化スクリプト再実行手順（データ再作成）をドキュメント化する
+- NFR-17: 本番不可のローカル構成であることを明示し、誤用を防止する
 
 ---
 
@@ -106,30 +139,117 @@
 2. `/chat` へ移動して問い合わせ送信
 3. 必要に応じて商品詳細へ戻って購入継続
 
+### UC-03 ローカルでサーバーレス統合を検証する
+
+1. `docs/localstack-template` を起動
+2. API Gateway のエンドポイントを取得
+3. `/products` `/orders` API を叩く
+4. DynamoDB/S3 のデータ反映を確認
+
 ---
 
 ## 7. SEO要件詳細
 
 - SR-01: Home/一覧/詳細をインデックス対象とする
-- SR-02: cart/checkout/success/chatは原則noindex方針で運用
-- SR-03: JSON-LDはページ種別に応じて `WebSite` / `ItemList` / `Product` を出し分ける
-- SR-04: canonical URLは環境依存値でなく正規ドメイン基準で生成する
+- SR-02: cart/checkout/success/chat は原則 noindex 方針で運用
+- SR-03: JSON-LD はページ種別に応じて `WebSite` / `ItemList` / `Product` を出し分ける
+- SR-04: canonical URL は環境依存値でなく正規ドメイン基準で生成する
+- SR-05: metadata API を利用して title / description / og を一元管理する
+- SR-06: SEO 方針は「Next.js 最新設計思想を優先しつつ実装可能な最適化を継続」する
 
 ---
 
-## 8. 受け入れ基準（Acceptance Criteria）
+## 8. インフラ将来構成要件（AWS）
 
-- AC-01: 主要ページにmetadataが設定され、重複titleがない
-- AC-02: 商品詳細でJSON-LD `Product` が出力される
-- AC-03: robots/sitemapが有効なレスポンスを返す
+### 8.1 参照アーキテクチャ
+
+- Route53 -> CloudFront(ACM/TLS) -> S3(静的) + API Gateway(`/api/*`) を基本構成とする
+- API Gateway -> Lambda -> DynamoDB（初期）を標準経路とする
+- RDB 要件が増えた際に Aurora Serverless v2 を選択できるよう設計する
+
+### 8.2 IaC 要件
+
+- Terraform バージョン・provider バージョンを固定管理する
+- CloudFront 用 ACM は `us-east-1` provider alias を利用する
+- 環境差分は module 入力変数と tfvars で管理する
+
+### 8.3 CI/CD 要件
+
+- フロントのビルド成果物を S3 配信できるパイプラインを提供する
+- 破壊的変更（DB, 認証）は plan/apply 承認フローを設ける
+
+---
+
+## 9. ローカルサーバーレステンプレート要件
+
+### 9.1 必須機能
+
+- Docker Compose で LocalStack / DB(Adminer 任意) / 認証代替(Keycloak 任意)を起動できる
+- `awslocal` による S3 バケット、DynamoDB テーブル、Lambda、API Gateway の初期化が可能
+- 疎通確認コマンド（curl / aws cli）を手順化し再現可能にする
+
+### 9.2 Next.js 接続要件
+
+- 静的出力（`next export`）の S3 同期手順を提供する
+- CloudFront 代替として Nginx リバースプロキシ構成を選択可能にする
+
+### 9.3 制約事項
+
+- LocalStack は本番完全互換ではないため、認証・配信挙動差分を許容する
+- このテンプレートは学習/検証用であり、本番利用しない
+
+---
+
+## 10. 受け入れ基準（Acceptance Criteria）
+
+- AC-01: 主要ページに metadata が設定され、重複titleがない
+- AC-02: 商品詳細で JSON-LD `Product` が出力される
+- AC-03: robots/sitemap が有効なレスポンスを返す
 - AC-04: カート追加〜購入完了まで画面遷移が成立する
 - AC-05: チャットAPIに失敗が発生しても商品購入フローは操作可能
+- AC-06: LocalStack 起動後に `/products` API の正常レスポンスが確認できる
+- AC-07: 将来AWS移行時に CloudFront + S3 + API Gateway + Lambda の責務が矛盾しない
 
 ---
 
-## 9. 将来拡張要件（任意）
+## 11. 既存ドキュメント統合ポリシー
+
+以下の資料は本要件定義へ吸収済みのため、個別ファイルは廃止した。以降は本書を上位要件として扱う。
+
+- `docs/aws-infra-future-plan.md`（廃止）
+- `docs/localstack-aws-serverless-template.md`（廃止）
+- `docs/nextjs-ec-seo-guide.md`（廃止）
+
+---
+
+
+## 12. 要件定義の運用ルール（本フェーズ）
+
+- 要件定義の拡充における提案・懸念点は `docs/requirements-definitions/proposals.md` に集約する。
+- 本文への反映は、オーナー判断で `採用` となった項目のみ実施する。
+- 要件定義は `docs/README.md` の優先順位（Next.js設計思想 > SEO > チャット）を上位原則として維持する。
+
+### 12.1 公式一次情報参照ポリシー
+
+本フェーズで参照する仕様は、以下の公式一次情報を優先する。
+
+- Next.js App Router
+- Rendering（Server / Client Components）
+- Data Fetching
+- Route Handlers
+- Server Actions
+- Metadata / OG / robots / sitemap
+- JSON-LD
+- Caching and Revalidation
+
+※ 上記リンク先は `docs/README.md` の「公式一次情報（必読）」に準拠する。
+
+---
+
+## 13. 将来拡張要件（任意）
 
 - 認証導入（購入履歴・再DL管理）
 - レコメンド機能（閲覧履歴ベース）
 - チャットのSSE/WebSocket移行
 - 検索・フィルタUIの強化（カテゴリ、価格帯、タグ）
+- WAF・Bot対策・監視基盤（CloudWatch/X-Ray/OpenSearch）
