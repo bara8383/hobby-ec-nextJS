@@ -1,5 +1,18 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getOrderById } from "@/lib/orders";
+import { createMetadata } from "@/lib/seo";
+
+export async function generateMetadata({ params }: { params: Promise<{ orderId: string }> }): Promise<Metadata> {
+  const { orderId } = await params;
+
+  return createMetadata({
+    title: `購入完了 ${orderId}`,
+    description: "購入したデジタル素材のダウンロードリンクを確認できます。",
+    path: `/purchase/success/${orderId}`,
+    image: "https://example.com/og/purchase-success.jpg"
+  });
+}
 
 export default async function PurchaseSuccessPage({ params }: { params: Promise<{ orderId: string }> }) {
   const { orderId } = await params;

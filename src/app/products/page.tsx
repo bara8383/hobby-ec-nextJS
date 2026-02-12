@@ -1,7 +1,7 @@
 import JsonLd from "@/components/JsonLd";
 import ProductCard from "@/components/ProductCard";
 import { getProducts } from "@/lib/products";
-import { createMetadata } from "@/lib/seo";
+import { createMetadata, toAbsoluteUrl } from "@/lib/seo";
 
 export const metadata = createMetadata({
   title: "商品一覧",
@@ -28,7 +28,7 @@ export default async function ProductsPage() {
           itemListElement: products.map((product, index) => ({
             "@type": "ListItem",
             position: index + 1,
-            url: `https://example.com/products/${product.id}`,
+            url: toAbsoluteUrl(`/products/${product.id}`),
             name: product.title
           }))
         }}

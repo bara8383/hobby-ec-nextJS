@@ -1,6 +1,14 @@
 import Link from "next/link";
 import { getCart } from "@/lib/cart";
 import { getProducts } from "@/lib/products";
+import { createMetadata } from "@/lib/seo";
+
+export const metadata = createMetadata({
+  title: "カート",
+  description: "カート内の商品を確認し、購入手続きに進みます。",
+  path: "/cart",
+  image: "https://example.com/og/cart.jpg"
+});
 
 export default async function CartPage() {
   const [cart, products] = await Promise.all([getCart(), getProducts()]);

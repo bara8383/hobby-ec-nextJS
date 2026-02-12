@@ -1,4 +1,12 @@
 import { createOrder } from "@/actions/orderActions";
+import { createMetadata } from "@/lib/seo";
+
+export const metadata = createMetadata({
+  title: "チェックアウト",
+  description: "デジタル商品の注文を確定します。",
+  path: "/checkout",
+  image: "https://example.com/og/checkout.jpg"
+});
 
 export default function CheckoutPage() {
   return (
