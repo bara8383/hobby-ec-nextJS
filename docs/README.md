@@ -8,13 +8,14 @@
 
 ## 読む順番（推奨）
 
-- `docs/nextjs/00-priority-and-principles.md`
-- `docs/nextjs/01-folder-structure.md`
-- `docs/nextjs/02-page-structure.md`
-- `docs/nextjs/03-seo-implementation-checklist.md`
-- `docs/nextjs/04-chat-roadmap.md`
-- `docs/nextjs/05-requirements-definition-expanded.md`
-- `docs/nextjs/06-basic-design-expanded.md`
+- `docs/basic-designs/00-priority-and-principles.md`
+- `docs/basic-designs/01-folder-structure.md`
+- `docs/basic-designs/02-page-structure.md`
+- `docs/detailed-designs/03-seo-implementation-checklist.md`
+- `docs/proposals/04-chat-roadmap.md`
+- `docs/requirements-definitions/nextjs-ec-requirements-definition-v1.md`
+- `docs/basic-designs/nextjs-ec-basic-design-v1.md`
+- `docs/detailed-designs/nextjs-ec-detailed-design-v1.md`
 
 ## 既存ドキュメントとの関係
 
@@ -34,3 +35,12 @@
 - Caching and Revalidation: https://nextjs.org/docs/app/building-your-application/caching
 
 > このリポジトリの docs は、上記公式ドキュメントの設計方針に寄せた学習導線として構成しています。
+
+## 概要
+
+- 要件定義: `docs/requirements-definitions/`
+- 基本設計: `docs/basic-designs/`
+- 詳細設計: `docs/detailed-designs/`
+- プロジェクト提案: `docs/proposals/`
+
+
