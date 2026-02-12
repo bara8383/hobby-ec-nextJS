@@ -1,157 +1,386 @@
-# Next.jsでSEOに強いECサイトを効率よく作る実践ガイド
+# Next.js最新設計思想で作る学習用EC（デジタル素材）
 
-## 1. 最初に押さえる設計方針（重要）
+> 優先順位: **1) App Router + Server Components設計** > **2) SEO** > **3) リアルタイムチャット**
 
-ECサイトのSEOは、**技術実装**だけでなく、**情報設計（カテゴリ構造・商品データ・内部リンク）**で成果が大きく変わります。Next.jsでは次の方針が効率的です。
-
-- 商品詳細・カテゴリ一覧・ブランド一覧は原則SSR/SSGで初期HTMLに主要情報を含める。
-- URLは意味のあるスラッグにする（`/category/running-shoes`、`/product/nike-pegasus-41` など）。
-- metadata APIでtitle/description/canonical/OGPをページ単位で自動生成する。
-- JSON-LD（Product/BreadcrumbList/ItemList）をテンプレート化して全ページで一貫運用する。
-- まず「売上に近いページ（カテゴリ・商品詳細）」から優先的に最適化する。
-
-## 2. 推奨技術スタック（Next.js App Router想定）
-
-- Next.js（App Router）
-- TypeScript
-- Headless CMS（商品説明、特集記事、FAQ）
-- Commerce API（在庫・価格・SKU）
-- 画像最適化: `next/image`
-- 計測: Google Search Console + GA4
-
-### 実装優先順位
-
-1. URL設計
-2. metadataとcanonical
-3. 構造化データ（JSON-LD）
-4. 内部リンクとパンくず
-5. Core Web Vitals改善
-6. サイトマップ/robots最適化
-
-## 3. App Routerで必須のSEO実装
-
-## 3.1 metadata APIを標準化
-
-- すべてのルートで`generateMetadata`を使い、title/descriptionを動的生成。
-- 重複防止のため、canonical URLを必ず設定。
-- OGP/Twitterカードの画像をページごとに出し分け。
-
-例（考え方）:
-
-- 商品詳細: `商品名 | ブランド名 公式通販`
-- カテゴリ: `ランニングシューズ一覧 | ブランド名 公式通販`
-- 記事: `初心者向けランニングシューズの選び方 | ブランド名`
-
-## 3.2 sitemap/robotsを自動生成
-
-- 商品・カテゴリ・記事の公開URLを統合して`sitemap.xml`を生成。
-- 在庫切れでも有用ページなら即noindexにせず、代替商品リンクを出して評価維持。
-- `robots.txt`で検索不要なページ（カート、マイページ、検索結果パラメータ）を制御。
-
-## 3.3 構造化データをテンプレート化
-
-ECでは以下が特に重要です。
-
-- `Product`（価格、在庫、レビュー、ブランド、SKU）
-- `BreadcrumbList`（カテゴリ階層）
-- `ItemList`（カテゴリ一覧）
-- `FAQPage`（商品FAQがある場合）
-
-ポイント:
-
-- `offers.price`と画面表示価格の不一致をなくす。
-- 在庫ステータスをリアルタイムに近い形で更新。
-- レビューの`aggregateRating`は実データと一致させる。
-
-## 4. EC特有のSEOで失敗しやすい点
-
-## 4.1 バリエーションURLの重複
-
-色・サイズ違いでURLを増やしすぎると重複が発生しやすいです。
-
-- 基本は代表URLを1つ持ち、バリエーションは同一ページ内で切替。
-- URLを分ける場合はcanonicalで正規化。
-
-## 4.2 フィルタ/ソートURLのインデックス汚染
-
-- `?color=black&size=27`のような組み合わせは原則noindex/canonical制御。
-- SEO対象にしたい組み合わせ（例: 黒 ランニングシューズ）は静的な専用ランディングページを作る。
-
-## 4.3 在庫切れ・販売終了ページの扱い
-
-- 一時欠品: ページは維持し、再入荷通知や類似商品を提示。
-- 恒久終了: 関連カテゴリまたは後継商品へ301。
-- 代替不可: 410も選択肢（ただし運用ポリシーを統一）。
-
-## 5. パフォーマンス（Core Web Vitals）最適化
-
-SEO効率を上げるために、実装と同時に速度対策を行います。
-
-- LCP対象のヒーロー画像は適切サイズ + `priority`。
-- 商品一覧の画像は`next/image`で遅延読み込み。
-- サードパーティタグを最小化（A/Bテスト、チャット、ヒートマップの積み上げに注意）。
-- フォントはサブセット化、CLSを避ける。
-- キャッシュ戦略（ISR・CDN・revalidate）をページ種類ごとに分ける。
-
-## 6. コンテンツ戦略（売上に直結）
-
-ECでは「商品ページだけ」では競争が厳しいため、次をセットで作ると強いです。
-
-- 比較記事（例: 初心者向け5モデル比較）
-- 悩み解決記事（膝痛向け、雨の日向け、用途別）
-- サイズ選びガイド
-- 配送・返品・保証の明確化（E-E-A-T補強）
-- FAQ整備（検索意図の取りこぼし防止）
-
-内部リンク設計:
-
-- 記事 -> カテゴリ -> 商品
-- 商品 -> 関連記事（選び方/メンテナンス）
-- カテゴリ上部に買い方ガイド導線
-
-## 7. 計測と改善サイクル（最短で成果を出す）
-
-- Search Consoleでクエリ×URLを週次確認。
-- CTRが低いページはtitle/descriptionをAB的に改善。
-- 11〜20位のクエリを優先的に内部リンク・追記で押し上げる。
-- 在庫切れ率が高いカテゴリはSEO流入後の離脱率も一緒に見る。
-
-## 8. すぐ使える30日アクションプラン
-
-### Day 1-3
-
-- URLとカテゴリ構造を確定
-- metadataテンプレート作成
-- canonicalルール策定
-
-### Day 4-10
-
-- 商品詳細/カテゴリにJSON-LD導入
-- パンくずと内部リンク実装
-- sitemap/robots生成
-
-### Day 11-20
-
-- Core Web Vitals改善（画像・スクリプト・フォント）
-- 在庫切れページ運用ルール適用
-
-### Day 21-30
-
-- 比較記事・選び方記事を公開
-- Search Consoleデータでtitle/description改善
-- 重点カテゴリの追記とリンク強化
-
-## 9. 実務向けチェックリスト
-
-- [ ] 商品詳細に固有title/descriptionがある
-- [ ] canonicalが自己参照または意図したURLを指している
-- [ ] Product JSON-LDの価格・在庫・レビューが実データと一致
-- [ ] パンくずがHTML/構造化データの両方で実装済み
-- [ ] フィルタURLのindex制御ができている
-- [ ] 在庫切れページの運用（維持/301/410）が定義済み
-- [ ] LCP/INP/CLSを計測し、ボトルネックを把握している
-- [ ] Search Consoleで週次モニタリングしている
+このドキュメントは、壁紙・写真・アイコンを扱う**学習用ポートフォリオEC**を、Next.js公式推奨に沿って組み立てるための実装ガイドです。
 
 ---
 
-このガイドの方針で進めると、Next.jsの実装効率を維持しながら、ECに必要なSEOの基礎と運用改善を同時に回せます。
+## 1. 公式推奨に合わせた設計方針（重要）
+
+- App Router の `app/` を中心にルーティングを組む。
+- ページは基本 **Server Components**（デフォルト）で作る。
+- ユーザー操作（入力、ボタン、チャットUIなど）だけ `"use client"` を使う。
+- SEO は `head.tsx` より **`metadata` / `generateMetadata`** を優先（現行推奨）。
+- 商品一覧/詳細は JSON-LD（`ItemList`, `Product`）を埋め込む。
+
+---
+
+## 2. 推奨フォルダ構成（App Router）
+
+```txt
+src/
+  app/
+    layout.tsx
+    page.tsx
+    products/
+      layout.tsx
+      page.tsx
+      [id]/
+        page.tsx
+    cart/
+      page.tsx
+    checkout/
+      page.tsx
+    purchase/
+      success/
+        [orderId]/
+          page.tsx
+    chat/
+      page.tsx
+    api/
+      chat/
+        route.ts
+      stripe/
+        route.ts
+  actions/
+    cartActions.ts
+    orderActions.ts
+  components/
+    layout/
+      Header.tsx
+    ui/
+      Button.tsx
+    AddToCartButton.tsx
+    ChatWidget.tsx
+    JsonLd.tsx
+    ProductCard.tsx
+  lib/
+    products.ts
+    cart.ts
+    orders.ts
+    seo.ts
+    chatStore.ts
+  types/
+    index.ts
+```
+
+> 補足: 以前の `head.tsx` 方式は学習参考として理解してOKですが、現行実装では metadata API を中心にするのが安全です。
+
+---
+
+## 3. セットアップコマンド
+
+```bash
+npx create-next-app@latest digital-assets-ec \
+  --typescript \
+  --tailwind \
+  --eslint \
+  --app \
+  --src-dir \
+  --import-alias "@/*"
+
+cd digital-assets-ec
+npm run dev
+```
+
+---
+
+## 4. ページ設計（要点）
+
+### Home: `src/app/page.tsx`
+- サイト説明、人気素材、カテゴリ導線を配置。
+- Server ComponentでレンダリングしてSEOの初期HTMLを確保。
+
+### Product List: `src/app/products/page.tsx`
+- Server Component内で商品一覧取得。
+- `metadata` で一覧向けタイトル/description/OGを設定。
+- `ItemList` JSON-LD を出力。
+
+### Product Detail: `src/app/products/[id]/page.tsx`
+- `generateMetadata` で商品ごとにSEO情報を動的生成。
+- `Product` JSON-LD を出力。
+- カート追加ボタンは Server Action を使う。
+
+### Cart / Checkout
+- カートは Cookie + Server Action で更新。
+- checkoutで購入確定後、完了ページへ遷移。
+- デジタル商品なので、完了ページでダウンロードリンクを表示。
+
+### Chat（優先度低）
+- 最小実装: `app/api/chat/route.ts` + Client polling。
+- 将来的にSSE/WebSocketへ拡張可能。
+
+---
+
+## 5. 実装コード（ページ/コンポーネント単位）
+
+### `src/lib/products.ts`
+
+```ts
+export type Product = {
+  id: string;
+  title: string;
+  description: string;
+  category: "wallpaper" | "photo" | "icon";
+  price: number;
+  image: string;
+  downloadFile: string;
+};
+
+const PRODUCTS: Product[] = [
+  {
+    id: "aurora-wallpaper-4k",
+    title: "Aurora Wallpaper 4K",
+    description: "高解像度のオーロラ壁紙セット（4枚）。",
+    category: "wallpaper",
+    price: 1200,
+    image: "/images/aurora.jpg",
+    downloadFile: "/downloads/aurora-pack.zip",
+  },
+  {
+    id: "city-night-photo-pack",
+    title: "City Night Photo Pack",
+    description: "夜景写真10枚の商用利用可能パック。",
+    category: "photo",
+    price: 1800,
+    image: "/images/city-night.jpg",
+    downloadFile: "/downloads/city-night-pack.zip",
+  },
+];
+
+export async function getProducts() {
+  return PRODUCTS;
+}
+
+export async function getProductById(id: string) {
+  return PRODUCTS.find((p) => p.id === id) ?? null;
+}
+```
+
+### `src/lib/seo.ts`
+
+```ts
+import type { Metadata } from "next";
+
+const SITE = "Digital Assets EC";
+const BASE = "https://example.com";
+
+export function createMetadata(input: {
+  title: string;
+  description: string;
+  path: string;
+  image: string;
+}): Metadata {
+  const url = `${BASE}${input.path}`;
+  return {
+    title: input.title,
+    description: input.description,
+    alternates: { canonical: url },
+    openGraph: {
+      title: input.title,
+      description: input.description,
+      url,
+      siteName: SITE,
+      images: [{ url: input.image }],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: input.title,
+      description: input.description,
+      images: [input.image],
+    },
+  };
+}
+```
+
+### `src/components/JsonLd.tsx`
+
+```tsx
+export default function JsonLd({ data }: { data: Record<string, unknown> }) {
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+    />
+  );
+}
+```
+
+### `src/app/products/page.tsx`
+
+```tsx
+import { getProducts } from "@/lib/products";
+import { createMetadata } from "@/lib/seo";
+import JsonLd from "@/components/JsonLd";
+import ProductCard from "@/components/ProductCard";
+
+export const metadata = createMetadata({
+  title: "商品一覧",
+  description: "壁紙・写真・アイコンのデジタル素材一覧",
+  path: "/products",
+  image: "https://example.com/og/products.jpg",
+});
+
+export default async function ProductsPage() {
+  const products = await getProducts();
+  return (
+    <section className="space-y-6">
+      <h1 className="text-3xl font-bold">商品一覧</h1>
+      <div className="grid gap-4 md:grid-cols-3">
+        {products.map((p) => (
+          <ProductCard key={p.id} product={p} />
+        ))}
+      </div>
+
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          itemListElement: products.map((p, i) => ({
+            "@type": "ListItem",
+            position: i + 1,
+            url: `https://example.com/products/${p.id}`,
+            name: p.title,
+          })),
+        }}
+      />
+    </section>
+  );
+}
+```
+
+### `src/app/products/[id]/page.tsx`
+
+```tsx
+import { notFound } from "next/navigation";
+import { getProductById } from "@/lib/products";
+import { createMetadata } from "@/lib/seo";
+import AddToCartButton from "@/components/AddToCartButton";
+import JsonLd from "@/components/JsonLd";
+
+export async function generateMetadata({ params }: { params: { id: string } }) {
+  const product = await getProductById(params.id);
+  if (!product) {
+    return createMetadata({
+      title: "商品が見つかりません",
+      description: "指定された商品は存在しません。",
+      path: `/products/${params.id}`,
+      image: "https://example.com/og/not-found.jpg",
+    });
+  }
+  return createMetadata({
+    title: product.title,
+    description: product.description,
+    path: `/products/${product.id}`,
+    image: `https://example.com${product.image}`,
+  });
+}
+
+export default async function ProductDetailPage({ params }: { params: { id: string } }) {
+  const product = await getProductById(params.id);
+  if (!product) notFound();
+
+  return (
+    <article className="space-y-4">
+      <h1 className="text-3xl font-bold">{product.title}</h1>
+      <p>{product.description}</p>
+      <p className="text-2xl font-semibold">¥{product.price.toLocaleString()}</p>
+      <AddToCartButton product={product} />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: product.title,
+          description: product.description,
+          sku: product.id,
+          image: `https://example.com${product.image}`,
+          offers: {
+            "@type": "Offer",
+            priceCurrency: "JPY",
+            price: product.price,
+            availability: "https://schema.org/InStock",
+            url: `https://example.com/products/${product.id}`,
+          },
+        }}
+      />
+    </article>
+  );
+}
+```
+
+### `src/app/purchase/success/[orderId]/page.tsx`（ダウンロードリンク）
+
+```tsx
+import { notFound } from "next/navigation";
+import { getOrderById } from "@/lib/orders";
+
+export default async function PurchaseSuccessPage({ params }: { params: { orderId: string } }) {
+  const order = await getOrderById(params.orderId);
+  if (!order) notFound();
+
+  return (
+    <section className="space-y-4">
+      <h1 className="text-3xl font-bold">購入完了</h1>
+      <ul className="list-disc pl-5">
+        {order.items.map((item) => (
+          <li key={`${item.title}-${item.downloadFile}`}>
+            {item.title}: <a href={item.downloadFile} className="underline">ダウンロード</a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+```
+
+### `src/app/api/chat/route.ts`（簡易チャットAPI）
+
+```ts
+import { NextResponse } from "next/server";
+import { addMessage, listMessages } from "@/lib/chatStore";
+
+export async function GET() {
+  return NextResponse.json({ messages: listMessages() });
+}
+
+export async function POST(req: Request) {
+  const body = await req.json();
+  const text = String(body.text || "").trim();
+  if (!text) return NextResponse.json({ error: "text is required" }, { status: 400 });
+  addMessage("guest", text);
+  return NextResponse.json({ ok: true });
+}
+```
+
+---
+
+## 6. 実装時の注意点
+
+- フォルダ名がURLに直結するため、命名はSEOを意識する。
+- Client Component化は最小限に留める（カートUI、チャット入力などのみ）。
+- APIは `app/api/**/route.ts` で定義する。
+- 商品詳細は特に `generateMetadata` と構造化データを丁寧に作る。
+
+---
+
+## 7. Codex向け補足プロンプト（そのまま追記可能）
+
+```txt
+・フォルダ構成は App Router のルーティングと一致させること（/src/app/...）。
+・各ページは可能な限り Server Components とし、SEO を最適化した metadata を含むこと。
+・商品一覧・詳細はそれぞれ route group/layout を活用し、商品詳細は generateMetadata を使うこと。
+・Cart と Checkout はクライアントインタラクションが多いので、必要部分に "use client" を明示すること。
+・チャット機能は簡易実装（Route Handler + polling）でも可。Client Components を主に使用すること。
+```
+
+---
+
+## 8. 動作確認
+
+```bash
+npm install
+npm run dev
+# /products, /products/[id], /cart, /checkout, /purchase/success/[orderId], /chat を確認
+```
