@@ -1,4 +1,4 @@
-# 05. 要件定義（拡充版）
+# 要件定義（拡充版）
 
 ## 1. 目的と背景
 
@@ -70,7 +70,7 @@
 - FR-11: 商品一覧・詳細に構造化データを設定する
 - FR-12: robots/sitemapを提供し、クロール対象を制御する
 
-### 4.5 AWS将来拡張（要求定義）
+### 4.5 AWS将来拡張（要件定義）
 
 - FR-13: フロント配信は CloudFront + S3(Private/OAC) 前提で設計する
 - FR-14: API は `/api/*` で集約し、CloudFront 配下で同一ドメイン提供可能とする
@@ -78,7 +78,7 @@
 - FR-16: データ層は DynamoDB を初期標準とし、Aurora Serverless v2 へ切替可能な抽象化を持つ
 - FR-17: IaC は Terraform 前提で、`envs/dev` と `envs/prod` を分離する
 
-### 4.6 LocalStack ローカル検証（要求定義）
+### 4.6 LocalStack ローカル検証（要件定義）
 
 - FR-18: ローカル環境で S3 / Lambda / API Gateway / DynamoDB の結合確認ができる
 - FR-19: `docker compose up` 後に最短で商品 API を疎通確認できる
@@ -120,6 +120,15 @@
 - NFR-15: LocalStack のバージョン差分を考慮し、docker image タグ固定を推奨する
 - NFR-16: 初期化スクリプト再実行手順（データ再作成）をドキュメント化する
 - NFR-17: 本番不可のローカル構成であることを明示し、誤用を防止する
+
+---
+
+### 5.6 バージョン管理ポリシー
+
+- NFR-18: Next.js は検証済みの固定バージョンを使用し、`package.json` では exact version（`^` / `~` 禁止）で管理する
+- NFR-19: Node.js は LTS の固定バージョンを採用し、ローカル・CI・Docker で同一バージョンを使用する
+- NFR-20: バージョン変更管理は major は別スプリント、minor は検証後反映、patch は CI 通過後に反映可能とする
+- NFR-21: バージョン自動更新、暗黙的な Edge Runtime 移行、不明確な Server/Client 境界の実装を禁止する
 
 ---
 
@@ -209,6 +218,8 @@
 - AC-05: チャットAPIに失敗が発生しても商品購入フローは操作可能
 - AC-06: LocalStack 起動後に `/products` API の正常レスポンスが確認できる
 - AC-07: 将来AWS移行時に CloudFront + S3 + API Gateway + Lambda の責務が矛盾しない
+- AC-08: `package.json` の Next.js/関連依存は exact version（`^` / `~` なし）で定義されている
+- AC-09: Node.js の固定 LTS バージョンが Docker 設定と矛盾しない
 
 ---
 
