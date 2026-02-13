@@ -146,6 +146,55 @@
 
 ---
 
+### 4.7 Webアプリケーション実行基盤要件（Rendering戦略）
+
+- FR-22: 各ページ/ルートは `dynamic` / `revalidate` / `fetch` キャッシュ戦略を明示し、未定義を要件違反として扱う
+- FR-23: SEO対象かつ更新頻度が低いページは SSG/ISR を優先し、ユーザー固有データを扱うページは Dynamic Rendering を採用する
+- FR-24: 自動 Dynamic 化が起こり得る実装では `dynamic = "force-static"` または `revalidate` を明示して挙動を固定する
+- FR-25: Rendering 戦略の最終決定は SEO・パフォーマンス・実装可観点の評価結果をもってアーキテクト承認とする
+
+#### 4.7.1 ルート別既定戦略（現行）
+
+| ルート | dynamic | revalidate | fetch キャッシュ方針 | 理由 |
+|---|---|---:|---|---|
+| `/` | `force-static` | `3600` | `force-cache` 相当（静的データ参照） | SEO対象・更新頻度低 |
+| `/products` | `force-static` | `1800` | `force-cache` 相当（静的データ参照） | カタログ一覧は ISR 優先 |
+| `/products/[id]` | `force-static` | `1800` | `force-cache` 相当（静的データ参照） | 詳細ページは SEO重視 |
+| `/cart` | `force-dynamic` | `0` | `no-store` 相当（ユーザー状態依存） | セッション依存情報 |
+| `/checkout` | `force-dynamic` | `0` | `no-store` 相当 | 注文処理の即時性優先 |
+| `/chat` | `force-dynamic` | `0` | `no-store`（API通信） | 逐次更新を優先 |
+| `/purchase/success/[orderId]` | `force-dynamic` | `0` | `no-store` 相当（注文ID依存） | 個別注文情報 |
+| `/api/chat` | `force-dynamic` | `0` | `no-store` | 最新メッセージ整合性 |
+| `/api/stripe` | `force-dynamic` | `0` | `no-store` | 決済系APIは動的処理 |
+
+#### 4.7.2 優先順位への適用方針（`docs/README.md` 準拠）
+
+- PR-01: **Next.js 最新設計思想を最優先**とし、App Router / Server Components / Route Handlers / Server Actions の責務分離を崩す実装は採用しない
+- PR-02: **SEOを第2優先**とし、インデックス対象ページ（`/`, `/products`, `/products/[id]`）は静的生成または ISR を優先する
+- PR-03: **チャットは第3優先の段階導入**とし、チャット関連ルートは動的戦略を許容する一方で、障害時も購買導線に影響を波及させない
+- PR-04: Rendering 戦略の変更提案は、上記優先順位に対する適合性（1→2→3 の順）をレビュー記録に残す
+
+---
+
+### 4.8 配信方式要件（P-003 正式回答）
+
+- FR-26: 本番配信方式は **CloudFront + ALB + ECS(Fargate) 上の Next.js SSR/Hybrid 実行**を正式採用し、`next export` を本番方式として採用しない
+- FR-27: App Router の Server Actions を利用するルートは、静的エクスポート対象から除外し、Node.js ランタイム上で実行する
+- FR-28: Route Handlers は Node.js ランタイムが必要な API 境界として扱い、静的配信のみで完結させない
+- FR-29: Rendering モードは以下を定義として運用する
+  - **ISR**: 事前生成 + `revalidate` による背景再生成（SEO対象で更新頻度が中低）
+  - **SSR(Dynamic)**: リクエストごとにサーバー実行（ユーザー固有データ/即時性が必要）
+  - **Hybrid**: ルート単位で ISR と SSR を併用し、全体最適を図る
+- FR-30: `next export` はローカル学習・検証用途に限定し、対象は静的互換ルートのみとする
+
+#### 4.8.1 技術制約（App Router と static export）
+
+- Server Actions はサーバー実行を前提とするため、静的エクスポートのみでは成立しない
+- Route Handlers は Node.js ランタイムのリクエスト処理を前提とするため、静的ホスティング単体では代替できない
+- Dynamic Rendering を含むルートは、`next export` 前提の配信方式と競合する
+
+---
+
 ## 5. 非機能要件
 
 ### 5.1 パフォーマンス
