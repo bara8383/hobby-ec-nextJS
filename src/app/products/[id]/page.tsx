@@ -1,9 +1,13 @@
 import Image from "next/image";
+export const dynamic = "force-static";
+export const revalidate = 1800;
+
 import { notFound } from "next/navigation";
 import AddToCartButton from "@/components/AddToCartButton";
 import JsonLd from "@/components/JsonLd";
 import { getProductById } from "@/lib/products";
-import { createMetadata, toAbsoluteUrl } from "@/lib/seo";
+import { createMetadata } from "@/lib/seo";
+import { createProductJsonLd } from "@/lib/structuredData";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -42,23 +46,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       <p className="text-2xl font-semibold">¥{product.price.toLocaleString()}</p>
       <AddToCartButton product={product} />
 
-      <JsonLd
-        data={{
-          "@context": "https://schema.org",
-          "@type": "Product",
-          name: product.title,
-          description: product.description,
-          sku: product.id,
-          image: product.image,
-          offers: {
-            "@type": "Offer",
-            priceCurrency: "JPY",
-            price: product.price,
-            availability: "https://schema.org/InStock",
-            url: toAbsoluteUrl(`/products/${product.id}`)
-          }
-        }}
-      />
+      <JsonLd data={createProductJsonLd(product)} />
     </article>
   );
 }

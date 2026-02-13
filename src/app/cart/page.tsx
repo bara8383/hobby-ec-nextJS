@@ -1,4 +1,7 @@
 import Link from "next/link";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 import { getCart } from "@/lib/cart";
 import { getProducts } from "@/lib/products";
 import { createMetadata } from "@/lib/seo";
