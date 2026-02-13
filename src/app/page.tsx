@@ -1,6 +1,11 @@
 import Link from "next/link";
+export const dynamic = "force-static";
+export const revalidate = 3600;
+
+import JsonLd from "@/components/JsonLd";
 import ProductCard from "@/components/ProductCard";
 import { getProducts } from "@/lib/products";
+import { createWebSiteJsonLd } from "@/lib/structuredData";
 
 export default async function HomePage() {
   const products = await getProducts();
@@ -28,6 +33,7 @@ export default async function HomePage() {
           ))}
         </div>
       </div>
+      <JsonLd data={createWebSiteJsonLd()} />
     </section>
   );
 }

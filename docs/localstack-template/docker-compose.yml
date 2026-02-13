@@ -29,7 +29,7 @@ services:
 
   nextjs:
     container_name: nextjs-dev
-    image: node:20-bookworm
+    image: node:20.18.0-bookworm
     working_dir: /app
     command: bash -lc "npm ci && npm run dev -- --hostname 0.0.0.0 --port 3000"
     volumes:

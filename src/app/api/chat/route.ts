@@ -1,4 +1,8 @@
 import { NextResponse } from "next/server";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+import { errorResponse } from "@/lib/apiError";
 import { addMessage, listMessages } from "@/lib/chatStore";
 
 export async function GET() {
@@ -6,13 +10,17 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const body = (await request.json()) as { text?: string };
-  const text = String(body.text ?? "").trim();
+  try {
+    const body = (await request.json()) as { text?: string };
+    const text = String(body.text ?? "").trim();
 
-  if (!text) {
-    return NextResponse.json({ error: "text is required" }, { status: 400 });
+    if (!text) {
+      return errorResponse(400, "VALIDATION_ERROR", "text is required");
+    }
+
+    addMessage("guest", text);
+    return NextResponse.json({ ok: true });
+  } catch {
+    return errorResponse(500, "INTERNAL_SERVER_ERROR", "failed to process chat request");
   }
-
-  addMessage("guest", text);
-  return NextResponse.json({ ok: true });
 }

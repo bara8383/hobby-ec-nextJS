@@ -8,7 +8,9 @@ const PRODUCTS: Product[] = [
     category: "wallpaper",
     price: 1200,
     image: "https://images.unsplash.com/photo-1483347756197-71ef80e95f73?auto=format&fit=crop&w=1200&q=80",
-    downloadFile: "/downloads/aurora-pack.zip"
+    downloadFile: "/downloads/aurora-pack.zip",
+    isPublished: true,
+    updatedAt: "2026-01-10T00:00:00.000Z"
   },
   {
     id: "city-night-photo-pack",
@@ -17,7 +19,9 @@ const PRODUCTS: Product[] = [
     category: "photo",
     price: 1800,
     image: "https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=1200&q=80",
-    downloadFile: "/downloads/city-night-pack.zip"
+    downloadFile: "/downloads/city-night-pack.zip",
+    isPublished: true,
+    updatedAt: "2026-01-11T00:00:00.000Z"
   },
   {
     id: "minimal-ui-icon-set",
@@ -26,7 +30,9 @@ const PRODUCTS: Product[] = [
     category: "icon",
     price: 2400,
     image: "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?auto=format&fit=crop&w=1200&q=80",
-    downloadFile: "/downloads/minimal-icons.zip"
+    downloadFile: "/downloads/minimal-icons.zip",
+    isPublished: true,
+    updatedAt: "2026-01-12T00:00:00.000Z"
   }
 ];
 
@@ -36,4 +42,9 @@ export async function getProducts() {
 
 export async function getProductById(id: string) {
   return PRODUCTS.find((p) => p.id === id) ?? null;
+}
+
+
+export async function getPublicProducts() {
+  return PRODUCTS.filter((product) => product.isPublished);
 }
