@@ -8,6 +8,8 @@ export type Product = {
   price: number;
   image: string;
   downloadFile: string;
+  isPublished: boolean;
+  updatedAt: string;
 };
 
 export type CartItem = {

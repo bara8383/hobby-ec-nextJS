@@ -1,4 +1,7 @@
 import ChatWidget from "@/components/ChatWidget";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
