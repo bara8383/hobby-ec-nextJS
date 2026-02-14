@@ -13,7 +13,9 @@ export async function generateMetadata({ params }: { params: Promise<{ orderId: 
     title: `購入完了 ${orderId}`,
     description: "購入したデジタル素材のダウンロードリンクを確認できます。",
     path: `/purchase/success/${orderId}`,
-    image: "https://example.com/og/purchase-success.jpg"
+    image: "https://example.com/og/purchase-success.jpg",
+    index: false,
+    follow: false
   });
 }
 

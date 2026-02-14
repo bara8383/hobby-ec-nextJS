@@ -8,7 +8,9 @@ export const metadata = createMetadata({
   title: "サポートチャット",
   description: "商品に関する質問をリアルタイムで受け付けるサポートチャット。",
   path: "/chat",
-  image: "https://example.com/og/chat.jpg"
+  image: "https://example.com/og/chat.jpg",
+  index: false,
+  follow: false
 });
 
 export default function ChatPage() {

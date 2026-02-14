@@ -8,7 +8,9 @@ export const metadata = createMetadata({
   title: "チェックアウト",
   description: "デジタル商品の注文を確定します。",
   path: "/checkout",
-  image: "https://example.com/og/checkout.jpg"
+  image: "https://example.com/og/checkout.jpg",
+  index: false,
+  follow: false
 });
 
 export default function CheckoutPage() {

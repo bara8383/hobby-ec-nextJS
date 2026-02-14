@@ -12,12 +12,20 @@ export function createMetadata(input: {
   description: string;
   path: string;
   image: string;
+  index?: boolean;
+  follow?: boolean;
 }): Metadata {
   const url = toAbsoluteUrl(input.path);
+  const index = input.index ?? true;
+  const follow = input.follow ?? true;
   return {
     title: `${input.title} | ${SITE_NAME}`,
     description: input.description,
     alternates: { canonical: url },
+    robots: {
+      index,
+      follow
+    },
     openGraph: {
       title: input.title,
       description: input.description,
