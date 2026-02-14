@@ -36,15 +36,75 @@ const PRODUCTS: Product[] = [
   }
 ];
 
+type LocalStackProduct = {
+  productId?: string;
+  name?: string;
+  price?: number | string;
+  description?: string;
+};
+
+function apiBaseUrl() {
+  return process.env.EC_API_BASE_URL ?? "";
+}
+
+function mapLocalStackProduct(item: LocalStackProduct, index: number): Product {
+  const id = item.productId && item.productId.trim() ? item.productId : `local-${index}`;
+
+  return {
+    id,
+    title: item.name?.trim() || `Local Product ${index + 1}`,
+    description: item.description?.trim() || "ローカル検証用のダミー商品です。",
+    category: "icon",
+    price: Number(item.price ?? 0) || 0,
+    image: "https://images.unsplash.com/photo-1523726491678-bf852e717f6a?auto=format&fit=crop&w=1200&q=80",
+    downloadFile: `/downloads/${id}.zip`,
+    isPublished: true,
+    updatedAt: new Date().toISOString()
+  };
+}
+
+async function getProductsFromApi(): Promise<Product[] | null> {
+  const baseUrl = apiBaseUrl();
+  if (!baseUrl) {
+    return null;
+  }
+
+  try {
+    const response = await fetch(`${baseUrl}/products`, {
+      method: "GET",
+      cache: "no-store"
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = (await response.json()) as { items?: LocalStackProduct[] };
+    if (!Array.isArray(data.items)) {
+      return null;
+    }
+
+    return data.items.map(mapLocalStackProduct);
+  } catch {
+    return null;
+  }
+}
+
 export async function getProducts() {
+  const fromApi = await getProductsFromApi();
+  if (fromApi && fromApi.length > 0) {
+    return fromApi;
+  }
+
   return PRODUCTS;
 }
 
 export async function getProductById(id: string) {
-  return PRODUCTS.find((p) => p.id === id) ?? null;
+  const products = await getProducts();
+  return products.find((p) => p.id === id) ?? null;
 }
 
-
 export async function getPublicProducts() {
-  return PRODUCTS.filter((product) => product.isPublished);
+  const products = await getProducts();
+  return products.filter((product) => product.isPublished);
 }
