@@ -22,3 +22,5 @@
 | P-007 | Improvement | ブラウザ版Codex環境では `gh` を利用できないため、ローカル専用スクリプト運用を廃止し、GitHub Actionsによる自動補完/ガードへ一本化。 | 環境依存の運用を減らし、PR本文品質担保をサーバー側で統一。 | ローカル専用スクリプトを削除し、Actions中心の運用を維持する。 | Done | Accepted | 2026-02-15 |
 | P-008 | Improvement | `pull_request_target` で本文が空/プレースホルダーのPRを検知し、テンプレート本文へ自動更新するワークフローを追加。 | make_pr障害時でもPR本文欠落を即時是正し、レビュー開始時の情報欠落を削減。 | 作成時検証スクリプトとCIガードに加えて自動補完を三重化し、運用上の取りこぼしを最小化する。 | Open | Pending | - |
 | P-009 | Improvement | 自動補完ワークフローは本文更新のみで、レビュア/作成者への通知コメントがなかった。 | 本文更新の見落としを防ぎ、レビュー開始時の情報不足リスクを低減。 | 本文更新後にPRコメントを自動投稿し、追記が必要な3見出しを明示する。 | Done | Accepted | 2026-02-15 |
+| P-010 | Improvement | PR本文が `Motivation / Description / Testing` 形式で入力された場合、`AGENTS PR Guard` が必須見出し不足で失敗する事象を確認。`Auto Fill PR Body` は空/プレースホルダーのみ補完対象のため、このケースを救済できなかった。 | PR本文フォーマットの不一致を自動是正し、手動修正の待ち時間とCI再実行コストを削減。 | `Auto Fill PR Body` に旧形式見出し検知ロジックを追加し、AGENTS.md準拠テンプレートへの自動変換対象を拡張する。 | Done | Rejected | 2026-02-15 |
+| P-011 | Decision | GitHub Actions による PR本文の自動再生成（Auto Fill PR Body）は、CI失敗時の再実行運用がCodex依存となり現実的でないという懸念を確認。 | CIがPR本文を上書きしないため、本文責務をPR作成者に一元化でき、運用の説明責任が明確になる。 | `auto-fill-pr-body.yml` を廃止し、`AGENTS PR Guard` で必須フォーマット検証のみを実施する。 | Done | Accepted | 2026-02-15 |
