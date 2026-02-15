@@ -24,3 +24,4 @@
 | P-009 | Improvement | 自動補完ワークフローは本文更新のみで、レビュア/作成者への通知コメントがなかった。 | 本文更新の見落としを防ぎ、レビュー開始時の情報不足リスクを低減。 | 本文更新後にPRコメントを自動投稿し、追記が必要な3見出しを明示する。 | Done | Accepted | 2026-02-15 |
 | P-010 | Improvement | PR本文が `Motivation / Description / Testing` 形式で入力された場合、`AGENTS PR Guard` が必須見出し不足で失敗する事象を確認。`Auto Fill PR Body` は空/プレースホルダーのみ補完対象のため、このケースを救済できなかった。 | PR本文フォーマットの不一致を自動是正し、手動修正の待ち時間とCI再実行コストを削減。 | `Auto Fill PR Body` に旧形式見出し検知ロジックを追加し、AGENTS.md準拠テンプレートへの自動変換対象を拡張する。 | Done | Rejected | 2026-02-15 |
 | P-011 | Decision | GitHub Actions による PR本文の自動再生成（Auto Fill PR Body）は、CI失敗時の再実行運用がCodex依存となり現実的でないという懸念を確認。 | CIがPR本文を上書きしないため、本文責務をPR作成者に一元化でき、運用の説明責任が明確になる。 | `auto-fill-pr-body.yml` を廃止し、`AGENTS PR Guard` で必須フォーマット検証のみを実施する。 | Done | Accepted | 2026-02-15 |
+| P-012 | Improvement | AGENTS.md の PR 記載ルールを必須見出し・記載順・判定基準（PASS/FAIL、影響範囲、ロールバック）まで具体化し、AI が迷わないテンプレートへ拡張。 | PR本文の抜け漏れ削減、レビューの高速化、運用判断の明確化。 | 新テンプレートを標準運用とし、以後のPRは必須見出し欠落を差し戻す。 | Open | Pending | - |
