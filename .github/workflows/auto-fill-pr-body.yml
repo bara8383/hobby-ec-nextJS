@@ -13,54 +13,70 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Auto fill PR body when empty or placeholder
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const pr = context.payload.pull_request;
-            const title = (pr.title || '').trim();
-            const body = (pr.body || '').trim();
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          set -euo pipefail
 
-            const placeholders = [
-              'Codex generated this pull request, but encountered an unexpected error after generation. This is a placeholder PR message.',
-              'Codex-generated pull request',
-            ];
+          is_placeholder=false
+          placeholders=(
+            "Codex generated this pull request, but encountered an unexpected error after generation. This is a placeholder PR message."
+            "Codex-generated pull request"
+          )
 
-            const isPlaceholder = placeholders.some((p) => title.includes(p) || body.includes(p));
-            const isBodyEmpty = body.length === 0;
+          for p in "${placeholders[@]}"; do
+            if [[ "${PR_TITLE:-}" == *"$p"* ]] || [[ "${PR_BODY:-}" == *"$p"* ]]; then
+              is_placeholder=true
+              break
+            fi
+          done
 
-            if (!isBodyEmpty && !isPlaceholder) {
-              core.info('PR本文は空でもプレースホルダーでもないため、更新しません。');
-              return;
-            }
+          is_body_empty=false
+          if [[ -z "${PR_BODY//[[:space:]]/}" ]]; then
+            is_body_empty=true
+          fi
 
-            const fallbackBody = [
-              '## 実装前チェック（AGENTS.md）',
-              '- [ ] 優先順位（Next.js 最新設計 / SEO / リアルタイムチャット / AWS最小コスト）を確認した',
-              '- [ ] 変更前に作業ブランチを作成した',
-              '- [ ] 実装中の提案・懸念点・問題点を `docs/proposals.md` に記録した',
-              '',
-              '## 実装・修正内容',
-              '- ',
-              '',
-              '## 実装理由',
-              '- ',
-              '',
-              '## 提案・懸念点',
-              '- ',
-              '',
-              '> NOTE: PR本文が空またはプレースホルダーだったため、自動補完されました。内容を更新してください。',
-            ].join('\n');
+          if [[ "$is_placeholder" != true && "$is_body_empty" != true ]]; then
+            echo "PR本文は空でもプレースホルダーでもないため、更新しません。"
+            exit 0
+          fi
 
-            const newTitle = title.includes('Codex-generated pull request')
-              ? 'PRタイトルを更新してください'
-              : pr.title;
+          new_title="$PR_TITLE"
+          if [[ "$PR_TITLE" == *"Codex-generated pull request"* ]]; then
+            new_title="PRタイトルを更新してください"
+          fi
 
-            await github.rest.pulls.update({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: pr.number,
-              title: newTitle,
-              body: fallbackBody,
-            });
+          fallback_body=$(cat <<'EOF'
+## 実装前チェック（AGENTS.md）
+- [ ] 優先順位（Next.js 最新設計 / SEO / リアルタイムチャット / AWS最小コスト）を確認した
+- [ ] 変更前に作業ブランチを作成した
+- [ ] 実装中の提案・懸念点・問題点を `docs/proposals.md` に記録した
 
-            core.info(`PR #${pr.number} のタイトル/本文を自動補完しました。`);
+## 実装・修正内容
+- (記入してください)
+## 実装理由
+- (記入してください)
+## 提案・懸念点
+- (記入してください)
+> NOTE: PR本文が空またはプレースホルダーだったため、自動補完されました。内容を更新してください。
+EOF
+)
+
+          gh api \
+            -X PATCH \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/${REPO}/pulls/${PR_NUMBER}" \
+            -f "title=${new_title}" \
+            -f "body=${fallback_body}" > /dev/null
+
+          gh api \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/${REPO}/issues/${PR_NUMBER}/comments" \
+            -f "body=本文を自動補完しました。レビュー開始前に『実装・修正内容 / 実装理由 / 提案・懸念点』を更新してください。" > /dev/null
+
+          echo "PR #${PR_NUMBER} の本文を自動補完し、通知コメントを投稿しました。"
