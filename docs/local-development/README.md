@@ -1,36 +1,54 @@
 # ローカル実行手順（本番近似）
 
-この手順書は、**ローカル検証時に本番挙動との差分を最小化**することを目的にしています。
+この手順書は、**開発は `NODE_ENV=development`、本番検証は `NODE_ENV=production`** で行い、
+ローカル検証時の品質と開発速度の両立を目的にしています。
 
-## 1. 方針
+## 1. 方針（公式標準に沿った運用）
 
-- 開発速度重視: `npm run dev`（HMRあり）
-- 本番近似重視: `docker compose up --build`（`NODE_ENV=production` / `next start`）
-- AWS 本番想定との整合: 単一コンテナ運用を前提に、将来は Lightsail Containers → App Runner/ECS へ移行可能な構成で確認する
+- 日常開発: `npm run dev`（development モード）
+- 本番検証: `docker compose up --build`（production モード）
+- 使い分け理由: `NODE_ENV` の責務を明確に分離し、開発効率と本番再現性を両立する
 
 > 将来の構成は `docs/future-aws-architecture/README.md` を参照してください。
 
-## 1-1. モードが二つある理由
+## 1-1. なぜ `NODE_ENV` を切り替えるか
 
-- `npm run dev` は **実装速度を上げるため**（HMRにより変更を即確認できる）
-- `docker compose up --build` は **本番差分を減らすため**（production相当の実行形態で確認できる）
-- 1つのモードに統一しない理由は、以下のトレードオフがあるため
-  - 開発モードだけ: 実装は速いが、本番でのみ発生する差分を見落としやすい
-  - 本番近似だけ: 信頼性は高いが、UI調整や細かな修正の反復速度が落ちる
-- そのため、本プロジェクトでは「普段は開発モード、PR前/リリース前は本番近似モード」を標準運用とします。
-
-## 2. 前提ツール
-
-- Node.js 20 以上（推奨: LTS）
+- development は HMR・デバッグ情報など、実装反復を高速化するためのモード
+- production は最適化済みビルド/実行経路の確認に適したモード
+- 片方のみで運用すると以下の課題が出る
+  - development のみ: 本番特有の差分を見落としやすい
+  - production のみ: UI修正やロジック調整の反復速度が落ちる
+- 現在のリポジトリはAWS SDK連携を未実装のため、まずは Next.js 本体の development/production 切替運用を優先します。
+- Node.js 20 以上
 - npm 10 以上
-- Docker / Docker Compose
-- （任意）AWS CLI v2
 
-## 3. 最速起動（開発モード）
+## 3. 日常開発（development モード）
 
 ```bash
 npm install
 npm run dev
+```
+
+- アクセス: `http://localhost:3000`
+- 用途: UI調整、レイアウト確認、細かいロジック変更の即時確認
+
+## 4. 本番検証（production モード）
+
+## 5. 代表チェック
+## 6. 本番との差分（先に理解しておく）
+## 7. AWS 想定に寄せる確認ポイント
+- development/production の切替を日常運用に組み込み、差分検知を早期化する
+
+## 8. よく使うコマンド
+
+```bash
+# 開発モード
+# 本番ビルド
+npm run build
+
+# 本番起動
+npm run start
+
 ```
 
 - アクセス: `http://localhost:3000`
