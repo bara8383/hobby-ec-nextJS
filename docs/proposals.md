@@ -18,6 +18,7 @@
 | 2026-02-15 | AGENTS.md の AI 可読性向上 | Improvement | AGENTS.md を「クイックチェック→優先順位→必須ルール→PRテンプレート」の順に再構成し、AI が冒頭で要件を把握しやすい体裁へ調整。 | Codex 実行時の初期解釈ミス削減、実装前チェック漏れの抑制。 | AGENTS.md では、今後も意味不変を維持しつつ「先頭要約＋チェックリスト」形式を標準化する。 | Open | Pending | - |
 | 2026-02-15 | AGENTS.md と proposals ログの情報設計見直し | Improvement | AGENTS.md を AI 実行フロー基準で再設計し、proposals を表形式 + ステータス管理へ移行。 | ルール解釈の一貫性向上、提案の追跡性向上、意思決定状況の可視化。 | AGENTS.md は「必須事項→手順」の順で維持し、proposals は表の `Status/Decision` を定期更新する。 | Open | Pending | - |
 
+| 2026-02-15 | PR本文がプレースホルダーになる問題 | Concern | make_pr 実行時にエラーが発生すると、`Codex generated this pull request...` のプレースホルダー本文でPRが作成されるケースを確認。 | レビューアに実装背景が伝わらず、確認工数が増加。 | PR作成時はテンプレート準拠本文を必ず明示指定し、作成直後に内容検証する運用を追加する。 | Open | Pending | - |
 ## 2026-02-15
 - 提案: `scripts/codex-with-agents.sh` を追加し、Codex 実行時に `AGENTS.md` を自動注入する運用を導入。
 - 理由: 人手でルール本文を貼り付ける運用は漏れやすく、毎回確実に参照させるにはラッパースクリプトが最小コスト。

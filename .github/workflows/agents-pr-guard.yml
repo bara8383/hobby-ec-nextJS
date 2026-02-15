@@ -13,6 +13,18 @@ jobs:
         with:
           script: |
             const body = context.payload.pull_request.body || "";
+            const disallowedPlaceholders = [
+              "Codex generated this pull request, but encountered an unexpected error after generation. This is a placeholder PR message.",
+              "Codex-generated pull request",
+            ];
+
+            for (const placeholder of disallowedPlaceholders) {
+              if (body.includes(placeholder)) {
+                core.setFailed(`PR本文にプレースホルダーテキストが含まれています: ${placeholder}`);
+                return;
+              }
+            }
+
             const requiredTexts = [
               "## 実装前チェック（AGENTS.md）",
               "## 実装・修正内容",
