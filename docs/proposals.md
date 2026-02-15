@@ -7,11 +7,15 @@
 - 1行1件で追記する。
 - `Status` は `Open` / `Accepted` / `Rejected` / `Done` を使う。
 - オーナー判断後は `Decision` と `Decision Date` を更新する。
+- Markdown は `UTF-8 (without BOM)` を必須とする。
+- 文字コードのみの差分（`BOM` 混入）も修正対象とする。
+- 上記ルールは AI/手動編集のどちらでも適用する。
 
 ## ログ（表形式）
 
 | Date | Task | Type | Detail | Expected Impact | Suggested Decision | Status | Decision | Decision Date |
 |---|---|---|---|---|---|---|---|---|
+| 2026-02-15 | 文字コード運用ルールの明文化 | Improvement | AGENTS.md と記録ルールに、Markdown を `UTF-8 (without BOM)` とし、`BOM` 混入差分も修正対象とする方針を追記。 | 文字コード起因のノイズ差分防止、編集手段に依存しない品質担保。 | リポジトリ内Markdownの文字コード統一チェックを継続運用する。 | Open | Pending | - |
 | 2026-02-14 | agent.md 作成と運用ルール追加 | Improvement | Codex（IDE/ブラウザ）での変更時に必ず作業ブランチを切るルールを追加。あわせてPR記載ルールと提案ログ運用を明文化。 | 変更の追跡性向上、レビュー容易性向上、main系ブランチの安定化。 | ブランチ命名規則（`feat/*`, `fix/*`, `chore/*`）とPRテンプレート導入を次タスクで決定する。 | Open | Pending | - |
 | 2026-02-15 | AGENTS.md の体裁調整 | Improvement | `AGENTS.md` と `docs/proposals.md` の先頭に UTF-8 BOM が含まれており、差分や表示でノイズになる可能性を確認。 | 不要な差分混入の抑制、エディタ間の表示差異低減。 | Markdown ファイルは UTF-8（BOM なし）で統一する。 | Open | Pending | - |
 | 2026-02-15 | AGENTS.md 体裁調整の再対応 | Concern | 「内容を書き換えない」の解釈が曖昧で、前回は体裁調整をBOM除去中心で実施したため期待との差分が生じた。 | 指示解釈の齟齬を減らし、レビュー手戻りを抑制。 | 今後は「意味を変えない範囲での表記・句読点・空白調整」を体裁調整として明示的に扱う。 | Open | Pending | - |
