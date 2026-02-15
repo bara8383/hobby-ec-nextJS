@@ -29,3 +29,4 @@
 | P-014 | Concern | 現在のリアルタイムチャットは Route Handler のインメモリ実装のため、マルチインスタンス構成でメッセージ整合性が崩れる可能性を確認。 | 水平スケール時にチャット履歴欠落や片系配信が発生するリスク。 | 本番移行時は Redis（ElastiCache）または DynamoDB Streams へ置き換える。 | Open | Pending | - |
 | P-015 | Improvement | デジタル商品のダウンロード配布は現状UI説明のみで、署名付きURL発行や購入者認証フローが未実装。 | 本番運用時に不正共有・無制限再配布リスクが残る。 | 次段階で購入履歴連携 + 期限付き署名URL（S3/CloudFront）を実装する。 | Open | Pending | - |
 | P-016 | Improvement | README にローカル実行の概要はあるが、本番近似での確認観点（SEO/チャット/AWS移行前提）と将来AWS構成図が分離管理されていなかった。 | オンボーディング時間短縮、環境差分による手戻り削減、低コスト構成判断の明確化。 | `docs/local-development` と `docs/future-aws-architecture` を新設し、運用時の参照先を明確化する。 | Open | Pending | - |
+| P-017 | Improvement | ローカル手順に「開発モード / 本番近似モード」を併記したが、使い分け理由（速度と本番差分のトレードオフ）が明示されていなかった。 | 運用時のモード選択ミスを減らし、レビュー前チェックの一貫性を向上。 | `docs/local-development/README.md` に「モードが二つある理由」を追記し、標準運用（普段dev、PR前production近似）を明文化する。 | Open | Pending | - |
