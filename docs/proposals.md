@@ -31,3 +31,10 @@
 - Detail: 「内容を書き換えない」の解釈が曖昧で、前回は体裁調整をBOM除去中心で実施したため期待との差分が生じた。
 - Expected Impact: 指示解釈の齟齬を減らし、レビュー手戻りを抑制。
 - Suggested Decision: 今後は「意味を変えない範囲での表記・句読点・空白調整」を体裁調整として明示的に扱う。
+
+- Date: 2026-02-15
+- Task: AGENTS.md の AI 可読性向上
+- Type: Improvement
+- Detail: AGENTS.md を「クイックチェック→優先順位→必須ルール→PRテンプレート」の順に再構成し、AI が冒頭で要件を把握しやすい体裁へ調整。
+- Expected Impact: Codex 実行時の初期解釈ミス削減、実装前チェック漏れの抑制。
+- Suggested Decision: AGENTS.md では、今後も意味不変を維持しつつ「先頭要約＋チェックリスト」形式を標準化する。
