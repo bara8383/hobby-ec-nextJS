@@ -26,3 +26,4 @@
 | P-011 | Decision | GitHub Actions による PR本文の自動再生成（Auto Fill PR Body）は、CI失敗時の再実行運用がCodex依存となり現実的でないという懸念を確認。 | CIがPR本文を上書きしないため、本文責務をPR作成者に一元化でき、運用の説明責任が明確になる。 | `auto-fill-pr-body.yml` を廃止し、`AGENTS PR Guard` で必須フォーマット検証のみを実施する。 | Done | Accepted | 2026-02-15 |
 | P-012 | Improvement | AGENTS.md の PR 記載ルールを必須見出し・記載順・判定基準（PASS/FAIL、影響範囲、ロールバック）まで具体化し、AI が迷わないテンプレートへ拡張。 | PR本文の抜け漏れ削減、レビューの高速化、運用判断の明確化。 | 新テンプレートを標準運用とし、以後のPRは必須見出し欠落を差し戻す。 | Open | Pending | - |
 | P-013 | Improvement | proposals 記録対象を「当該タスクで実際に触った repo 内の記述・コード由来の提案/懸念/問題点」に限定し、ユーザーの質問文そのものや解決済み事項は原則記録対象外とする運用を明文化。 | 提案ログのノイズ削減、未解決課題の追跡精度向上、誤記録の防止。 | AGENTS.md に対象/非対象の判定基準を明記し、PR の提案欄も同基準で運用する。 | Open | Pending | - |
+| P-014 | Concern | 現在のリアルタイムチャットは Route Handler のインメモリ実装のため、マルチインスタンス構成でメッセージ整合性が崩れる可能性を確認。 | 水平スケール時にチャット履歴欠落や片系配信が発生するリスク。 | 本番移行時は Redis（ElastiCache）または DynamoDB Streams へ置き換える。 | Open | Pending | - |

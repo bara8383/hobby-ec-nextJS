@@ -1,0 +1,120 @@
+:root {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #171717;
+  background-color: #f7f7f9;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+main {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 2rem 1rem 6rem;
+}
+
+.hero {
+  background: linear-gradient(135deg, #111827, #1f2937);
+  color: #f9fafb;
+  border-radius: 20px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.hero h1 {
+  margin: 0 0 0.75rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  background: #fff;
+  padding: 1rem;
+}
+
+.card h2 {
+  font-size: 1.1rem;
+}
+
+.price {
+  font-weight: 700;
+  color: #0f766e;
+}
+
+.chat {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  width: min(380px, calc(100vw - 2rem));
+  background: white;
+  border-radius: 14px;
+  border: 1px solid #d1d5db;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.chat header {
+  padding: 0.75rem 1rem;
+  background: #111827;
+  color: #f3f4f6;
+  font-size: 0.95rem;
+}
+
+.chat-messages {
+  height: 230px;
+  overflow-y: auto;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.message {
+  border-radius: 10px;
+  padding: 0.45rem 0.65rem;
+  font-size: 0.9rem;
+  max-width: 90%;
+}
+
+.message.user {
+  align-self: flex-end;
+  background: #dcfce7;
+}
+
+.message.staff {
+  align-self: flex-start;
+  background: #e5e7eb;
+}
+
+.chat form {
+  display: flex;
+  padding: 0.75rem;
+  gap: 0.5rem;
+}
+
+.chat input {
+  flex: 1;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 0.5rem 0.65rem;
+}
+
+.chat button {
+  border: 0;
+  border-radius: 8px;
+  background: #111827;
+  color: white;
+  padding: 0.5rem 0.8rem;
+  cursor: pointer;
+}
