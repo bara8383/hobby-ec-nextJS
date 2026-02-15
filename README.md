@@ -27,6 +27,11 @@ npm run dev
 docker compose up --build
 ```
 
+## 追加ドキュメント
+
+- ローカル実行手順（本番近似）: `docs/local-development/README.md`
+- 将来AWS構成（Mermaid/テキスト図）: `docs/future-aws-architecture/README.md`
+
 ## AWS 低コストデプロイ案
 
 1. Dockerイメージを ECR へ push
