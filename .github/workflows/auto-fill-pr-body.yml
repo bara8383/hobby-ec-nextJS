@@ -40,7 +40,38 @@ jobs:
             is_body_empty=true
           fi
 
-          if [[ "$is_placeholder" != true && "$is_body_empty" != true ]]; then
+          required_sections=(
+            "## 実装前チェック（AGENTS.md）"
+            "## 実装・修正内容"
+            "## 実装理由"
+            "## 提案・懸念点"
+          )
+
+          is_missing_required_sections=false
+          for section in "${required_sections[@]}"; do
+            if [[ "${PR_BODY:-}" != *"$section"* ]]; then
+              is_missing_required_sections=true
+              break
+            fi
+          done
+
+          has_legacy_agent_sections=false
+          legacy_sections=("Motivation" "Description" "Testing")
+          for section in "${legacy_sections[@]}"; do
+            if printf '%s\n' "${PR_BODY:-}" | grep -Eq "^#{0,6}[[:space:]]*${section}[[:space:]]*$"; then
+              has_legacy_agent_sections=true
+              break
+            fi
+          done
+
+          should_fill=false
+          if [[ "$is_placeholder" == true || "$is_body_empty" == true ]]; then
+            should_fill=true
+          elif [[ "$is_missing_required_sections" == true && "$has_legacy_agent_sections" == true ]]; then
+            should_fill=true
+          fi
+
+          if [[ "$should_fill" != true ]]; then
             echo "PR本文は空でもプレースホルダーでもないため、更新しません。"
             exit 0
           fi
@@ -65,6 +96,10 @@ jobs:
 > NOTE: PR本文が空またはプレースホルダーだったため、自動補完されました。内容を更新してください。
 EOF
 )
+
+          if [[ "$is_missing_required_sections" == true && "$has_legacy_agent_sections" == true ]]; then
+            fallback_body+=$'\n\n> NOTE: Motivation / Description / Testing 形式を検知したため、AGENTS.md 準拠テンプレートに変換しました。\n'
+          fi
 
           gh api \
             -X PATCH \
