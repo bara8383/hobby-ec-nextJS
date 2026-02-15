@@ -1,0 +1,6 @@
+flowchart LR
+  U[User Browser] --> CF[CloudFront]
+  CF --> APP[Next.js Container\n(Lightsail/App Runner/ECS)]
+  APP --> S3[S3 Assets]
+  APP --> CHAT[(ElastiCache Redis\nor DynamoDB)]
+  APP --> CW[CloudWatch Logs]
