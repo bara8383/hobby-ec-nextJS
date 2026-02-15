@@ -1,0 +1,66 @@
+name: Auto Fill PR Body
+
+on:
+  pull_request_target:
+    types: [opened, reopened, edited]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  autofill:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto fill PR body when empty or placeholder
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const title = (pr.title || '').trim();
+            const body = (pr.body || '').trim();
+
+            const placeholders = [
+              'Codex generated this pull request, but encountered an unexpected error after generation. This is a placeholder PR message.',
+              'Codex-generated pull request',
+            ];
+
+            const isPlaceholder = placeholders.some((p) => title.includes(p) || body.includes(p));
+            const isBodyEmpty = body.length === 0;
+
+            if (!isBodyEmpty && !isPlaceholder) {
+              core.info('PR本文は空でもプレースホルダーでもないため、更新しません。');
+              return;
+            }
+
+            const fallbackBody = [
+              '## 実装前チェック（AGENTS.md）',
+              '- [ ] 優先順位（Next.js 最新設計 / SEO / リアルタイムチャット / AWS最小コスト）を確認した',
+              '- [ ] 変更前に作業ブランチを作成した',
+              '- [ ] 実装中の提案・懸念点・問題点を `docs/proposals.md` に記録した',
+              '',
+              '## 実装・修正内容',
+              '- ',
+              '',
+              '## 実装理由',
+              '- ',
+              '',
+              '## 提案・懸念点',
+              '- ',
+              '',
+              '> NOTE: PR本文が空またはプレースホルダーだったため、自動補完されました。内容を更新してください。',
+            ].join('\n');
+
+            const newTitle = title.includes('Codex-generated pull request')
+              ? 'PRタイトルを更新してください'
+              : pr.title;
+
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+              title: newTitle,
+              body: fallbackBody,
+            });
+
+            core.info(`PR #${pr.number} のタイトル/本文を自動補完しました。`);
