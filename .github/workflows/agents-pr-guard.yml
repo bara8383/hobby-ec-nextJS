@@ -1,0 +1,43 @@
+name: AGENTS PR Guard
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  validate-pr-body:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate AGENTS.md required sections
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.pull_request.body || "";
+            const requiredTexts = [
+              "## 実装前チェック（AGENTS.md）",
+              "## 実装・修正内容",
+              "## 実装理由",
+              "## 提案・懸念点",
+            ];
+
+            for (const text of requiredTexts) {
+              if (!body.includes(text)) {
+                core.setFailed(`PR本文に必須セクションがありません: ${text}`);
+                return;
+              }
+            }
+
+            const requiredChecks = [
+              "- [x] 優先順位（Next.js 最新設計 / SEO / リアルタイムチャット / AWS最小コスト）を確認した",
+              "- [x] 変更前に作業ブランチを作成した",
+              "- [x] 実装中の提案・懸念点・問題点を `docs/proposals.md` に記録した",
+            ];
+
+            for (const check of requiredChecks) {
+              if (!body.includes(check)) {
+                core.setFailed(`PR本文の必須チェックが未完了です: ${check}`);
+                return;
+              }
+            }
+
+            core.info("PR本文は AGENTS.md の必須要件を満たしています。");
