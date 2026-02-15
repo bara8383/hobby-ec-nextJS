@@ -12,7 +12,7 @@ const messages: ChatMessage[] = [
   {
     id: randomUUID(),
     sender: 'staff',
-    text: 'こんにちは！ご注文や配送の質問をどうぞ。'
+    text: 'こんにちは！デジタル商品のライセンス・利用範囲の質問をどうぞ。'
   }
 ];
 
@@ -71,7 +71,7 @@ export async function POST(request: Request) {
   messages.push({
     id: randomUUID(),
     sender: 'staff',
-    text: 'お問い合わせありがとうございます。担当者が確認します。'
+    text: 'ありがとうございます。ライセンス条件と再ダウンロード手順をご案内します。'
   });
 
   if (messages.length > 20) {

@@ -1,18 +1,21 @@
-# Hobby EC Next.js
+# Digital Creator Market (Next.js)
 
-Next.js App Router ベースのミニ EC サイトです。
+壁紙・写真・図やイラスト・デジタル音楽を販売する、Next.js App Router ベースのデジタル商品ECです。
 
 ## 実装済み
 
-- **Next.js 最新設計**: App Router / Server Components / Metadata API を利用
-- **SEO最適化**: title・description・OGP・JSON-LD（ItemList + Product）
-- **リアルタイムチャット**: SSE + Route Handler (`/api/chat`)
-- **AWS最小コスト方針**: 単一コンテナを前提に、Lightsail Container or App Runner 小サイズ構成で運用
+- **Next.js 最新設計**: App Router / Server Components / Metadata API / Route Handlers
+- **SEO最適化**:
+  - サイト全体の metadata（title/description/keywords/OGP/canonical）
+  - 商品一覧 + 商品詳細の JSON-LD（`ItemList` / `Product`）
+  - 商品詳細ページごとの `generateMetadata`
+- **リアルタイムチャット**: SSE + Route Handler (`/api/chat`) + クライアントウィジェット
+- **AWS最小コスト方針**: standalone 出力を使った単一コンテナ前提（Lightsail Containers 小構成を想定）
 
 ## ローカル起動（Node.js）
 
 ```bash
-npm ci
+npm install
 npm run dev
 ```
 
@@ -26,8 +29,8 @@ docker compose up --build
 
 ## AWS 低コストデプロイ案
 
-1. Dockerイメージを ECR に push
-2. **Lightsail Containers** の最小プラン（低トラフィック向け）にデプロイ
-3. トラフィック増加時のみ App Runner/ECS Fargate へ移行
+1. Dockerイメージを ECR へ push
+2. **Lightsail Containers** の最小プランで公開
+3. 需要増加時のみ App Runner / ECS Fargate へ移行
 
-> メモ: チャットはインメモリ保持のため、複数インスタンス運用時は ElastiCache / DynamoDB への置き換えが必要です。
+> メモ: チャットはインメモリ保持です。本番で複数インスタンス化する場合は ElastiCache か DynamoDB への置換が必要です。

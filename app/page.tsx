@@ -1,6 +1,6 @@
 import { ChatWidget } from '@/components/ChatWidget';
 import { ProductCard } from '@/components/ProductCard';
-import { products } from '@/data/products';
+import { getCategoryLabel, products } from '@/data/products';
 
 export default function HomePage() {
   const jsonLd = {
@@ -14,6 +14,7 @@ export default function HomePage() {
         name: product.name,
         description: product.description,
         sku: product.sku,
+        category: getCategoryLabel(product.category),
         offers: {
           '@type': 'Offer',
           priceCurrency: 'JPY',
@@ -26,14 +27,14 @@ export default function HomePage() {
   return (
     <main>
       <section className="hero">
-        <h1>Hobby EC Store</h1>
+        <h1>Digital Creator Market</h1>
         <p>
-          Next.js App Router + Metadata API + JSON-LD による SEO 最適化と、
-          リアルタイムチャットを実装したサンプルECサイトです。
+          壁紙、写真、イラスト、デジタル音楽などのダウンロード商品を販売する
+          Next.js 製ECサイトです。SEO構造化データとリアルタイムチャットを標準搭載しています。
         </p>
       </section>
 
-      <section className="grid" aria-label="商品一覧">
+      <section className="grid" aria-label="デジタル商品一覧">
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}

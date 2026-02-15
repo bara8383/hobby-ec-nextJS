@@ -4,13 +4,15 @@ import './globals.css';
 export const metadata: Metadata = {
   metadataBase: new URL('https://example.com'),
   title: {
-    default: 'Hobby EC Store',
-    template: '%s | Hobby EC Store'
+    default: 'Digital Creator Market',
+    template: '%s | Digital Creator Market'
   },
-  description: 'Next.js App Routerで構築した、SEO対応のミニECサイトデモ。',
+  description:
+    '壁紙・写真・イラスト・デジタル音楽を販売する、Next.js App RouterベースのデジタルECサイト。',
+  keywords: ['デジタル商品', '壁紙', '写真素材', 'イラスト素材', 'BGM', 'ECサイト'],
   openGraph: {
-    title: 'Hobby EC Store',
-    description: 'SEO・リアルタイムチャット・AWS低コスト運用を意識したECデモ',
+    title: 'Digital Creator Market',
+    description: 'デジタルダウンロード商品を扱うSEO最適化済みECサイト',
     type: 'website'
   },
   alternates: {
