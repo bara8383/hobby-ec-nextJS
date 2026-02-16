@@ -38,6 +38,7 @@ export default function RootLayout({
               <Link href="/products">商品一覧</Link>
               <Link href="/search">条件検索</Link>
               <Link href="/mypage/library">購入済みライブラリ</Link>
+              <Link href="/mypage/settings">アカウント設定</Link>
             </nav>
           </div>
         </header>
