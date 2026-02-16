@@ -31,3 +31,4 @@
 | P-016 | Improvement | README にローカル実行の概要はあるが、本番近似での確認観点（SEO/チャット/AWS移行前提）と将来AWS構成図が分離管理されていなかった。 | オンボーディング時間短縮、環境差分による手戻り削減、低コスト構成判断の明確化。 | `docs/local-development` と `docs/future-aws-architecture` を新設し、運用時の参照先を明確化する。 | Open | Pending | - |
 | P-017 | Improvement | ローカル手順に「開発モード / 本番近似モード」を併記したが、使い分け理由（速度と本番差分のトレードオフ）が明示されていなかった。 | 運用時のモード選択ミスを減らし、レビュー前チェックの一貫性を向上。 | `docs/local-development/README.md` に「モードが二つある理由」を追記し、標準運用（普段dev、PR前production近似）を明文化する。 | Open | Pending | - |
 | P-019 | Improvement | ローカル運用を Docker のみに寄せたことで、`NODE_ENV` の公式的な使い分け（development で実装、production で本番検証）が読み取りにくくなっていた。 | 開発効率と本番再現性のバランス改善、運用ルールの誤解防止。 | 手順書を development/production 二段運用へ修正し、Node.js/Next.js 標準的な `NODE_ENV` 切替方針を明記する。 | Open | Pending | - |
+| P-020 | Improvement | AGENTS.md の「最重要ルール」に優先順位の明示文（`1 > 2 > 3 > 4`）を追加し、競合時の判断基準を即時参照できるようにした。 | ルール解釈の揺れを減らし、実装判断とレビューの一貫性を向上。 | 優先順位を明示する注記を維持し、新規ルール追加時も順位関係を同節で更新する。 | Open | Pending | - |
