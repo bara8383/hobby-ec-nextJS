@@ -9,6 +9,10 @@ function isBrowser() {
   return typeof window !== 'undefined';
 }
 
+function sanitizeLines(lines: CartLine[]) {
+  return lines.filter((line) => line.quantity > 0 && typeof line.productSlug === 'string');
+}
+
 export function readCart(): CartLine[] {
   if (!isBrowser()) {
     return [];
@@ -21,7 +25,7 @@ export function readCart(): CartLine[] {
 
   try {
     const parsed = JSON.parse(raw) as CartLine[];
-    return parsed.filter((line) => line.quantity > 0 && typeof line.productSlug === 'string');
+    return sanitizeLines(parsed);
   } catch {
     return [];
   }
@@ -32,22 +36,21 @@ export function writeCart(lines: CartLine[]) {
     return;
   }
 
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(lines));
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitizeLines(lines)));
 }
 
-export function addToCart(slug: string, quantity = 1) {
+export function addToCart(slug: string) {
   const current = readCart();
-  const index = current.findIndex((line) => line.productSlug === slug);
+  const exists = current.some((line) => line.productSlug === slug);
 
-  if (index >= 0) {
-    current[index] = {
-      ...current[index],
-      quantity: current[index].quantity + quantity
-    };
-  } else {
-    current.push({ productSlug: slug, quantity });
+  if (!exists) {
+    current.push({ productSlug: slug, quantity: 1 });
+    writeCart(current);
   }
+}
 
+export function removeCartLine(slug: string) {
+  const current = readCart().filter((line) => line.productSlug !== slug);
   writeCart(current);
 }
 
