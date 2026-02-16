@@ -11,16 +11,41 @@ type ChatMessage = {
 export function ChatWidget() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [text, setText] = useState('');
+  const [connection, setConnection] = useState<'connecting' | 'connected' | 'reconnecting'>('connecting');
+  const [postError, setPostError] = useState<string | null>(null);
 
   useEffect(() => {
-    const source = new EventSource('/api/chat');
+    let source: EventSource | null = null;
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
 
-    source.onmessage = (event) => {
-      const next = JSON.parse(event.data) as ChatMessage[];
-      setMessages(next);
+    const connect = () => {
+      setConnection((status) => (status === 'connected' ? 'connected' : 'connecting'));
+      source = new EventSource('/api/chat');
+
+      source.onopen = () => {
+        setConnection('connected');
+      };
+
+      source.onmessage = (event) => {
+        const next = JSON.parse(event.data) as ChatMessage[];
+        setMessages(next);
+      };
+
+      source.onerror = () => {
+        setConnection('reconnecting');
+        source?.close();
+        retryTimer = setTimeout(connect, 1500);
+      };
     };
 
-    return () => source.close();
+    connect();
+
+    return () => {
+      source?.close();
+      if (retryTimer) {
+        clearTimeout(retryTimer);
+      }
+    };
   }, []);
 
   const disabled = useMemo(() => text.trim().length === 0, [text]);
@@ -30,18 +55,28 @@ export function ChatWidget() {
     const trimmed = text.trim();
     if (!trimmed) return;
 
-    await fetch('/api/chat', {
+    setPostError(null);
+
+    const response = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text: trimmed })
     });
+
+    if (!response.ok) {
+      setPostError('メッセージ送信に失敗しました。時間をおいて再試行してください。');
+      return;
+    }
 
     setText('');
   }
 
   return (
     <section className="chat" aria-label="リアルタイムチャット">
-      <header>ショップチャット（リアルタイム）</header>
+      <header>
+        ショップチャット（リアルタイム）
+        <small className="connection-status">状態: {connection}</small>
+      </header>
       <div className="chat-messages">
         {messages.map((message) => (
           <p key={message.id} className={`message ${message.sender}`}>
@@ -59,6 +94,7 @@ export function ChatWidget() {
           送信
         </button>
       </form>
+      {postError ? <p className="chat-error">{postError}</p> : null}
     </section>
   );
 }

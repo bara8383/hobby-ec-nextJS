@@ -39,3 +39,5 @@
 | P-022 | Problem | `docs/proposals.md` への起票運用で、ユーザー提案文の転記混入と `proposal.md` / `proposals.md` の表記ゆれが再発要因になり得ることを確認。現状はPR前の機械的チェックがなく運用依存。 | 提案台帳の信頼性低下、記録先誤りによる追跡漏れ、レビュー手戻り増加。 | 記録先を `docs/proposals.md` に一本化し、PR前チェック（repo内根拠の明記）とCI警告（転記疑い語/記録先誤り）を追加する。 | Open | Pending | - |
 | P-023 | Improvement | `data/products.ts` の商品型はタグ・サンプルメディア・カテゴリ別スペック（解像度/BPM/尺）を保持できず、確定済みの商品要件を表現しきれないことを確認。 | 商品詳細SEO（検索意図一致）と購入前判断情報が不足し、CV低下の懸念。 | `products` 本体と `product_specs` / `product_media` / `tags` を分離したスキーマへ拡張し、商品詳細ページの構造化データ出力に流用する。 | Open | Pending | - |
 | P-024 | Improvement | IA案では `slug` ベースの商品詳細導線とカテゴリ/タグLPを前提としているが、現状実装は `id` ルーティング中心で一覧導線も `/` のみだった。 | 商品詳細SEOの拡張余地が小さく、カテゴリ・タグ経由の検索流入を取り込みにくい。 | App Routerで `/products/[slug]`・`/categories/[category]`・`/tags/[tag]` を追加し、SEO関連ロジックを `lib/seo` に集約する。 | Open | Pending | - |
+
+| P-025 | Concern | MVPとして注文/ライブラリ/管理画面を実装したが、認証は `user-demo` 固定のため本番では不正アクセス防止の要件を満たさないことを確認。 | 本番公開前に認証・認可を実装しない場合、購入情報とダウンロードURLの保護が不十分となる。 | 次段階でNextAuth等のセッション認証と権限ベースアクセス制御を導入し、API/page双方で userId 固定ロジックを廃止する。 | Open | Pending | - |

@@ -166,3 +166,45 @@ a {
   font-size: 0.9rem;
   color: #4b5563;
 }
+
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.5rem;
+  margin: 1rem 0 1.5rem;
+}
+
+.filters input,
+.filters select,
+.filters button,
+.cta-row button {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 0.45rem 0.65rem;
+}
+
+.filters button,
+.cta-row button {
+  cursor: pointer;
+  background: #111827;
+  color: #fff;
+}
+
+.cta-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.connection-status {
+  display: block;
+  margin-top: 0.2rem;
+  color: #bfdbfe;
+}
+
+.chat-error,
+.error {
+  margin: 0.5rem 0.75rem 0.75rem;
+  color: #b91c1c;
+  font-size: 0.85rem;
+}

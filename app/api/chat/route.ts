@@ -1,25 +1,11 @@
-import { randomUUID } from 'crypto';
+import { appendChatMessage, listChatMessages, type ChatMessage } from '@/lib/chat/store';
 
 const encoder = new TextEncoder();
 
-type ChatMessage = {
-  id: string;
-  sender: 'user' | 'staff';
-  text: string;
-};
-
-const messages: ChatMessage[] = [
-  {
-    id: randomUUID(),
-    sender: 'staff',
-    text: 'こんにちは！デジタル商品のライセンス・利用範囲の質問をどうぞ。'
-  }
-];
-
 const listeners = new Set<(payload: ChatMessage[]) => void>();
+const postLimiter = new Map<string, number>();
 
-function publish() {
-  const payload = [...messages];
+function publish(payload: ChatMessage[]) {
   listeners.forEach((notify) => notify(payload));
 }
 
@@ -28,9 +14,11 @@ function sse(payload: ChatMessage[]) {
 }
 
 export async function GET() {
+  const initial = await listChatMessages();
+
   const stream = new ReadableStream<Uint8Array>({
     start(controller) {
-      controller.enqueue(sse(messages));
+      controller.enqueue(sse(initial));
 
       const listener = (payload: ChatMessage[]) => {
         controller.enqueue(sse(payload));
@@ -59,6 +47,16 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const clientKey = request.headers.get('x-forwarded-for') ?? 'local';
+  const now = Date.now();
+  const previous = postLimiter.get(clientKey) ?? 0;
+
+  if (now - previous < 800) {
+    return Response.json({ error: 'too many requests' }, { status: 429 });
+  }
+
+  postLimiter.set(clientKey, now);
+
   const body = (await request.json()) as { text?: string };
   const text = body.text?.trim();
 
@@ -66,19 +64,14 @@ export async function POST(request: Request) {
     return Response.json({ error: 'text is required' }, { status: 400 });
   }
 
-  messages.push({ id: randomUUID(), sender: 'user', text });
-
-  messages.push({
-    id: randomUUID(),
+  await appendChatMessage({ sender: 'user', text });
+  await appendChatMessage({
     sender: 'staff',
     text: 'ありがとうございます。ライセンス条件と再ダウンロード手順をご案内します。'
   });
 
-  if (messages.length > 20) {
-    messages.splice(0, messages.length - 20);
-  }
-
-  publish();
+  const payload = await listChatMessages();
+  publish(payload);
 
   return Response.json({ ok: true }, { status: 201 });
 }

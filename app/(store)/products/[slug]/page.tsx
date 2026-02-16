@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getCategoryLabel, getProductBySlug, products } from '@/data/products';
+import { AddToCartButton } from '@/components/product/AddToCartButton';
 import { buildProductJsonLd } from '@/lib/seo/jsonld';
 import { buildProductMetadata } from '@/lib/seo/metadata';
 
@@ -59,6 +60,11 @@ export default async function ProductDetailPage({ params }: Props) {
           <li>納品方法: 決済後に有効期限付きダウンロードURLを発行</li>
         </ul>
         <p className="price">¥{product.priceJpy.toLocaleString('ja-JP')}</p>
+
+        <div className="cta-row">
+          <AddToCartButton productSlug={product.slug} />
+          <Link href="/cart">カートを見る</Link>
+        </div>
       </article>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
     </main>
