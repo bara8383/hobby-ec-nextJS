@@ -11,19 +11,19 @@ export function ProductCard({ product }: Props) {
       <p className="category">{getCategoryLabel(product.category)}</p>
       <h2 itemProp="name">{product.name}</h2>
       <p itemProp="description">{product.description}</p>
-      <ul className="specs" aria-label="商品仕様">
-        <li>形式: {product.fileFormat}</li>
-        <li>容量: {product.downloadSizeMB.toLocaleString('ja-JP')} MB</li>
-        <li>ライセンス: {product.license}</li>
-        <li>タグ: {product.tags.join(' / ')}</li>
+      <p className="instant-download">即時DL</p>
+      <ul className="tag-list" aria-label="タグ">
+        {product.tags.slice(0, 2).map((tag) => (
+          <li key={tag}>#{tag}</li>
+        ))}
       </ul>
+      <p className="sample-availability">サンプル: {product.media.length > 0 ? 'あり' : 'なし'}</p>
       <p className="price" itemProp="offers" itemScope itemType="https://schema.org/Offer">
         <span itemProp="priceCurrency" content="JPY" />¥
         <span itemProp="price">{product.priceJpy.toLocaleString('ja-JP')}</span>
       </p>
-      <small>SKU: {product.sku}</small>
       <p>
-        <Link href={`/products/${product.slug}`}>商品詳細を見る</Link>
+        <Link href={`/products/${product.slug}`}>詳細を見る</Link>
       </p>
     </article>
   );

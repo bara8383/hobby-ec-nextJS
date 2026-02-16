@@ -23,11 +23,90 @@ main {
   color: #f9fafb;
   border-radius: 20px;
   padding: 2rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 
 .hero h1 {
   margin: 0 0 0.75rem;
+}
+
+.hero-label {
+  margin: 0 0 0.5rem;
+  display: inline-block;
+  border: 1px solid #4b5563;
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.78rem;
+}
+
+.hero-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.button-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0.55rem 1rem;
+  background: #0f766e;
+  color: #f8fafc;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.button-link-secondary {
+  background: #1e3a8a;
+}
+
+.value-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.value-badges p {
+  margin: 0;
+  border-radius: 999px;
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: #1e3a8a;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+}
+
+.section-description {
+  margin-top: 0;
+  color: #4b5563;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.category-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  border-radius: 14px;
+  border: 1px solid #dbeafe;
+  background: #ffffff;
+  padding: 0.95rem;
+  text-decoration: none;
+  color: #1e3a8a;
+}
+
+.category-card span {
+  font-size: 0.85rem;
+  color: #6b7280;
 }
 
 .grid {
@@ -45,6 +124,35 @@ main {
 
 .card h2 {
   font-size: 1.1rem;
+  margin-top: 0;
+}
+
+.instant-download {
+  display: inline-block;
+  margin: 0 0 0.7rem;
+  color: #065f46;
+  background: #d1fae5;
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  font-size: 0.8rem;
+  color: #334155;
+}
+
+.sample-availability {
+  margin: 0 0 0.7rem;
+  font-size: 0.84rem;
+  color: #4b5563;
 }
 
 .price {
@@ -207,4 +315,21 @@ a {
   margin: 0.5rem 0.75rem 0.75rem;
   color: #b91c1c;
   font-size: 0.85rem;
+}
+
+.chat-cta-band {
+  margin-top: 2rem;
+  border: 1px solid #bfdbfe;
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
+}
+
+.chat-cta-band h2 {
+  margin-top: 0;
+}
+
+.chat-cta-band p {
+  margin-bottom: 0;
+  color: #1e3a8a;
 }
