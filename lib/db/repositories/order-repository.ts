@@ -1,4 +1,5 @@
 import { randomUUID } from 'crypto';
+import { getProductBySlug } from '@/data/products';
 import type { OrderItemRecord, OrderRecord } from '@/lib/db/schema/order';
 
 const orders: OrderRecord[] = [];
@@ -18,17 +19,26 @@ export function createPaidOrder(userId: string, lines: CreateOrderLineInput[]) {
     id,
     userId,
     status: 'paid',
+    subtotalJpy: totalJpy,
+    taxJpy: 0,
     totalJpy,
-    createdAt: new Date().toISOString()
+    orderedAt: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   };
 
   orders.push(order);
 
   lines.forEach((line) => {
+    const product = getProductBySlug(line.productSlug);
+
     orderItems.push({
       id: randomUUID(),
       orderId: id,
+      productId: product?.id,
       productSlug: line.productSlug,
+      productSlugSnapshot: line.productSlug,
+      productNameSnapshot: product?.name ?? line.productSlug,
       quantity: line.quantity,
       unitPriceJpy: line.unitPriceJpy
     });
