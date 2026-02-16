@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getCategoryLabel, getProductById, products } from '@/data/products';
+import { buildProductMetadata } from '@/lib/seo/metadata';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -22,19 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  return {
-    title: product.name,
-    description: `${product.description}（形式: ${product.fileFormat} / ライセンス: ${product.license}）`,
-    openGraph: {
-      title: product.name,
-      description: product.description,
-      type: 'website',
-      url: `/products/${product.id}`
-    },
-    alternates: {
-      canonical: `/products/${product.id}`
-    }
-  };
+  return buildProductMetadata(product);
 }
 
 export default async function ProductDetailPage({ params }: Props) {
