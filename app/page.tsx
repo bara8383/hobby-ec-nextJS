@@ -1,27 +1,23 @@
+import Link from 'next/link';
 import { ChatWidget } from '@/components/ChatWidget';
 import { ProductCard } from '@/components/ProductCard';
-import { getCategoryLabel, products } from '@/data/products';
+import { allTags, getCategoryLabel, PRODUCT_CATEGORIES, products } from '@/data/products';
 
 export default function HomePage() {
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    itemListElement: products.map((product, index) => ({
-      '@type': 'ListItem',
-      position: index + 1,
-      item: {
-        '@type': 'Product',
-        name: product.name,
-        description: product.description,
-        sku: product.sku,
-        category: getCategoryLabel(product.category),
-        offers: {
-          '@type': 'Offer',
-          priceCurrency: 'JPY',
-          price: product.priceJpy
-        }
+    '@graph': [
+      {
+        '@type': 'Organization',
+        name: 'Digital Creator Market',
+        url: 'https://example.com'
+      },
+      {
+        '@type': 'WebSite',
+        name: 'Digital Creator Market',
+        url: 'https://example.com'
       }
-    }))
+    ]
   };
 
   return (
@@ -29,21 +25,35 @@ export default function HomePage() {
       <section className="hero">
         <h1>Digital Creator Market</h1>
         <p>
-          壁紙、写真、イラスト、デジタル音楽などのダウンロード商品を販売する
-          Next.js 製ECサイトです。SEO構造化データとリアルタイムチャットを標準搭載しています。
+          壁紙・イラスト・写真・デジタル音源を扱うデジタルコンテンツ販売ECです。商品詳細のSEOを強化し、購入前の質問はリアルタイムチャットで即時対応できます。
         </p>
       </section>
 
-      <section className="grid" aria-label="デジタル商品一覧">
+      <section className="quick-links" aria-label="カテゴリ導線">
+        {PRODUCT_CATEGORIES.map((category) => (
+          <Link key={category} href={`/categories/${category}`}>
+            {getCategoryLabel(category)}
+          </Link>
+        ))}
+      </section>
+
+      <h2>新着商品</h2>
+      <section className="grid" aria-label="新着商品一覧">
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
       </section>
 
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <h2>人気タグ</h2>
+      <section className="quick-links" aria-label="タグ導線">
+        {allTags.map((tag) => (
+          <Link key={tag} href={`/tags/${tag}`}>
+            #{tag}
+          </Link>
+        ))}
+      </section>
+
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <ChatWidget />
     </main>

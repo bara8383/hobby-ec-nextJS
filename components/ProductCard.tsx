@@ -15,6 +15,7 @@ export function ProductCard({ product }: Props) {
         <li>形式: {product.fileFormat}</li>
         <li>容量: {product.downloadSizeMB.toLocaleString('ja-JP')} MB</li>
         <li>ライセンス: {product.license}</li>
+        <li>タグ: {product.tags.join(' / ')}</li>
       </ul>
       <p className="price" itemProp="offers" itemScope itemType="https://schema.org/Offer">
         <span itemProp="priceCurrency" content="JPY" />¥
@@ -22,7 +23,7 @@ export function ProductCard({ product }: Props) {
       </p>
       <small>SKU: {product.sku}</small>
       <p>
-        <Link href={`/products/${product.id}`}>商品詳細を見る</Link>
+        <Link href={`/products/${product.slug}`}>商品詳細を見る</Link>
       </p>
     </article>
   );
