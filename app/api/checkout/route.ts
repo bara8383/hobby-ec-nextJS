@@ -1,5 +1,6 @@
 import { getProductBySlug } from '@/data/products';
 import { createPaidOrder } from '@/lib/db/repositories/order-repository';
+import { issueDownloadGrant } from '@/lib/db/repositories/download-grant-repository';
 import { getUserById } from '@/lib/db/repositories/user-repository';
 
 type CheckoutLine = {
@@ -37,6 +38,13 @@ export async function POST(request: Request) {
   });
 
   const result = createPaidOrder(user.id, pricedLines);
+
+  result.items.forEach((item) => {
+    issueDownloadGrant({
+      orderItemId: item.id,
+      userId: user.id
+    });
+  });
 
   return Response.json(
     {
