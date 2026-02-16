@@ -4,6 +4,10 @@ import { CheckoutContent } from '@/components/checkout/CheckoutContent';
 export const metadata: Metadata = {
   title: 'チェックアウト',
   description: '注文内容の確認と購入確定を行うページです。',
+  robots: {
+    index: false,
+    follow: false
+  },
   alternates: {
     canonical: '/checkout'
   }

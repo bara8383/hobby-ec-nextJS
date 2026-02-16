@@ -14,7 +14,7 @@ export function AddToCartButton({ productSlug }: Props) {
     <button
       type="button"
       onClick={() => {
-        addToCart(productSlug, 1);
+        addToCart(productSlug);
         setAdded(true);
       }}
     >

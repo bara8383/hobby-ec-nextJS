@@ -4,6 +4,10 @@ import { CartContent } from '@/components/cart/CartContent';
 export const metadata: Metadata = {
   title: 'カート',
   description: '購入予定のデジタル商品を確認するページです。',
+  robots: {
+    index: false,
+    follow: false
+  },
   alternates: {
     canonical: '/cart'
   }
