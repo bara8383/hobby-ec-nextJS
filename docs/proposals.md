@@ -14,11 +14,11 @@
 
 | ID | Type | Detail | Expected Impact | Suggested Decision | Status | Decision | Decision Date |
 |---|---|---|---|---|---|---|---|
-| P-001 | Improvement | Codex（IDE/ブラウザ）での変更時に必ず作業ブランチを切るルールを追加。あわせてPR記載ルールと提案ログ運用を明文化。 | 変更の追跡性向上、レビュー容易性向上、main系ブランチの安定化。 | ブランチ命名規則（`feat/*`, `fix/*`, `chore/*`）とPRテンプレート導入を次タスクで決定する。 | Open | Pending | - |
-| P-002 | Improvement | `AGENTS.md` と `docs/proposals.md` の先頭に UTF-8 BOM が含まれており、差分や表示でノイズになる可能性を確認。 | 不要な差分混入の抑制、エディタ間の表示差異低減。 | Markdown ファイルは UTF-8（BOM なし）で統一する。 | Open | Pending | - |
-| P-003 | Concern | 「内容を書き換えない」の解釈が曖昧で、前回は体裁調整をBOM除去中心で実施したため期待との差分が生じた。 | 指示解釈の齟齬を減らし、レビュー手戻りを抑制。 | 今後は「意味を変えない範囲での表記・句読点・空白調整」を体裁調整として明示的に扱う。 | Open | Pending | - |
-| P-004 | Improvement | AGENTS.md を「クイックチェック→優先順位→必須ルール→PRテンプレート」の順に再構成し、AI が冒頭で要件を把握しやすい体裁へ調整。 | Codex 実行時の初期解釈ミス削減、実装前チェック漏れの抑制。 | AGENTS.md では、今後も意味不変を維持しつつ「先頭要約＋チェックリスト」形式を標準化する。 | Open | Pending | - |
-| P-005 | Improvement | AGENTS.md を AI 実行フロー基準で再設計し、proposals を表形式 + ステータス管理へ移行。 | ルール解釈の一貫性向上、提案の追跡性向上、意思決定状況の可視化。 | AGENTS.md は「必須事項→手順」の順で維持し、proposals は表の `Status/Decision` を定期更新する。 | Open | Pending | - |
+| P-001 | Improvement | Codex（IDE/ブラウザ）での変更時に必ず作業ブランチを切るルールを追加。あわせてPR記載ルールと提案ログ運用を明文化。 | 変更の追跡性向上、レビュー容易性向上、main系ブランチの安定化。 | ブランチ命名規則（`feat/*`, `fix/*`, `chore/*`）とPRテンプレート導入を次タスクで決定する。 | Rejected | Rejected | 2026-02-16 |
+| P-002 | Improvement | `AGENTS.md` と `docs/proposals.md` の先頭に UTF-8 BOM が含まれており、差分や表示でノイズになる可能性を確認。 | 不要な差分混入の抑制、エディタ間の表示差異低減。 | Markdown ファイルは UTF-8（BOM なし）で統一する。 | Accepted | Accepted | 2026-02-16 |
+| P-003 | Concern | 「内容を書き換えない」の解釈が曖昧で、前回は体裁調整をBOM除去中心で実施したため期待との差分が生じた。 | 指示解釈の齟齬を減らし、レビュー手戻りを抑制。 | 今後は「意味を変えない範囲での表記・句読点・空白調整」を体裁調整として明示的に扱う。 | Rejected | Rejected | 2026-02-16 |
+| P-004 | Improvement | AGENTS.md を「クイックチェック→優先順位→必須ルール→PRテンプレート」の順に再構成し、AI が冒頭で要件を把握しやすい体裁へ調整。 | Codex 実行時の初期解釈ミス削減、実装前チェック漏れの抑制。 | AGENTS.md では、今後も意味不変を維持しつつ「先頭要約＋チェックリスト」形式を標準化する。 | Rejected | Rejected | 2026-02-16 |
+| P-005 | Improvement | AGENTS.md を AI 実行フロー基準で再設計し、proposals を表形式 + ステータス管理へ移行。 | ルール解釈の一貫性向上、提案の追跡性向上、意思決定状況の可視化。 | AGENTS.md は「必須事項→手順」の順で維持し、proposals は表の `Status/Decision` を定期更新する。 | Rejected | Rejected | 2026-02-16 |
 | P-006 | Concern | make_pr 実行時にエラーが発生すると、`Codex generated this pull request...` のプレースホルダー本文でPRが作成されるケースを確認。 | レビューアに実装背景が伝わらず、確認工数が増加。 | PR作成時はテンプレート準拠本文を必ず明示指定し、作成直後に内容検証する運用を追加する。 | Open | Pending | - |
 | P-007 | Improvement | ブラウザ版Codex環境では `gh` を利用できないため、ローカル専用スクリプト運用を廃止し、GitHub Actionsによる自動補完/ガードへ一本化。 | 環境依存の運用を減らし、PR本文品質担保をサーバー側で統一。 | ローカル専用スクリプトを削除し、Actions中心の運用を維持する。 | Done | Accepted | 2026-02-15 |
 | P-008 | Improvement | `pull_request_target` で本文が空/プレースホルダーのPRを検知し、テンプレート本文へ自動更新するワークフローを追加。 | make_pr障害時でもPR本文欠落を即時是正し、レビュー開始時の情報欠落を削減。 | 作成時検証スクリプトとCIガードに加えて自動補完を三重化し、運用上の取りこぼしを最小化する。 | Open | Pending | - |
