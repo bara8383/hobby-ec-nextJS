@@ -31,6 +31,15 @@ export type Product = {
   publishedAt: string;
 };
 
+export type ProductSearchFilters = {
+  query?: string;
+  category?: string;
+  tag?: string;
+  priceMin?: number;
+  priceMax?: number;
+  sort?: 'newest' | 'price_asc' | 'price_desc';
+};
+
 export const products: Product[] = [
   {
     id: 'prod-001',
@@ -121,6 +130,55 @@ export function getProductsByCategory(category: DigitalCategory) {
 
 export function getProductsByTag(tag: string) {
   return products.filter((product) => product.tags.includes(tag));
+}
+
+export function searchProducts(filters: ProductSearchFilters) {
+  const normalizedQuery = filters.query?.trim().toLowerCase();
+
+  const filtered = products.filter((product) => {
+    if (filters.category && product.category !== filters.category) {
+      return false;
+    }
+
+    if (filters.tag && !product.tags.includes(filters.tag)) {
+      return false;
+    }
+
+    if (typeof filters.priceMin === 'number' && product.priceJpy < filters.priceMin) {
+      return false;
+    }
+
+    if (typeof filters.priceMax === 'number' && product.priceJpy > filters.priceMax) {
+      return false;
+    }
+
+    if (!normalizedQuery) {
+      return true;
+    }
+
+    return (
+      product.name.toLowerCase().includes(normalizedQuery) ||
+      product.description.toLowerCase().includes(normalizedQuery) ||
+      product.tags.some((tag) => tag.toLowerCase().includes(normalizedQuery))
+    );
+  });
+
+  const sorted = [...filtered];
+
+  switch (filters.sort) {
+    case 'price_asc':
+      sorted.sort((a, b) => a.priceJpy - b.priceJpy);
+      break;
+    case 'price_desc':
+      sorted.sort((a, b) => b.priceJpy - a.priceJpy);
+      break;
+    case 'newest':
+    default:
+      sorted.sort((a, b) => (a.publishedAt < b.publishedAt ? 1 : -1));
+      break;
+  }
+
+  return sorted;
 }
 
 export function getCategoryLabel(category: DigitalCategory) {
