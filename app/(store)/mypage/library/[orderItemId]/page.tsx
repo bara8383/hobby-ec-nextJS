@@ -1,6 +1,12 @@
 import type { Metadata } from 'next';
+import { getProductBySlug } from '@/data/products';
 import { getOrderItemForUser } from '@/lib/db/repositories/order-repository';
-import { issueSignedDownloadUrl } from '@/lib/storage/signed-url';
+import {
+  getDownloadGrantByOrderItem,
+  getRemainingDownloadCount,
+  issueDownloadGrant
+} from '@/lib/db/repositories/download-grant-repository';
+import { DownloadLinkPanel } from '@/components/library/DownloadLinkPanel';
 
 type Props = {
   params: Promise<{ orderItemId: string }>;
@@ -17,7 +23,9 @@ export const metadata: Metadata = {
 
 export default async function LibraryDownloadPage({ params }: Props) {
   const { orderItemId } = await params;
-  const item = getOrderItemForUser(orderItemId, 'user-demo');
+  const userId = 'user-demo';
+
+  const item = getOrderItemForUser(orderItemId, userId);
 
   if (!item) {
     return (
@@ -28,16 +36,21 @@ export default async function LibraryDownloadPage({ params }: Props) {
     );
   }
 
-  const payload = issueSignedDownloadUrl({
-    objectKey: `${item.productSlug}.zip`,
-    ttlSeconds: 300
-  });
+  const product = getProductBySlug(item.productSlug);
+  const grant = getDownloadGrantByOrderItem(orderItemId, userId) ??
+    issueDownloadGrant({ orderItemId, userId }).grant;
+
+  const remainingCount = getRemainingDownloadCount(orderItemId, userId);
 
   return (
     <main>
       <h1>ダウンロード発行</h1>
-      <p>有効期限: {new Date(payload.expiresAt).toLocaleString('ja-JP')}</p>
-      <a href={payload.url}>ダウンロード開始</a>
+      <p>商品: {product?.name ?? item.productSlug}</p>
+      <p>再ダウンロード期限: {new Date(grant.expiresAt).toLocaleString('ja-JP')}</p>
+      <p>
+        残ダウンロード回数: {remainingCount}/{grant.maxDownloadCount}
+      </p>
+      <DownloadLinkPanel orderItemId={orderItemId} />
     </main>
   );
 }
