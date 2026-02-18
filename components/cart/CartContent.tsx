@@ -1,33 +1,33 @@
-'use client';
-
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
 import { products } from '@/data/products';
 import { clearCart, readCart, removeCartLine } from '@/lib/store/cart';
 
-export function CartContent() {
-  const [lines, setLines] = useState(() => readCart());
+async function removeItemAction(formData: FormData) {
+  'use server';
 
-  const items = useMemo(
-    () =>
-      lines
-        .map((line) => {
-          const product = products.find((entry) => entry.slug === line.productSlug);
-          return product ? { ...line, product } : null;
-        })
-        .filter((item): item is NonNullable<typeof item> => Boolean(item)),
-    [lines]
-  );
-
-  function removeItem(slug: string) {
-    removeCartLine(slug);
-    setLines(readCart());
+  const productSlug = formData.get('productSlug');
+  if (typeof productSlug !== 'string') {
+    return;
   }
 
-  function resetCart() {
-    clearCart();
-    setLines([]);
-  }
+  await removeCartLine(productSlug);
+}
+
+async function clearCartAction() {
+  'use server';
+
+  await clearCart();
+}
+
+export async function CartContent() {
+  const lines = await readCart();
+
+  const items = lines
+    .map((line) => {
+      const product = products.find((entry) => entry.slug === line.productSlug);
+      return product ? { ...line, product } : null;
+    })
+    .filter((item): item is NonNullable<typeof item> => Boolean(item));
 
   const total = items.reduce((sum, item) => sum + item.product.priceJpy, 0);
 
@@ -45,9 +45,10 @@ export function CartContent() {
               <p>価格: ¥{item.product.priceJpy.toLocaleString('ja-JP')}</p>
             </div>
             <div className="cart-item-actions">
-              <button type="button" onClick={() => removeItem(item.product.slug)}>
-                削除
-              </button>
+              <form action={removeItemAction}>
+                <input type="hidden" name="productSlug" value={item.product.slug} />
+                <button type="submit">削除</button>
+              </form>
             </div>
           </li>
         ))}
@@ -55,9 +56,9 @@ export function CartContent() {
       <p>合計: ¥{total.toLocaleString('ja-JP')}</p>
       <div className="cta-row">
         <Link href="/checkout">チェックアウトへ進む</Link>
-        <button type="button" onClick={resetCart}>
-          カートを空にする
-        </button>
+        <form action={clearCartAction}>
+          <button type="submit">カートを空にする</button>
+        </form>
       </div>
     </>
   );

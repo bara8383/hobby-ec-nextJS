@@ -1,50 +1,58 @@
-'use client';
-
-import { useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import { products } from '@/data/products';
+import { createPaidOrder } from '@/lib/db/repositories/order-repository';
+import { issueDownloadGrant } from '@/lib/db/repositories/download-grant-repository';
+import { getUserById } from '@/lib/db/repositories/user-repository';
 import { clearCart, readCart } from '@/lib/store/cart';
 
-export function CheckoutContent() {
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
+async function placeOrderAction() {
+  'use server';
 
-  const lines = readCart();
-  const items = useMemo(
-    () =>
-      lines
-        .map((line) => {
-          const product = products.find((entry) => entry.slug === line.productSlug);
-          return product ? { ...line, product } : null;
-        })
-        .filter((item): item is NonNullable<typeof item> => Boolean(item)),
-    [lines]
-  );
+  const user = getUserById('user-demo');
+  if (!user) {
+    throw new Error('valid userId is required');
+  }
 
-  async function placeOrder() {
-    setSubmitting(true);
-    setError(null);
+  const lines = (await readCart()).filter((line) => line.quantity > 0);
+  if (lines.length === 0) {
+    return;
+  }
 
-    const response = await fetch('/api/checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        userId: 'user-demo',
-        lines: items.map((item) => ({ productSlug: item.product.slug, quantity: item.quantity }))
-      })
-    });
-
-    if (!response.ok) {
-      setError('注文処理に失敗しました。入力内容を確認してください。');
-      setSubmitting(false);
-      return;
+  const pricedLines = lines.map((line) => {
+    const product = products.find((entry) => entry.slug === line.productSlug);
+    if (!product) {
+      throw new Error(`unknown product slug: ${line.productSlug}`);
     }
 
-    const body = (await response.json()) as { orderId: string };
-    clearCart();
-    router.push(`/checkout/success?orderId=${body.orderId}`);
-  }
+    return {
+      productSlug: line.productSlug,
+      quantity: line.quantity,
+      unitPriceJpy: product.priceJpy
+    };
+  });
+
+  const result = createPaidOrder(user.id, pricedLines);
+
+  result.items.forEach((item) => {
+    issueDownloadGrant({
+      orderItemId: item.id,
+      userId: user.id
+    });
+  });
+
+  await clearCart();
+  redirect(`/checkout/success?orderId=${result.order.id}`);
+}
+
+export async function CheckoutContent() {
+  const lines = await readCart();
+
+  const items = lines
+    .map((line) => {
+      const product = products.find((entry) => entry.slug === line.productSlug);
+      return product ? { ...line, product } : null;
+    })
+    .filter((item): item is NonNullable<typeof item> => Boolean(item));
 
   if (items.length === 0) {
     return <p>カートが空です。先に商品を追加してください。</p>;
@@ -63,10 +71,9 @@ export function CheckoutContent() {
         ))}
       </ul>
       <p>合計: ¥{total.toLocaleString('ja-JP')}</p>
-      <button type="button" disabled={submitting} onClick={placeOrder}>
-        {submitting ? '処理中...' : '注文確定'}
-      </button>
-      {error ? <p className="error">{error}</p> : null}
+      <form action={placeOrderAction}>
+        <button type="submit">注文確定</button>
+      </form>
     </section>
   );
 }
