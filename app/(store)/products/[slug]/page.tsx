@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getCategoryLabel, getProductBySlug, products } from '@/data/products';
 import { AddToCartButton } from '@/components/product/AddToCartButton';
+import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 import { buildProductJsonLd } from '@/lib/seo/jsonld';
 import { buildProductMetadata } from '@/lib/seo/metadata';
 
@@ -42,9 +43,13 @@ export default async function ProductDetailPage({ params }: Props) {
 
   return (
     <main>
-      <nav className="breadcrumb" aria-label="パンくず">
-        <Link href="/">ホーム</Link> / <Link href="/products">商品一覧</Link> / <span>{product.name}</span>
-      </nav>
+      <Breadcrumbs
+        items={[
+          { name: 'ホーム', path: '/' },
+          { name: '商品一覧', path: '/products' },
+          { name: product.name, path: `/products/${product.slug}` }
+        ]}
+      />
       <article className="card detail" itemScope itemType="https://schema.org/Product">
         <p className="category">{getCategoryLabel(product.category)}</p>
         <h1 itemProp="name">{product.name}</h1>
