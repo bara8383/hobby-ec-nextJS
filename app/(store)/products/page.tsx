@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import { ProductCard } from '@/components/ProductCard';
 import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 import { ProductFilters } from '@/components/product/ProductFilters';
-import { searchProducts, type ProductSearchFilters } from '@/data/products';
+import { ProductSort } from '@/components/product/ProductSort';
+import { products, searchProducts, type ProductSearchFilters } from '@/data/products';
 import { buildProductListingMetadata } from '@/lib/seo/metadata';
-import { Section } from '@/components/ui/Section';
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -53,6 +53,9 @@ export default async function ProductsPage({ searchParams }: Props) {
   const filters = parseFilters(params);
   const items = searchProducts(filters);
   const canonical = buildProductsCanonical(params);
+  const prices = products.map((product) => product.priceJpy);
+  const minPrice = Math.min(...prices);
+  const maxPrice = Math.max(...prices);
 
   return (
     <main>
@@ -62,19 +65,27 @@ export default async function ProductsPage({ searchParams }: Props) {
           { name: '商品一覧', path: canonical }
         ]}
       />
-      <Section title="商品一覧" description="カテゴリ・タグ・価格帯で絞り込みながら、用途に合うデジタル商品を探せます。">
-        <ProductFilters filters={filters} />
 
-        {items.length === 0 ? (
-          <p className="empty-state">条件に一致する商品がありません。フィルタ条件を調整してください。</p>
-        ) : (
-          <section className="grid" aria-label="商品一覧">
-            {items.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </section>
-        )}
-      </Section>
+      <section className="products-page" aria-label="商品一覧ページ">
+        <ProductFilters filters={filters} minPrice={minPrice} maxPrice={maxPrice} />
+
+        <div className="products-content">
+          <header className="products-toolbar">
+            <p className="products-count">Products ({items.length})</p>
+            <ProductSort sort={filters.sort ?? 'newest'} />
+          </header>
+
+          {items.length === 0 ? (
+            <p className="empty-state">条件に一致する商品がありません。フィルタ条件を調整してください。</p>
+          ) : (
+            <section className="products-grid" aria-label="商品一覧">
+              {items.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </section>
+          )}
+        </div>
+      </section>
     </main>
   );
 }
