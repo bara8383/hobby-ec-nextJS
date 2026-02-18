@@ -1,102 +1,70 @@
-# ローカル実行手順（本番近似）
+# ローカル開発手順
 
-この手順書は、**開発は `NODE_ENV=development`、本番検証は `NODE_ENV=production`** で行い、
-ローカル検証時の品質と開発速度の両立を目的にしています。
+本プロジェクトのローカル検証は **コンテナ起動を基本** とし、AWS 相当の依存は **LocalStack（S3 + SQS）** で再現します。
 
-## 1. 方針（公式標準に沿った運用）
+## 1. 役割分担
 
-- 日常開発: `npm run dev`（development モード）
-- 本番検証: `docker compose up --build`（production モード）
-- 使い分け理由: `NODE_ENV` の責務を明確に分離し、開発効率と本番再現性を両立する
+- `docker-compose.local.yml`: 日常ローカル開発用（`web` + `db` + `localstack`）
+- `docker-compose.yml`: 本番近似確認用（production 相当の Next.js 起動）
 
-> 将来の構成は `docs/future-aws-architecture/README.md` を参照してください。
+## 2. 事前準備
 
-## 1-1. なぜ `NODE_ENV` を切り替えるか
-
-- development は HMR・デバッグ情報など、実装反復を高速化するためのモード
-- production は最適化済みビルド/実行経路の確認に適したモード
-- 片方のみで運用すると以下の課題が出る
-  - development のみ: 本番特有の差分を見落としやすい
-  - production のみ: UI修正やロジック調整の反復速度が落ちる
-- 現在のリポジトリはAWS SDK連携を未実装のため、まずは Next.js 本体の development/production 切替運用を優先します。
-- Node.js 20 以上
-- npm 10 以上
-
-## 3. 日常開発（development モード）
+1. `.env.example` をコピーして `.env` を作成
 
 ```bash
-npm install
-npm run dev
+cp .env.example .env
 ```
 
-- アクセス: `http://localhost:3000`
-- 用途: UI調整、レイアウト確認、細かいロジック変更の即時確認
+2. 必要に応じてバケット名・キュー名を調整
 
-## 4. 本番検証（production モード）
+- `LOCAL_S3_BUCKET`（初期値: `hobby-ec-local-bucket`）
+- `LOCAL_SQS_QUEUE_NAME`（初期値: `hobby-ec-local-queue`）
 
-## 5. 代表チェック
-## 6. 本番との差分（先に理解しておく）
-## 7. AWS 想定に寄せる確認ポイント
-- development/production の切替を日常運用に組み込み、差分検知を早期化する
-
-## 8. よく使うコマンド
+## 3. ローカル開発環境の起動（推奨）
 
 ```bash
-# 開発モード
-# 本番ビルド
-npm run build
-
-# 本番起動
-npm run start
-
+docker compose -f docker-compose.local.yml up --build
 ```
 
-- アクセス: `http://localhost:3000`
-- 用途: UI 調整、レイアウト確認、細かいロジック変更の即時確認
+起動後:
 
-## 4. 本番近似起動（推奨）
+- アプリ: `http://localhost:3000`
+- LocalStack: `http://localhost:4566`
+- Postgres: `localhost:5432`
 
-### 4-1. コンテナ起動
+### LocalStack 初期化
+
+`localstack/init/01_create_resources.sh` が LocalStack の ready hook で自動実行され、以下を作成します。
+
+- S3 バケット: `hobby-ec-local-bucket`（`LOCAL_S3_BUCKET` で変更可）
+- SQS キュー: `hobby-ec-local-queue`（`LOCAL_SQS_QUEUE_NAME` で変更可）
+
+## 4. 疎通確認
+
+以下へアクセスし、`ok: true` と S3/SQS の確認結果が返ることを確認します。
+
+- `GET http://localhost:3000/api/localstack/health`
+
+## 5. 本番近似確認（既存手順）
+
+本番近似での確認は、既存の `docker-compose.yml` を利用します。
 
 ```bash
 docker compose up --build
 ```
 
-- `Dockerfile` の build 結果を使って `next start` で起動
-- `NODE_ENV=production` で動作
-- App Router / Route Handler / SSE の本番寄り動作を確認しやすい
+- `NODE_ENV=production` で起動
+- Dockerfile ベースの build / start 経路を確認可能
 
-### 4-2. 代表チェック
-
-1. トップページ表示
-2. 商品詳細ページの metadata（title/description）
-3. JSON-LD が出力されていること
-4. チャットウィジェットの送受信（SSE）
-
-## 5. 本番との差分（先に理解しておく）
-
-- チャットはインメモリ保持のため、単一プロセス内のみ共有
-- マルチインスタンス配信（AWSでスケール時）は Redis / DynamoDB など外部ストアが必要
-- ローカルは単一コンテナ前提。CDN / WAF / ALB 振る舞いは未再現
-
-## 6. AWS 想定に寄せる確認ポイント
-
-- 単一インスタンスでのレスポンス・SEO出力を先に安定化
-- 将来のストア分離を見越し、チャット永続化ポイントを切り出しやすい設計で運用
-- コンテナイメージでの起動確認をデフォルトにして、環境差分を減らす
-
-## 7. よく使うコマンド
+## 6. 便利コマンド
 
 ```bash
-# 開発モード
-npm run dev
+# ローカル開発コンテナ停止
+docker compose -f docker-compose.local.yml down
 
-# 本番ビルド
+# ローカル開発コンテナ停止 + volume 削除
+docker compose -f docker-compose.local.yml down -v
+
+# 本番ビルド確認
 npm run build
-
-# 本番起動
-npm run start
-
-# 静的解析
-npm run lint
 ```
