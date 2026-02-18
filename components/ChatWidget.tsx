@@ -1,43 +1,86 @@
 'use client';
 
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 type ChatMessage = {
-  id: string;
-  sender: 'user' | 'staff';
-  text: string;
+  messageId: string;
+  senderId: string;
+  body: string;
+  createdAt: string;
 };
+
+type StreamEvent =
+  | {
+      type: 'connected';
+      requestId: string;
+    }
+  | {
+      type: 'message.created';
+      conversationId: string;
+      messageId: string;
+      createdAt: string;
+      requestId: string;
+    };
+
+const conversationId = 'support-demo';
+const demoUserId = 'user-demo';
+const maxRetryMs = 10000;
 
 export function ChatWidget() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [text, setText] = useState('');
   const [connection, setConnection] = useState<'connecting' | 'connected' | 'reconnecting'>('connecting');
   const [postError, setPostError] = useState<string | null>(null);
+  const retryCountRef = useRef(0);
+
+  const reloadHistory = useCallback(async () => {
+    const response = await fetch(`/api/chat/history?conversationId=${conversationId}&limit=20`, {
+      cache: 'no-store'
+    });
+
+    if (!response.ok) {
+      return;
+    }
+
+    const payload = (await response.json()) as { messages: ChatMessage[] };
+    setMessages(payload.messages);
+  }, []);
 
   useEffect(() => {
+    document.cookie = `chat_demo_user_id=${demoUserId}; path=/; max-age=86400`;
+
     let source: EventSource | null = null;
     let retryTimer: ReturnType<typeof setTimeout> | undefined;
 
     const connect = () => {
       setConnection((status) => (status === 'connected' ? 'connected' : 'connecting'));
-      source = new EventSource('/api/chat');
+      source = new EventSource('/api/chat/stream');
 
-      source.onopen = () => {
+      source.onopen = async () => {
+        retryCountRef.current = 0;
         setConnection('connected');
+        await reloadHistory();
       };
 
-      source.onmessage = (event) => {
-        const next = JSON.parse(event.data) as ChatMessage[];
-        setMessages(next);
+      source.onmessage = async (event) => {
+        const payload = JSON.parse(event.data) as StreamEvent;
+        if (payload.type !== 'message.created' || payload.conversationId !== conversationId) {
+          return;
+        }
+
+        await reloadHistory();
       };
 
       source.onerror = () => {
         setConnection('reconnecting');
         source?.close();
-        retryTimer = setTimeout(connect, 1500);
+        const nextRetry = Math.min(1000 * 2 ** retryCountRef.current, maxRetryMs);
+        retryCountRef.current += 1;
+        retryTimer = setTimeout(connect, nextRetry);
       };
     };
 
+    void reloadHistory();
     connect();
 
     return () => {
@@ -46,7 +89,7 @@ export function ChatWidget() {
         clearTimeout(retryTimer);
       }
     };
-  }, []);
+  }, [reloadHistory]);
 
   const disabled = useMemo(() => text.trim().length === 0, [text]);
 
@@ -57,10 +100,17 @@ export function ChatWidget() {
 
     setPostError(null);
 
-    const response = await fetch('/api/chat', {
+    const response = await fetch('/api/chat/send', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: trimmed })
+      headers: {
+        'Content-Type': 'application/json',
+        'x-request-id': crypto.randomUUID()
+      },
+      body: JSON.stringify({
+        conversationId,
+        body: trimmed,
+        idempotencyKey: crypto.randomUUID()
+      })
     });
 
     if (!response.ok) {
@@ -69,6 +119,7 @@ export function ChatWidget() {
     }
 
     setText('');
+    await reloadHistory();
   }
 
   return (
@@ -79,8 +130,8 @@ export function ChatWidget() {
       </header>
       <div className="chat-messages">
         {messages.map((message) => (
-          <p key={message.id} className={`message ${message.sender}`}>
-            {message.text}
+          <p key={message.messageId} className={`message ${message.senderId === demoUserId ? 'user' : 'staff'}`}>
+            {message.body}
           </p>
         ))}
       </div>
