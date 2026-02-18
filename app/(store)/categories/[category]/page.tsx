@@ -8,6 +8,7 @@ import {
   isDigitalCategory,
   PRODUCT_CATEGORIES
 } from '@/data/products';
+import { buildCategoryMetadata } from '@/lib/seo/metadata';
 
 type Props = {
   params: Promise<{ category: string }>;
@@ -23,15 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: 'カテゴリが見つかりません' };
   }
 
-  const label = getCategoryLabel(category);
-
-  return {
-    title: `${label}カテゴリ`,
-    description: `${label}カテゴリのデジタル商品一覧ページです。`,
-    alternates: {
-      canonical: `/categories/${category}`
-    }
-  };
+  return buildCategoryMetadata(category);
 }
 
 export default async function CategoryPage({ params }: Props) {

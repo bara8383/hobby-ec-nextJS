@@ -5,7 +5,7 @@ import { getCategoryLabel, getProductBySlug, products } from '@/data/products';
 import { AddToCartButton } from '@/components/product/AddToCartButton';
 import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 import { buildProductJsonLd } from '@/lib/seo/jsonld';
-import { buildProductMetadata } from '@/lib/seo/metadata';
+import { buildMissingProductMetadata, buildProductMetadata } from '@/lib/seo/metadata';
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -20,15 +20,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const product = getProductBySlug(slug);
 
   if (!product) {
-    return {
-      title: '商品が見つかりません',
-      description: '指定されたデジタル商品は存在しません。'
-    };
+    return buildMissingProductMetadata();
   }
 
-  const ogImageUrl = `/og/product?slug=${encodeURIComponent(product.slug)}`;
-
-  return buildProductMetadata(product, ogImageUrl);
+  return buildProductMetadata(product);
 }
 
 export default async function ProductDetailPage({ params }: Props) {

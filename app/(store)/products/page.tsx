@@ -3,6 +3,7 @@ import { ProductCard } from '@/components/ProductCard';
 import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 import { ProductFilters } from '@/components/product/ProductFilters';
 import { searchProducts, type ProductSearchFilters } from '@/data/products';
+import { buildProductListingMetadata } from '@/lib/seo/metadata';
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -43,13 +44,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const params = await searchParams;
   const canonical = buildProductsCanonical(params);
 
-  return {
-    title: '商品一覧',
-    description: '壁紙・イラスト・写真・デジタル音源のダウンロード商品一覧です。',
-    alternates: {
-      canonical
-    }
-  };
+  return buildProductListingMetadata(canonical);
 }
 
 export default async function ProductsPage({ searchParams }: Props) {

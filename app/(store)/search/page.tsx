@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { ProductCard } from '@/components/ProductCard';
 import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 import { searchProducts } from '@/data/products';
+import { buildSearchMetadata } from '@/lib/seo/metadata';
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -25,17 +26,7 @@ function buildSearchCanonical(params: Record<string, string | string[] | undefin
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const params = await searchParams;
 
-  return {
-    title: '検索結果',
-    description: 'サイト内検索結果ページです。',
-    alternates: {
-      canonical: buildSearchCanonical(params)
-    },
-    robots: {
-      index: false,
-      follow: true
-    }
-  };
+  return buildSearchMetadata(buildSearchCanonical(params));
 }
 
 export default async function SearchPage({ searchParams }: Props) {
