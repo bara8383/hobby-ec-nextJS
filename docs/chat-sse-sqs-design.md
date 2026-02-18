@@ -1,62 +1,51 @@
-# SSE + SQS セミリアルタイムチャット設計
+# SSE + SQS チャット設計（B案・DBポーリングなし）
 
-## A) 実装前の設計概要
+## A) 実装前の設計概要（追加/変更ファイル）
 
-- 送信は `POST /api/chat/send`、受信は `GET /api/chat/stream`（SSE）で分離。
-- SSE 側は DB ポーリングせず、ユーザー専用 SQS キューを 20 秒ロングポーリング。
-- メッセージ本体は DynamoDB に保存し、SSE は **messageId のみ通知（Option A）**。
-  - 理由: SSE 接続ごとの DynamoDB 取得を削減し、受信時だけ `history` 再取得する方が総コストを抑えやすい。
-- キューは初回利用時に `userId -> queueUrl` を `ChatUserQueue` テーブルへ保存。
-- 認証は Route Handler で必須化（現状は `x-user-id` または cookie を利用する簡易実装）。
+- `app/api/chat/send/route.ts`
+  - 認証/参加者チェック後にメッセージを永続化し、受信者キューへ軽量イベントのみ enqueue。
+  - `Idempotency-Key` ヘッダーを優先して冪等化。
+- `app/api/chat/history/route.ts`
+  - 会話参加者のみ、カーソル付きで履歴取得。
+- `app/api/chat/stream/route.ts`
+  - SSE (`text/event-stream`) + SQSロングポーリング（20秒）で受信。
+  - keep-alive送信、15分でセッション終了通知、AbortSignalで即停止。
+  - コスト優先で Option A（イベントのみ通知、本文は history 再取得）を採用。
+- `lib/chat/repository.ts`
+  - DynamoDB（Conversations/Messages）操作をRepository化。
+- `lib/chat/queue.ts`
+  - `userId -> queueUrl` を DynamoDB（UserQueue）に保存。
+  - 初回キュー作成（create-on-first-use）と SQS enqueue/receive/delete を実装。
+- `components/ChatWidget.tsx` / `app/chat/page.tsx` / `app/page.tsx`
+  - チャットUIを `/chat` に分離し、SEOページへの重い接続ロジック注入を回避。
+- `infra/cdk/lib/chat-sse-stack.ts`
+  - DynamoDB/SQS前提の最小IAM付きスタックを更新。
 
-## B) 変更ファイル一覧
+## イベント配信戦略
 
-- `app/api/chat/send/route.ts`: メッセージ登録 + 参加者チェック + 受信者SQS enqueue。
-- `app/api/chat/history/route.ts`: 会話履歴ページング取得。
-- `app/api/chat/stream/route.ts`: SSE + SQSロングポーリング連携。
-- `lib/chat/repository.ts`: DynamoDB 永続化/会話参加判定/冪等制御。
-- `lib/chat/queue.ts`: ユーザーキュー解決・作成、enqueue/receive/ack。
-- `components/ChatWidget.tsx`: EventSource + 指数バックオフ + history再取得。
-- `infra/cdk/*`: 最小IaC（DynamoDB + IAM）。
+- 現在: **ユーザー単位キュー方式（Standard Queue）**
+  - 送信時に受信者キューへ `{ conversationId, messageId, createdAt }` を投入。
+  - SSEはログインユーザーのキューのみロングポーリング。
+- 代替案（推奨バックアップ）
+  1. シャード単位キュー（例: `chat-shard-{0..63}`）+ `userId` 属性振り分け
+  2. 単一キュー + `conversationId` / `recipientId` 属性で購読者分離
+  3. SNS→SQS fanout（会話単位の購読制御）
 
-## C) 追加コードの要点
+## 手動テスト手順（2ユーザー）
 
-1. **冪等性**
-   - `idempotencyKey` 単位で `IDEMPOTENCY#...` レコードを `ChatMessages` へ保存。
-   - 再送時は既存 `messageId` を返し、二重登録を防止。
+1. ユーザーA/Bで別ブラウザ or シークレットウィンドウを開く。
+2. Aで `/chat` にアクセスし、`conversationId` を固定してSSE接続開始。
+3. Bから `POST /api/chat/send` で同じ `conversationId` に送信。
+4. AのSSEで `message.created` を受信し、`history` 再取得で本文反映されることを確認。
+5. SSE接続を15分以上維持し、`session.expiring` 後にクライアント再接続することを確認。
 
-2. **会話参加者チェック**
-   - `Conversations.participants` に `userId` が含まれるか検証。
-   - 初回会話は `ensureSupportConversationForUser` で簡易作成。
+## RISK と検証
 
-3. **SSEの挙動**
-   - `ReadableStream` で接続し、20秒ロングポーリングでイベント待機。
-   - 受信イベントを送信後に `DeleteMessage` で ack。
-   - 切断は `AbortSignal` と `cancel` でログを残す。
-
-4. **ログ要件**
-   - `requestId`, `userId`, `conversationId` を `console.info` で出力。
-
-## D) 手動テスト手順
-
-```bash
-npm install
-npm run lint
-npm run dev
-```
-
-1. ブラウザで `/` を開く。
-2. チャット入力欄からメッセージ送信。
-3. `/api/chat/history?conversationId=support-demo` の戻り値に message が追加されることを確認。
-4. 複数タブを開き、片方で送信 → もう片方でSSE経由更新されることを確認。
-
-## E) 想定リスクと代替案
-
-- RISK: **ユーザー単位キュー方式はSQSキュー数クォータに抵触する可能性**（ユーザー急増時）。
-  - 代替案: テナント単位/シャード単位キュー + メッセージ属性で userId ルーティング。
-- RISK: `sqs:CreateQueue` を実行ロールに許可するため、IAMスコープを厳密に絞らないと過剰権限化する。
-  - 代替案: 事前プロビジョニング + `GetQueueUrl` のみ許可。
-- RISK: Standard Queue のため重複配信・順序入れ替えが発生しうる。
-  - 代替案: クライアント側で `messageId` de-dup、必要なら FIFO + MessageGroupId を検討。
-- RISK: Vercel Serverless 実行環境では SSE 長時間接続の制限があり、期待どおりの接続時間を確保できない場合がある。
-  - 代替案: AWS Lambda + Function URL / ALB 経由へ配置し、タイムアウト設計を合わせる。
+- RISK: API Gateway REST API + Lambda Response Streaming は設定差異の影響を受けやすい。
+  - 検証: `curl -N` で keep-alive コメントが継続受信できるか、CloudWatchで15分以内終了を確認。
+- RISK: SSE長時間接続で同時実行枠を消費し、Lambdaコストが増加。
+  - 対策: 15分で切断、Abort時即停止、Option AでDB readを最小化。
+- RISK: ユーザー単位キューはキュー数クォータ/作成遅延に抵触する可能性。
+  - 対策: シャード単位キューへの移行計画を併記し、上限監視を運用導入。
+- RISK: Standard Queueの少数重複/順序逆転。
+  - 対策: クライアント側で `messageId` de-dup。厳密順序が必要なら FIFO を別途評価。

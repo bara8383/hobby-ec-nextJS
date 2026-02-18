@@ -54,7 +54,7 @@ export function ChatWidget() {
 
     const connect = () => {
       setConnection((status) => (status === 'connected' ? 'connected' : 'connecting'));
-      source = new EventSource('/api/chat/stream');
+      source = new EventSource(`/api/chat/stream?conversationId=${conversationId}`);
 
       source.onopen = async () => {
         retryCountRef.current = 0;
@@ -104,12 +104,12 @@ export function ChatWidget() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-request-id': crypto.randomUUID()
+        'x-request-id': crypto.randomUUID(),
+        'Idempotency-Key': crypto.randomUUID()
       },
       body: JSON.stringify({
         conversationId,
-        body: trimmed,
-        idempotencyKey: crypto.randomUUID()
+        body: trimmed
       })
     });
 

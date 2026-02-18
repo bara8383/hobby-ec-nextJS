@@ -1,4 +1,3 @@
-import { createHash } from 'crypto';
 import type { ChatEvent } from '@/lib/chat/types';
 
 const queuePrefix = process.env.CHAT_USER_QUEUE_PREFIX ?? 'chat-user';
@@ -6,7 +5,7 @@ const memoryQueueMap = new Map<string, string>();
 const memoryQueueMessages = new Map<string, ChatEvent[]>();
 
 function toQueueName(userId: string) {
-  const digest = createHash('sha256').update(userId).digest('hex').slice(0, 24);
+  const digest = Buffer.from(userId).toString('hex').slice(0, 24);
   return `${queuePrefix}-${digest}`;
 }
 
@@ -47,5 +46,4 @@ export async function receiveUserEvent(userId: string) {
 export async function ackUserEvent(queueUrl: string, receiptHandle: string) {
   void queueUrl;
   void receiptHandle;
-  return;
 }
