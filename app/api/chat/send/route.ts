@@ -24,7 +24,8 @@ export async function POST(request: Request) {
 
     const conversationId = body.conversationId?.trim() ?? '';
     const messageBody = body.body?.trim() ?? '';
-    const idempotencyKey = body.idempotencyKey?.trim() ?? requestId;
+    const idempotencyKey =
+      request.headers.get('idempotency-key')?.trim() ?? body.idempotencyKey?.trim() ?? requestId;
 
     if (!conversationId || !messageBody) {
       return NextResponse.json({ error: 'conversationId and body are required' }, { status: 400 });

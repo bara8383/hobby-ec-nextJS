@@ -61,11 +61,11 @@ export async function listConversationMessages(params: {
   if (!params.cursor) {
     return {
       messages: rows.slice(-params.limit),
-      nextCursor: rows.length > params.limit ? rows[rows.length - params.limit].createdAt : null
+      nextCursor: rows.length > params.limit ? rows[rows.length - params.limit].messageId : null
     };
   }
 
-  const index = rows.findIndex((entry) => entry.createdAt === params.cursor);
+  const index = rows.findIndex((entry) => entry.messageId === params.cursor);
   if (index <= 0) {
     return {
       messages: [],
@@ -76,7 +76,7 @@ export async function listConversationMessages(params: {
   const start = Math.max(index - params.limit, 0);
   return {
     messages: rows.slice(start, index),
-    nextCursor: start > 0 ? rows[start].createdAt : null
+    nextCursor: start > 0 ? rows[start].messageId : null
   };
 }
 

@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { ChatWidget } from '@/components/ChatWidget';
 import { ProductCard } from '@/components/ProductCard';
 import { allTags, getCategoryLabel, PRODUCT_CATEGORIES, products } from '@/data/products';
 
@@ -113,11 +112,12 @@ export default function HomePage() {
       <section className="chat-cta-band" aria-label="購入前相談導線">
         <h2>購入前に迷ったらチャットで相談</h2>
         <p>利用範囲・納品形式・商用可否の確認をその場でサポートします。</p>
+        <Link className="button-link" href="/chat">
+          チャットページへ
+        </Link>
       </section>
 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-
-      <ChatWidget />
     </main>
   );
 }
