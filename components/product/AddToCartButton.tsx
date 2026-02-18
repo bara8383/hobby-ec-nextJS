@@ -1,24 +1,25 @@
-'use client';
-
-import { useState } from 'react';
 import { addToCart } from '@/lib/store/cart';
 
 type Props = {
   productSlug: string;
 };
 
-export function AddToCartButton({ productSlug }: Props) {
-  const [added, setAdded] = useState(false);
+async function addToCartAction(formData: FormData) {
+  'use server';
 
+  const productSlug = formData.get('productSlug');
+  if (typeof productSlug !== 'string') {
+    return;
+  }
+
+  await addToCart(productSlug);
+}
+
+export function AddToCartButton({ productSlug }: Props) {
   return (
-    <button
-      type="button"
-      onClick={() => {
-        addToCart(productSlug);
-        setAdded(true);
-      }}
-    >
-      {added ? 'カートに追加済み' : 'カートへ追加'}
-    </button>
+    <form action={addToCartAction}>
+      <input type="hidden" name="productSlug" value={productSlug} />
+      <button type="submit">カートへ追加</button>
+    </form>
   );
 }

@@ -1,24 +1,20 @@
+import { cookies } from 'next/headers';
+
 export type CartLine = {
   productSlug: string;
   quantity: number;
 };
 
-const STORAGE_KEY = 'digital-creator-market-cart';
-
-function isBrowser() {
-  return typeof window !== 'undefined';
-}
+const CART_COOKIE_KEY = 'digital-creator-market-cart';
 
 function sanitizeLines(lines: CartLine[]) {
   return lines.filter((line) => line.quantity > 0 && typeof line.productSlug === 'string');
 }
 
-export function readCart(): CartLine[] {
-  if (!isBrowser()) {
-    return [];
-  }
+export async function readCart(): Promise<CartLine[]> {
+  const cookieStore = await cookies();
+  const raw = cookieStore.get(CART_COOKIE_KEY)?.value;
 
-  const raw = window.localStorage.getItem(STORAGE_KEY);
   if (!raw) {
     return [];
   }
@@ -31,29 +27,33 @@ export function readCart(): CartLine[] {
   }
 }
 
-export function writeCart(lines: CartLine[]) {
-  if (!isBrowser()) {
-    return;
-  }
+export async function writeCart(lines: CartLine[]) {
+  const cookieStore = await cookies();
+  const sanitized = sanitizeLines(lines);
 
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitizeLines(lines)));
+  cookieStore.set(CART_COOKIE_KEY, JSON.stringify(sanitized), {
+    path: '/',
+    sameSite: 'lax',
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production'
+  });
 }
 
-export function addToCart(slug: string) {
-  const current = readCart();
+export async function addToCart(slug: string) {
+  const current = await readCart();
   const exists = current.some((line) => line.productSlug === slug);
 
   if (!exists) {
     current.push({ productSlug: slug, quantity: 1 });
-    writeCart(current);
+    await writeCart(current);
   }
 }
 
-export function removeCartLine(slug: string) {
-  const current = readCart().filter((line) => line.productSlug !== slug);
-  writeCart(current);
+export async function removeCartLine(slug: string) {
+  const current = (await readCart()).filter((line) => line.productSlug !== slug);
+  await writeCart(current);
 }
 
-export function clearCart() {
-  writeCart([]);
+export async function clearCart() {
+  await writeCart([]);
 }
