@@ -9,7 +9,7 @@
   - サイト全体の metadata（title/description/keywords/OGP/canonical）
   - 商品一覧 + 商品詳細の JSON-LD（`ItemList` / `Product`）
   - 商品詳細ページごとの `generateMetadata`
-- **リアルタイムチャット**: SSE + Route Handler (`/api/chat`) + クライアントウィジェット
+- **リアルタイムチャット**: SSE (`/api/chat/stream`) + 送信API (`/api/chat/send`) + 履歴API (`/api/chat/history`) + クライアントウィジェット
 - **AWS最小コスト方針**: standalone 出力を使った単一コンテナ前提（Lightsail Containers 小構成を想定）
 
 ## ローカル起動（Node.js）
@@ -44,4 +44,4 @@ docker compose up --build
 2. **Lightsail Containers** の最小プランで公開
 3. 需要増加時のみ App Runner / ECS Fargate へ移行
 
-> メモ: チャットはインメモリ保持です。本番で複数インスタンス化する場合は ElastiCache か DynamoDB への置換が必要です。
+> メモ: チャットは DynamoDB + SQS を標準構成とし、`CHAT_STORAGE_MODE=memory` でローカル簡易動作にフォールバックできます。
