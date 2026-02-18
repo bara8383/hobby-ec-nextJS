@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { ButtonLink } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Section } from '@/components/ui/Section';
 
 type Props = {
   searchParams: Promise<{ orderId?: string }>;
@@ -22,10 +24,14 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
 
   return (
     <main>
-      <h1>購入ありがとうございました</h1>
-      <p>注文番号: {params.orderId ?? '不明'}</p>
-      <p>ダウンロードは購入済みライブラリから再取得できます。</p>
-      <Link href="/mypage/library">購入済みライブラリへ</Link>
+      <Section title="購入ありがとうございました" description="決済が完了しました。購入済みライブラリからいつでも再ダウンロードできます。">
+        <Card>
+          <p>注文番号: {params.orderId ?? '不明'}</p>
+          <ButtonLink href="/mypage/library" variant="secondary">
+            購入済みライブラリへ
+          </ButtonLink>
+        </Card>
+      </Section>
     </main>
   );
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { CheckoutContent } from '@/components/checkout/CheckoutContent';
+import { Section } from '@/components/ui/Section';
 
 export const metadata: Metadata = {
   title: 'チェックアウト',
@@ -16,8 +17,9 @@ export const metadata: Metadata = {
 export default function CheckoutPage() {
   return (
     <main>
-      <h1>チェックアウト</h1>
-      <CheckoutContent />
+      <Section title="チェックアウト" description="注文内容を確認し、購入を確定します。">
+        <CheckoutContent />
+      </Section>
     </main>
   );
 }

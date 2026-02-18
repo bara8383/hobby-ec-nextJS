@@ -1,8 +1,11 @@
-import Link from 'next/link';
 import { products } from '@/data/products';
 import { readCart } from '@/lib/store/cart';
 import { CartLineActions } from '@/components/cart/CartLineActions';
 import { ClearCartButton } from '@/components/cart/ClearCartButton';
+import { Badge } from '@/components/ui/Badge';
+import { ButtonLink } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Section } from '@/components/ui/Section';
 
 export async function CartContent() {
   const lines = await readCart();
@@ -17,28 +20,39 @@ export async function CartContent() {
   const total = items.reduce((sum, item) => sum + item.product.priceJpy * item.quantity, 0);
 
   if (items.length === 0) {
-    return <p>カートに商品がありません。商品詳細から追加してください。</p>;
+    return (
+      <Section className="empty-state" title="カートは空です" description="商品詳細ページから商品を追加すると、ここに表示されます。">
+        <ButtonLink href="/products" variant="secondary">
+          商品一覧を見る
+        </ButtonLink>
+      </Section>
+    );
   }
 
   return (
     <>
       <ul className="cart-list">
         {items.map((item) => (
-          <li key={item.product.slug} className="cart-item">
-            <div>
-              <strong>{item.product.name}</strong>
-              <p>価格: ¥{item.product.priceJpy.toLocaleString('ja-JP')}</p>
-              <p>数量: {item.quantity}</p>
-            </div>
-            <CartLineActions productSlug={item.product.slug} quantity={item.quantity} />
+          <li key={item.product.slug}>
+            <Card className="cart-item">
+              <div>
+                <Badge variant="muted">{item.product.category}</Badge>
+                <strong>{item.product.name}</strong>
+                <p>価格: ¥{item.product.priceJpy.toLocaleString('ja-JP')}</p>
+                <p>数量: {item.quantity}</p>
+              </div>
+              <CartLineActions productSlug={item.product.slug} quantity={item.quantity} />
+            </Card>
           </li>
         ))}
       </ul>
-      <p>合計: ¥{total.toLocaleString('ja-JP')}</p>
-      <div className="cta-row">
-        <Link href="/checkout">チェックアウトへ進む</Link>
-        <ClearCartButton />
-      </div>
+      <Card className="cart-summary">
+        <p className="price">合計: ¥{total.toLocaleString('ja-JP')}</p>
+        <div className="cta-row">
+          <ButtonLink href="/checkout">チェックアウトへ進む</ButtonLink>
+          <ClearCartButton />
+        </div>
+      </Card>
     </>
   );
 }

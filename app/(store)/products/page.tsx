@@ -4,6 +4,7 @@ import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 import { ProductFilters } from '@/components/product/ProductFilters';
 import { searchProducts, type ProductSearchFilters } from '@/data/products';
 import { buildProductListingMetadata } from '@/lib/seo/metadata';
+import { Section } from '@/components/ui/Section';
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -61,19 +62,19 @@ export default async function ProductsPage({ searchParams }: Props) {
           { name: '商品一覧', path: canonical }
         ]}
       />
-      <h1>商品一覧</h1>
-      <p>カテゴリ・タグ・価格帯で絞り込みながら、用途に合うデジタル商品を探せます。</p>
-      <ProductFilters filters={filters} />
+      <Section title="商品一覧" description="カテゴリ・タグ・価格帯で絞り込みながら、用途に合うデジタル商品を探せます。">
+        <ProductFilters filters={filters} />
 
-      {items.length === 0 ? (
-        <p>条件に一致する商品がありません。フィルタ条件を調整してください。</p>
-      ) : (
-        <section className="grid" aria-label="商品一覧">
-          {items.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </section>
-      )}
+        {items.length === 0 ? (
+          <p className="empty-state">条件に一致する商品がありません。フィルタ条件を調整してください。</p>
+        ) : (
+          <section className="grid" aria-label="商品一覧">
+            {items.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </section>
+        )}
+      </Section>
     </main>
   );
 }
