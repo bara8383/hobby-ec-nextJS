@@ -1,6 +1,8 @@
 'use client';
 
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 
 type ChatMessage = {
   messageId: string;
@@ -145,15 +147,16 @@ export function ChatWidget({ initialMessage }: ChatWidgetProps) {
           </p>
         ))}
       </div>
-      <form onSubmit={onSubmit}>
-        <input
+      <form onSubmit={onSubmit} className="chat-form">
+        <Input
           value={text}
           onChange={(event) => setText(event.target.value)}
           placeholder="配送や在庫について質問できます"
+          aria-label="メッセージ"
         />
-        <button type="submit" disabled={disabled}>
+        <Button type="submit" disabled={disabled}>
           送信
-        </button>
+        </Button>
       </form>
       {postError ? <p className="chat-error">{postError}</p> : null}
     </section>

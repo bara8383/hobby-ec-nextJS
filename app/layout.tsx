@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Container } from '@/components/ui/Container';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -30,7 +31,7 @@ export default function RootLayout({
     <html lang="ja">
       <body>
         <header className="site-header" aria-label="サイトヘッダー">
-          <div className="site-header-inner">
+          <Container className="site-header-inner">
             <Link href="/" className="site-logo">
               Digital Creator Market
             </Link>
@@ -45,13 +46,13 @@ export default function RootLayout({
               <Link href="/mypage/orders">注文履歴</Link>
               <Link href="/mypage/settings">アカウント設定</Link>
             </nav>
-          </div>
+          </Container>
         </header>
 
         {children}
 
         <footer className="site-footer" aria-label="サイトフッター">
-          <div className="site-footer-inner">
+          <Container className="site-footer-inner">
             <p>© {new Date().getFullYear()} Digital Creator Market</p>
             <nav aria-label="フッターナビゲーション">
               <Link href="/legal/tokushoho">特定商取引法に基づく表記</Link>
@@ -59,7 +60,7 @@ export default function RootLayout({
               <Link href="/legal/privacy">プライバシーポリシー</Link>
               <Link href="/contact">お問い合わせ</Link>
             </nav>
-          </div>
+          </Container>
         </footer>
       </body>
     </html>

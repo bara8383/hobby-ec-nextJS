@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { CartContent } from '@/components/cart/CartContent';
+import { Section } from '@/components/ui/Section';
 
 export const metadata: Metadata = {
   title: 'カート',
@@ -16,8 +17,9 @@ export const metadata: Metadata = {
 export default function CartPage() {
   return (
     <main>
-      <h1>カート</h1>
-      <CartContent />
+      <Section title="カート" description="購入予定の商品と数量を確認し、チェックアウトへ進めます。">
+        <CartContent />
+      </Section>
     </main>
   );
 }

@@ -4,6 +4,9 @@ import { createPaidOrder } from '@/lib/db/repositories/order-repository';
 import { issueDownloadGrant } from '@/lib/db/repositories/download-grant-repository';
 import { getUserById } from '@/lib/db/repositories/user-repository';
 import { clearCart, readCart } from '@/lib/store/cart';
+import { Button, ButtonLink } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Section } from '@/components/ui/Section';
 
 async function placeOrderAction() {
   'use server';
@@ -55,25 +58,31 @@ export async function CheckoutContent() {
     .filter((item): item is NonNullable<typeof item> => Boolean(item));
 
   if (items.length === 0) {
-    return <p>カートが空です。先に商品を追加してください。</p>;
+    return (
+      <Section title="注文商品がありません" description="先にカートへ商品を追加してからチェックアウトしてください。" className="empty-state">
+        <ButtonLink href="/products" variant="secondary">
+          商品一覧へ戻る
+        </ButtonLink>
+      </Section>
+    );
   }
 
   const total = items.reduce((sum, item) => sum + item.product.priceJpy * item.quantity, 0);
 
   return (
-    <section>
+    <Card>
       <h2>注文内容</h2>
-      <ul>
+      <ul className="checkout-list">
         {items.map((item) => (
           <li key={item.product.slug}>
             {item.product.name} × {item.quantity}
           </li>
         ))}
       </ul>
-      <p>合計: ¥{total.toLocaleString('ja-JP')}</p>
+      <p className="price">合計: ¥{total.toLocaleString('ja-JP')}</p>
       <form action={placeOrderAction}>
-        <button type="submit">注文確定</button>
+        <Button type="submit">注文確定</Button>
       </form>
-    </section>
+    </Card>
   );
 }

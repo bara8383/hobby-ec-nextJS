@@ -2,6 +2,7 @@
 
 import { useActionState } from 'react';
 import { clearCartAction, type CartActionState } from '@/app/(store)/cart/actions';
+import { Button } from '@/components/ui/Button';
 
 const initialState: CartActionState = {};
 
@@ -11,11 +12,11 @@ export function ClearCartButton() {
   return (
     <>
       <form action={formAction}>
-        <button type="submit" disabled={pending}>
+        <Button type="submit" variant="destructive" disabled={pending}>
           カートを空にする
-        </button>
+        </Button>
       </form>
-      {state.message ? <p>{state.message}</p> : null}
+      {state.message ? <p className="ui-form-message">{state.message}</p> : null}
     </>
   );
 }

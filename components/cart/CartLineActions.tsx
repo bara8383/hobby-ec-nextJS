@@ -2,6 +2,8 @@
 
 import { useActionState } from 'react';
 import { removeFromCartAction, type CartActionState, updateCartQuantityAction } from '@/app/(store)/cart/actions';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 
 type Props = {
   productSlug: string;
@@ -16,25 +18,25 @@ export function CartLineActions({ productSlug, quantity }: Props) {
 
   return (
     <div className="cart-item-actions">
-      <form action={updateFormAction}>
+      <form action={updateFormAction} className="cart-quantity-form">
         <input type="hidden" name="productSlug" value={productSlug} />
         <label>
           数量
-          <input type="number" name="quantity" min={1} max={99} defaultValue={quantity} />
+          <Input type="number" name="quantity" min={1} max={99} defaultValue={quantity} />
         </label>
-        <button type="submit" disabled={updatePending}>
+        <Button type="submit" variant="secondary" disabled={updatePending}>
           数量更新
-        </button>
+        </Button>
       </form>
-      {updateState.message ? <p>{updateState.message}</p> : null}
+      {updateState.message ? <p className="ui-form-message">{updateState.message}</p> : null}
 
       <form action={removeFormAction}>
         <input type="hidden" name="productSlug" value={productSlug} />
-        <button type="submit" disabled={removePending}>
+        <Button type="submit" variant="ghost" disabled={removePending}>
           削除
-        </button>
+        </Button>
       </form>
-      {removeState.message ? <p>{removeState.message}</p> : null}
+      {removeState.message ? <p className="ui-form-message">{removeState.message}</p> : null}
     </div>
   );
 }

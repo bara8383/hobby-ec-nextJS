@@ -2,6 +2,7 @@
 
 import { useActionState } from 'react';
 import { addToCartAction, type CartActionState } from '@/app/(store)/cart/actions';
+import { Button } from '@/components/ui/Button';
 
 type Props = {
   productSlug: string;
@@ -16,11 +17,11 @@ export function AddToCartButton({ productSlug }: Props) {
     <>
       <form action={formAction}>
         <input type="hidden" name="productSlug" value={productSlug} />
-        <button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending}>
           カートへ追加
-        </button>
+        </Button>
       </form>
-      {state.message ? <p>{state.message}</p> : null}
+      {state.message ? <p className="ui-form-message">{state.message}</p> : null}
     </>
   );
 }
