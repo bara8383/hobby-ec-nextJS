@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getCategoryLabel, type DigitalCategory, type Product } from '@/data/products';
 
-const SITE_ORIGIN = 'https://example.com';
+export const SITE_ORIGIN = 'https://example.com';
 const SITE_NAME = 'Digital Creator Market';
 
 type MetadataTemplateInput = {
