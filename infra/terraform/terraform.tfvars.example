@@ -1,0 +1,10 @@
+aws_region         = "ap-northeast-1"
+project_name       = "hobby-ec"
+env                = "prod"
+instance_type      = "t3.small"
+allow_ssh          = false
+ssh_cidr           = "203.0.113.10/32"
+github_owner       = "your-github-owner"
+github_repo        = "hobby-ec-nextJS"
+github_branch      = "main"
+github_thumbprints = ["6938fd4d98bab03faadb97b34396831e3780aea1"]

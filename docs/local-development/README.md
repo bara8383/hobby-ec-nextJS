@@ -7,6 +7,21 @@
 - `docker-compose.local.yml`: 日常ローカル開発用（`web` + `db` + `localstack`）
 - `docker-compose.yml`: 本番近似確認用（production 相当の Next.js 起動）
 
+## 1.1 環境の住み分け（重要）
+
+- ローカル（compose + localstack）
+  - 目的: 開発・デバッグ
+  - 主体: `docker-compose.local.yml`
+- 本番（EC2 + SSM + GitHub Actions）
+  - 目的: `prod` のみを安全に運用
+  - 方針: SSH ではなく SSM Run Command でデプロイ
+- infra（Terraform）
+  - 目的: EC2 / IAM / SG / GitHub OIDC をコード管理
+  - 主体: `infra/terraform`
+  - 運用: 初回 bootstrap のみ人手、以後は GitHub Actions の OIDC 実行
+
+詳細は `docs/aws/terraform-ec2-oidc-ssm.md` を参照してください。
+
 ## 2. 事前準備
 
 1. `.env.example` をコピーして `.env` を作成
