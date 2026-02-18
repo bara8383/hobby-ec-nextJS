@@ -1,12 +1,6 @@
-import type { Metadata } from 'next';
+import { buildLegalMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = {
-  title: '特定商取引法に基づく表記',
-  description: 'Digital Creator Market の特定商取引法に基づく表記です。',
-  alternates: {
-    canonical: '/legal/tokushoho'
-  }
-};
+export const metadata = buildLegalMetadata();
 
 const legalItems = [
   { label: '販売事業者', value: 'Digital Creator Market 運営事務局' },

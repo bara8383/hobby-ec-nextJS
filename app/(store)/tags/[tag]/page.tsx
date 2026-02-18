@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { ProductCard } from '@/components/ProductCard';
 import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 import { getProductsByTag } from '@/data/products';
+import { buildTagMetadata } from '@/lib/seo/metadata';
 
 type Props = {
   params: Promise<{ tag: string }>;
@@ -9,19 +10,7 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { tag } = await params;
-  const canonical = `/tags/${encodeURIComponent(tag)}`;
-
-  return {
-    title: `タグ: ${tag}`,
-    description: `${tag}に関連するデジタル商品一覧です。`,
-    alternates: {
-      canonical
-    },
-    robots: {
-      index: false,
-      follow: true
-    }
-  };
+  return buildTagMetadata(tag);
 }
 
 export default async function TagPage({ params }: Props) {
