@@ -30,7 +30,13 @@ docker compose up --build
 ## 追加ドキュメント
 
 - ローカル実行手順（本番近似）: `docs/local-development/README.md`
+- Codex Environment Setup Script 運用: `docs/codex/ENV_SETUP.md`
 - 将来AWS構成（Mermaid/テキスト図）: `docs/future-aws-architecture/README.md`
+
+## CI（GitHub Actions）
+
+`main` 向けの `push` / `pull_request` では CI を必ず実行し、`npm ci` → `lint`（存在時のみ）→ `build`（必須）→ `test`（存在時のみ）を検証します。
+ローカル検証はコンテナでの再現性確認、マージ可否は CI の結果を基準に運用する想定です。
 
 ## AWS 低コストデプロイ案
 
