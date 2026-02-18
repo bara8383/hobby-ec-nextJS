@@ -31,10 +31,10 @@ export default function HomePage() {
   return (
     <main>
       <section className="hero">
-        <p className="hero-label">デジタル素材マーケットプレイス</p>
-        <h1>Digital Creator Market</h1>
+        <p className="hero-label">Calm Digital Market</p>
+        <h1>静かに選べる、やさしいデジタル素材ストア</h1>
         <p>
-          壁紙・イラスト・写真・デジタル音源を扱うデジタルコンテンツ販売ECです。用途別の導線から最適な素材を見つけ、購入前の疑問はリアルタイムチャットで即時相談できます。
+          余白を大切にした設計で、壁紙・写真・イラスト・デジタル音源を心地よく探せるECです。制作目的に合わせて比較しやすく、購入前の不安はリアルタイムチャットで解消できます。
         </p>
         <div className="hero-cta-row" aria-label="主要導線">
           <Link className="button-link" href="/products">
@@ -53,8 +53,8 @@ export default function HomePage() {
       </section>
 
       <section aria-label="カテゴリ導線">
-        <h2>カテゴリから探す</h2>
-        <p className="section-description">制作ジャンルに合わせて、最短で比較・検討できるカテゴリ導線を用意しています。</p>
+        <h2>カテゴリからゆっくり探す</h2>
+        <p className="section-description">制作ジャンルごとに視線移動が少ない導線で、落ち着いて比較できます。</p>
         <div className="category-grid">
           {PRODUCT_CATEGORIES.map((category) => (
             <Link key={category} className="category-card" href={`/categories/${category}`}>
@@ -67,6 +67,7 @@ export default function HomePage() {
 
       <section aria-label="価格帯導線">
         <h2>価格帯ショートカット</h2>
+        <p className="section-description">予算に合わせて、必要な素材を短時間で見つけられます。</p>
         <div className="quick-links">
           {PRICE_SHORTCUTS.map((shortcut) => (
             <Link
@@ -81,6 +82,7 @@ export default function HomePage() {
 
       <section aria-label="新着商品">
         <h2>新着商品</h2>
+        <p className="section-description">公開日の新しい順で、最新の制作素材をチェックできます。</p>
         <section className="grid" aria-label="新着商品一覧">
           {sortedByNewest.map((product) => (
             <ProductCard key={product.id} product={product} />
@@ -100,6 +102,7 @@ export default function HomePage() {
 
       <section aria-label="タグ導線">
         <h2>人気タグ</h2>
+        <p className="section-description">利用シーンをイメージしやすいタグで横断的に探せます。</p>
         <div className="quick-links">
           {allTags.map((tag) => (
             <Link key={tag} href={`/tags/${tag}`}>
@@ -110,7 +113,7 @@ export default function HomePage() {
       </section>
 
       <section className="chat-cta-band" aria-label="購入前相談導線">
-        <h2>購入前に迷ったらチャットで相談</h2>
+        <h2>購入前に迷ったら、チャットで気軽に相談</h2>
         <p>利用範囲・納品形式・商用可否の確認をその場でサポートします。</p>
         <Link className="button-link" href="/chat">
           チャットページへ

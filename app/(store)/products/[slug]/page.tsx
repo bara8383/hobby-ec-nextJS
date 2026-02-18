@@ -48,7 +48,7 @@ export default async function ProductDetailPage({ params }: Props) {
           { name: product.name, path: `/products/${product.slug}` }
         ]}
       />
-      <Section>
+      <Section className="detail-layout">
         <Card className="detail" itemScope itemType="https://schema.org/Product">
           <Badge variant="accent">{getCategoryLabel(product.category)}</Badge>
           <h1 itemProp="name">{product.name}</h1>
@@ -67,7 +67,7 @@ export default async function ProductDetailPage({ params }: Props) {
           </ul>
           <p className="price">¥{product.priceJpy.toLocaleString('ja-JP')}</p>
 
-          <div className="cta-row">
+          <div className="cta-row" aria-label="購入アクション">
             <AddToCartButton productSlug={product.slug} />
             <ButtonLink href="/cart" variant="secondary">
               カートを見る
