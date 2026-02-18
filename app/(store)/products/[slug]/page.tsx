@@ -25,7 +25,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  return buildProductMetadata(product);
+  const ogImageUrl = `/og/product?slug=${encodeURIComponent(product.slug)}`;
+
+  return buildProductMetadata(product, ogImageUrl);
 }
 
 export default async function ProductDetailPage({ params }: Props) {
