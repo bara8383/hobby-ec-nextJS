@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { ProductCard } from '@/components/ProductCard';
+import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 import { ProductFilters } from '@/components/product/ProductFilters';
 import { searchProducts, type ProductSearchFilters } from '@/data/products';
 
@@ -9,6 +10,19 @@ type Props = {
 
 function readValue(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
+}
+
+function buildProductsCanonical(params: Record<string, string | string[] | undefined>) {
+  const query = new URLSearchParams();
+
+  ['q', 'category', 'tag', 'priceMin', 'priceMax', 'sort'].forEach((key) => {
+    const value = readValue(params[key]);
+    if (value) {
+      query.set(key, value);
+    }
+  });
+
+  return query.toString() ? `/products?${query.toString()}` : '/products';
 }
 
 function parseFilters(params: Record<string, string | string[] | undefined>): ProductSearchFilters {
@@ -27,16 +41,7 @@ function parseFilters(params: Record<string, string | string[] | undefined>): Pr
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const params = await searchParams;
-  const query = new URLSearchParams();
-
-  ['q', 'category', 'tag', 'priceMin', 'priceMax', 'sort'].forEach((key) => {
-    const value = readValue(params[key]);
-    if (value) {
-      query.set(key, value);
-    }
-  });
-
-  const canonical = query.toString() ? `/products?${query.toString()}` : '/products';
+  const canonical = buildProductsCanonical(params);
 
   return {
     title: '商品一覧',
@@ -51,9 +56,16 @@ export default async function ProductsPage({ searchParams }: Props) {
   const params = await searchParams;
   const filters = parseFilters(params);
   const items = searchProducts(filters);
+  const canonical = buildProductsCanonical(params);
 
   return (
     <main>
+      <Breadcrumbs
+        items={[
+          { name: 'ホーム', path: '/' },
+          { name: '商品一覧', path: canonical }
+        ]}
+      />
       <h1>商品一覧</h1>
       <p>カテゴリ・タグ・価格帯で絞り込みながら、用途に合うデジタル商品を探せます。</p>
       <ProductFilters filters={filters} />

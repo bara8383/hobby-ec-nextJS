@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ProductCard } from '@/components/ProductCard';
+import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 import {
   getCategoryLabel,
   getProductsByCategory,
@@ -41,10 +42,18 @@ export default async function CategoryPage({ params }: Props) {
   }
 
   const items = getProductsByCategory(category);
+  const categoryLabel = getCategoryLabel(category);
 
   return (
     <main>
-      <h1>{getCategoryLabel(category)}</h1>
+      <Breadcrumbs
+        items={[
+          { name: 'ホーム', path: '/' },
+          { name: '商品一覧', path: '/products' },
+          { name: categoryLabel, path: `/categories/${category}` }
+        ]}
+      />
+      <h1>{categoryLabel}</h1>
       <p>カテゴリ特化ページとして、検索意図に合う商品をまとめています。</p>
       <section className="grid" aria-label="カテゴリ商品一覧">
         {items.map((product) => (
