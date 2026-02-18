@@ -41,12 +41,28 @@ export async function writeCart(lines: CartLine[]) {
 
 export async function addToCart(slug: string) {
   const current = await readCart();
-  const exists = current.some((line) => line.productSlug === slug);
+  const existing = current.find((line) => line.productSlug === slug);
 
-  if (!exists) {
-    current.push({ productSlug: slug, quantity: 1 });
+  if (existing) {
+    existing.quantity += 1;
     await writeCart(current);
+    return;
   }
+
+  current.push({ productSlug: slug, quantity: 1 });
+  await writeCart(current);
+}
+
+export async function setCartLineQuantity(slug: string, quantity: number) {
+  const current = await readCart();
+  const target = current.find((line) => line.productSlug === slug);
+
+  if (!target) {
+    throw new Error('対象の商品がカートに存在しません。');
+  }
+
+  target.quantity = quantity;
+  await writeCart(current);
 }
 
 export async function removeCartLine(slug: string) {
