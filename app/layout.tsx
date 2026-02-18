@@ -37,7 +37,12 @@ export default function RootLayout({
             <nav aria-label="主要ナビゲーション" className="site-nav">
               <Link href="/products">商品一覧</Link>
               <Link href="/search">条件検索</Link>
+              <Link href="/categories">カテゴリ</Link>
+              <Link href="/tags">タグ</Link>
+              <Link href="/faq">FAQ</Link>
+              <Link href="/help">ヘルプ</Link>
               <Link href="/mypage/library">購入済みライブラリ</Link>
+              <Link href="/mypage/orders">注文履歴</Link>
               <Link href="/mypage/settings">アカウント設定</Link>
             </nav>
           </div>
@@ -50,6 +55,9 @@ export default function RootLayout({
             <p>© {new Date().getFullYear()} Digital Creator Market</p>
             <nav aria-label="フッターナビゲーション">
               <Link href="/legal/tokushoho">特定商取引法に基づく表記</Link>
+              <Link href="/legal/terms">利用規約</Link>
+              <Link href="/legal/privacy">プライバシーポリシー</Link>
+              <Link href="/contact">お問い合わせ</Link>
             </nav>
           </div>
         </footer>

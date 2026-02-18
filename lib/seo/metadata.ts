@@ -89,10 +89,6 @@ export function buildTagMetadata(tag: string): Metadata {
     title: `タグ: ${tag}`,
     description: `${tag}に関連するデジタル商品一覧です。`,
     canonicalPath,
-    robots: {
-      index: false,
-      follow: true
-    }
   });
 }
 
@@ -101,10 +97,6 @@ export function buildSearchMetadata(canonicalPath: string): Metadata {
     title: '検索結果',
     description: 'サイト内検索結果ページです。',
     canonicalPath,
-    robots: {
-      index: false,
-      follow: true
-    }
   });
 }
 
@@ -113,6 +105,54 @@ export function buildLegalMetadata(): Metadata {
     title: '特定商取引法に基づく表記',
     description: 'Digital Creator Market の特定商取引法に基づく表記です。',
     canonicalPath: '/legal/tokushoho'
+  });
+}
+
+export function buildLegalPageMetadata(input: {
+  title: string;
+  description: string;
+  canonicalPath: string;
+}): Metadata {
+  return buildMetadataTemplate(input);
+}
+
+export function buildCategoryHubMetadata(): Metadata {
+  return buildMetadataTemplate({
+    title: 'カテゴリ一覧',
+    description: '壁紙・写真・イラスト・音源など用途別カテゴリから商品を探せる一覧ページです。',
+    canonicalPath: '/categories'
+  });
+}
+
+export function buildTagHubMetadata(): Metadata {
+  return buildMetadataTemplate({
+    title: 'タグ一覧',
+    description: '人気タグからデジタル商品を横断的に探せるハブページです。',
+    canonicalPath: '/tags'
+  });
+}
+
+export function buildFaqMetadata(): Metadata {
+  return buildMetadataTemplate({
+    title: 'よくある質問（FAQ）',
+    description: '購入前後のよくある質問と回答をまとめたサポートページです。',
+    canonicalPath: '/faq'
+  });
+}
+
+export function buildHelpMetadata(): Metadata {
+  return buildMetadataTemplate({
+    title: 'ヘルプセンター',
+    description: '注文・配送・支払い・返品・アカウントに関するサポート導線を集約しています。',
+    canonicalPath: '/help'
+  });
+}
+
+export function buildContactMetadata(): Metadata {
+  return buildMetadataTemplate({
+    title: 'お問い合わせ',
+    description: '注文・商品・アカウントに関するお問い合わせを受け付けています。',
+    canonicalPath: '/contact'
   });
 }
 

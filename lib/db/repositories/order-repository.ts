@@ -73,3 +73,12 @@ export function getOrderItemForUser(orderItemId: string, userId: string) {
 
   return item;
 }
+
+
+export function listOrdersByUser(userId: string) {
+  return orders.filter((order) => order.userId === userId);
+}
+
+export function getOrderForUser(orderId: string, userId: string) {
+  return orders.find((order) => order.id === orderId && order.userId === userId);
+}
