@@ -70,8 +70,8 @@ export async function CheckoutContent() {
   const total = items.reduce((sum, item) => sum + item.product.priceJpy * item.quantity, 0);
 
   return (
-    <Card>
-      <h2>注文内容</h2>
+    <Card className="checkout-wrapper">
+      <h2>ご注文内容</h2>
       <ul className="checkout-list">
         {items.map((item) => (
           <li key={item.product.slug}>
@@ -80,6 +80,7 @@ export async function CheckoutContent() {
         ))}
       </ul>
       <p className="price">合計: ¥{total.toLocaleString('ja-JP')}</p>
+      <p className="checkout-note">内容をご確認のうえ、下のボタンから購入を確定してください。</p>
       <form action={placeOrderAction}>
         <Button type="submit">注文確定</Button>
       </form>

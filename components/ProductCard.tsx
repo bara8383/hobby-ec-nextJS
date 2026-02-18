@@ -10,6 +10,7 @@ type Props = {
 export function ProductCard({ product }: Props) {
   return (
     <Card className="product-card" itemScope itemType="https://schema.org/Product">
+      <div className="product-image-placeholder" aria-hidden="true" />
       <Badge variant="accent">{getCategoryLabel(product.category)}</Badge>
       <h2 itemProp="name">{product.name}</h2>
       <p itemProp="description">{product.description}</p>
