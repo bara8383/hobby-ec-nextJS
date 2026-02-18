@@ -1,6 +1,11 @@
-import { buildLegalMetadata } from '@/lib/seo/metadata';
+import { LegalPageTemplate } from '@/app/(store)/legal/LegalPageTemplate';
+import { buildLegalPageMetadata } from '@/lib/seo/metadata';
 
-export const metadata = buildLegalMetadata();
+export const metadata = buildLegalPageMetadata({
+  title: '特定商取引法に基づく表記',
+  description: 'Digital Creator Market の特定商取引法に基づく表記です。',
+  canonicalPath: '/legal/tokushoho'
+});
 
 const legalItems = [
   { label: '販売事業者', value: 'Digital Creator Market 運営事務局' },
@@ -20,18 +25,10 @@ const legalItems = [
 
 export default function TokushohoPage() {
   return (
-    <main>
-      <h1>特定商取引法に基づく表記</h1>
-      <p>デジタルコンテンツ販売に関する法定情報を以下に掲載しています。</p>
-
-      <dl className="legal-list">
-        {legalItems.map((item) => (
-          <div key={item.label} className="legal-item">
-            <dt>{item.label}</dt>
-            <dd>{item.value}</dd>
-          </div>
-        ))}
-      </dl>
-    </main>
+    <LegalPageTemplate
+      title="特定商取引法に基づく表記"
+      lead="デジタルコンテンツ販売に関する法定情報を以下に掲載しています。"
+      sections={legalItems}
+    />
   );
 }

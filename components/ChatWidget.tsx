@@ -26,7 +26,11 @@ const conversationId = 'support-demo';
 const demoUserId = 'user-demo';
 const maxRetryMs = 10000;
 
-export function ChatWidget() {
+type ChatWidgetProps = {
+  initialMessage?: string;
+};
+
+export function ChatWidget({ initialMessage }: ChatWidgetProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [text, setText] = useState('');
   const [connection, setConnection] = useState<'connecting' | 'connected' | 'reconnecting'>('connecting');
@@ -45,6 +49,12 @@ export function ChatWidget() {
     const payload = (await response.json()) as { messages: ChatMessage[] };
     setMessages(payload.messages);
   }, []);
+
+  useEffect(() => {
+    if (initialMessage?.trim()) {
+      setText(initialMessage);
+    }
+  }, [initialMessage]);
 
   useEffect(() => {
     document.cookie = `chat_demo_user_id=${demoUserId}; path=/; max-age=86400`;

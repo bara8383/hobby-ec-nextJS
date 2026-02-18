@@ -28,6 +28,7 @@ export default function LibraryPage() {
     <main>
       <h1>購入済みライブラリ</h1>
       <p>ダウンロード可能期間は購入日から30日、最大5回まで再ダウンロードできます。</p>
+      <p>注文単位で確認したい場合は <Link href="/mypage/orders">注文履歴</Link> をご利用ください。</p>
       {items.length === 0 ? (
         <p>購入済み商品はまだありません。</p>
       ) : (
