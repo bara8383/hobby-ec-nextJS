@@ -1,32 +1,28 @@
-# ローカル開発手順
+# ローカル開発手順（Docker Compose 前提）
 
-本ドキュメントは、ローカル PC でこのプロジェクトを起動するための手順をまとめたものです。
+このドキュメントは、`git clone` 済みの状態から **Next.js(App Router) + Postgres + LocalStack(S3/SQS)** をローカル起動するための手順です。  
+日常開発は `docker-compose.local.yml`、本番近似確認は `docker-compose.yml` を利用します。
 
-- **最短で画面確認したい場合**: 「4. Node.js だけで起動（最短）」
-- **本番に近い依存込みで確認したい場合（推奨）**: 「5. Docker Compose で起動（推奨）」
+## 1. 前提環境
 
-> このプロジェクトのローカル検証は **コンテナ起動を基本** とし、AWS 相当の依存は **LocalStack（S3 + SQS）** で再現します。
+### 必須ツール
 
-## 0. 前提環境（ローカル PC）
-
-### 必須
-
+- Docker Desktop（macOS / Windows）または Docker Engine（Linux）
+- Docker Compose v2（`docker compose` コマンド）
 - Git
-- Node.js 20 以上（LTS 推奨）
-- npm（Node.js 同梱）
 
-### 推奨（コンテナ起動する場合）
+> このリポジトリはコンテナ起動を推奨します。Node.js をホストに直接入れなくても起動できます。
 
-- Docker Desktop（または Docker Engine + Compose Plugin）
+### OS 別の補足（差分がある点のみ）
 
-## 1. リポジトリ取得
+- **macOS**
+  - Docker Desktop を起動してから作業してください。
+- **Windows (WSL2)**
+  - Docker Desktop + WSL2 連携を有効化し、**WSL 側の Linux パス配下**（例: `~/src/...`）で作業してください。`/mnt/c` 配下は I/O が遅くなることがあります。
+- **Linux**
+  - `docker` / `docker compose` を sudo なしで実行するには、必要に応じてユーザーを `docker` グループに追加してください。
 
-```bash
-git clone <このリポジトリのURL>
-cd hobby-ec-nextJS
-```
-
-## 2. 環境変数ファイルを作成
+## 2. まず `.env` を作成する（必須）
 
 `.env.example` をコピーして `.env` を作成します。
 
@@ -34,109 +30,161 @@ cd hobby-ec-nextJS
 cp .env.example .env
 ```
 
-必要に応じて次の値を調整してください。
+最低限、以下が入っていることを確認してください。
 
-- `LOCAL_S3_BUCKET`（初期値: `hobby-ec-local-bucket`）
-- `LOCAL_SQS_QUEUE_NAME`（初期値: `hobby-ec-local-queue`）
+- `AWS_ENDPOINT_URL=http://localstack:4566`
+- `LOCAL_S3_BUCKET=hobby-ec-local-bucket`
+- `LOCAL_SQS_QUEUE_NAME=hobby-ec-local-queue`
+- `DATABASE_URL=postgresql://hobby_ec:hobby_ec@db:5432/hobby_ec_local`
 
-## 3. 依存パッケージのインストール
+## 3. ローカル開発起動（推奨: `docker-compose.local.yml`）
 
-Node.js 起動を行う場合は、先に依存を入れます。
-
-```bash
-npm ci
-```
-
-## 4. Node.js だけで起動（最短）
-
-まずは画面確認だけしたい場合に有効です。
-
-```bash
-npm run dev
-```
-
-起動後:
-
-- アプリ: `http://localhost:3000`
-
-> 注意: Node.js 単体起動では Postgres / LocalStack を別途起動していないため、機能によっては動作確認が限定されます。
-
-## 5. Docker Compose で起動（推奨）
-
-AWS 依存を含めたローカル再現を行う場合は、こちらを使います。
+### 起動
 
 ```bash
 docker compose -f docker-compose.local.yml up --build
 ```
 
-起動後:
+起動後の主要エンドポイント:
 
 - アプリ: `http://localhost:3000`
 - LocalStack: `http://localhost:4566`
 - Postgres: `localhost:5432`
 
-### LocalStack 初期化
+### LocalStack リソース作成
 
-`localstack/init/01_create_resources.sh` が LocalStack の ready hook で自動実行され、以下を作成します。
+`localstack` コンテナ起動時、ready hook として以下が自動実行されます。
 
-- S3 バケット: `hobby-ec-local-bucket`（`LOCAL_S3_BUCKET` で変更可）
-- SQS キュー: `hobby-ec-local-queue`（`LOCAL_SQS_QUEUE_NAME` で変更可）
+- `./localstack/init/01_create_resources.sh`
 
-## 6. 構成ファイルの役割分担
+このスクリプトにより、S3/SQS のローカルリソースが作成されます（`LOCAL_S3_BUCKET` / `LOCAL_SQS_QUEUE_NAME` に追従）。
 
-- `docker-compose.local.yml`: 日常ローカル開発用（`web` + `db` + `localstack`）
-- `docker-compose.yml`: 本番近似確認用（production 相当の Next.js 起動）
+### 停止
 
-## 6.1 環境の住み分け（重要）
+```bash
+docker compose -f docker-compose.local.yml down
+```
 
-- ローカル（compose + localstack）
-  - 目的: 開発・デバッグ
-  - 主体: `docker-compose.local.yml`
-- 本番（EC2 + SSM + GitHub Actions）
-  - 目的: `prod` のみを安全に運用
-  - 方針: SSH ではなく SSM Run Command でデプロイ
-- infra（Terraform）
-  - 目的: EC2 / IAM / SG / GitHub OIDC をコード管理
-  - 主体: `infra/terraform`
-  - 運用: 初回 bootstrap のみ人手、以後は GitHub Actions の OIDC 実行
+### DB/LocalStack データも含めてリセット
 
-詳細は `docs/aws/terraform-ec2-oidc-ssm.md` を参照してください。
+```bash
+docker compose -f docker-compose.local.yml down -v
+```
 
-## 7. 疎通確認
+## 4. 本番近似確認（`docker-compose.yml`）
 
-以下へアクセスし、`ok: true` と S3/SQS の確認結果が返ることを確認します。
-
-- `GET http://localhost:3000/api/localstack/health`
-
-## 8. 本番近似確認（既存手順）
-
-本番近似での確認は、既存の `docker-compose.yml` を利用します。
+Dockerfile の build/start 経路を使って `NODE_ENV=production` で確認します。
 
 ```bash
 docker compose up --build
 ```
 
-- `NODE_ENV=production` で起動
-- Dockerfile ベースの build / start 経路を確認可能
-
-## 9. 停止・リセット・便利コマンド
+停止:
 
 ```bash
-# ローカル開発コンテナ停止
-docker compose -f docker-compose.local.yml down
-
-# ローカル開発コンテナ停止 + volume 削除
-docker compose -f docker-compose.local.yml down -v
-
-# 本番ビルド確認
-npm run build
+docker compose down
 ```
 
-## 10. よくあるつまずき
+## 5. 起動確認チェックリスト
 
-- `Port 3000 is already in use`
-  - 別プロセスが 3000 番を使っています。該当プロセスを停止して再実行してください。
-- `docker compose` が見つからない
-  - Docker Desktop の起動状態、または Compose Plugin の導入を確認してください。
-- `npm ci` が失敗する
-  - Node.js バージョンを確認し、20 以上の LTS を使用してください。
+### 5.1 アクセス確認
+
+- [ ] `http://localhost:3000` が表示できる
+- [ ] `http://localhost:3000/api/localstack/health` が 200 を返す
+
+### 5.2 疎通確認コマンド
+
+```bash
+# アプリ health（JSONで ok:true 想定）
+curl -s http://localhost:3000/api/localstack/health
+
+# LocalStack の状態
+curl -s http://localhost:4566/_localstack/health
+
+# コンテナ状態確認
+docker compose -f docker-compose.local.yml ps
+```
+
+### 5.3 ログの見方
+
+```bash
+# 全サービス追従
+docker compose -f docker-compose.local.yml logs -f
+
+# サービス個別
+docker compose -f docker-compose.local.yml logs -f web
+docker compose -f docker-compose.local.yml logs -f db
+docker compose -f docker-compose.local.yml logs -f localstack
+```
+
+## 6. トラブルシュート（失敗しやすいポイント）
+
+### 6.1 ポート競合（3000 / 5432 / 4566）
+
+症状:
+
+- `Bind for 0.0.0.0:3000 failed: port is already allocated`
+- `Port 5432 is already in use` など
+
+対処:
+
+- 競合プロセスを停止する。
+- 既存コンテナが残っている場合は `docker compose -f docker-compose.local.yml down` を実行してから再起動する。
+
+### 6.2 `.env` 不足・値不整合
+
+症状:
+
+- `env_file .env not found`
+- アプリは起動したが S3/SQS 接続に失敗する
+
+対処:
+
+- `cp .env.example .env` を再実行し、必須値が存在するか確認する。
+- LocalStack を使う場合、`AWS_ENDPOINT_URL` は `http://localstack:4566`（**コンテナ内名前解決**）を使う。
+
+### 6.3 コンテナ内/外で接続先を混同する
+
+ポイント:
+
+- **web コンテナから db へ**: `db:5432`（`localhost` ではない）
+- **ホストPCから db へ**: `localhost:5432`
+- **web コンテナから LocalStack へ**: `http://localstack:4566`
+- **ホストPCから LocalStack へ**: `http://localhost:4566`
+
+### 6.4 初回 `npm install` が遅い
+
+症状:
+
+- `web` 起動時に時間がかかる（`npm install` 実行中）
+
+理由:
+
+- `docker-compose.local.yml` の `web` は起動コマンドで `npm install && npm run dev` を実行するため、初回は依存解決に時間がかかります。
+
+対処:
+
+- 初回は数分待つ。
+- 途中経過は `docker compose -f docker-compose.local.yml logs -f web` で確認する。
+
+### 6.5 ボリューム権限（主に Linux）
+
+症状:
+
+- `EACCES` や `permission denied` が出る
+
+対処:
+
+- プロジェクト配下ファイルの所有権/権限を見直す。
+- 既存ボリュームが壊れている場合は `docker compose -f docker-compose.local.yml down -v` 後に再起動する。
+
+## 7. 参考（最短の Node.js 単体起動）
+
+依存サービスを使わず画面だけ確認したい場合:
+
+```bash
+npm ci
+npm run dev
+```
+
+> ただし Postgres / LocalStack 依存機能は確認できないため、通常開発は Compose 起動を推奨します。

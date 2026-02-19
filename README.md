@@ -40,15 +40,21 @@ npm run dev
 - CI は `.github/workflows/ci.yml` で `.nvmrc` を読み込み、`check-latest: true` で 22 系最新パッチを利用します。
 - Docker はベースイメージに `node:22-*`（本番は `*-slim` 推奨）を指定し、ビルド/実行で同一メジャーを利用してください。
 
-## ローカル起動（Container）
+## Docker で最短起動
 
 ```bash
-docker compose up --build
+cp .env.example .env
+docker compose -f docker-compose.local.yml up --build
 ```
+
+- 開発構成（推奨）: `docker-compose.local.yml`（web + postgres + localstack）
+- 本番近似確認: `docker-compose.yml`（production build/start）
+
+詳細手順・トラブルシュートは `docs/local-development/README.md` を参照してください。
 
 ## 追加ドキュメント
 
-- ローカル実行手順（本番近似）: `docs/local-development/README.md`
+- ローカル開発手順（推奨 + 本番近似 + トラブルシュート）: `docs/local-development/README.md`
 - Codex Environment Setup Script 運用: `docs/codex/ENV_SETUP.md`
 - 将来AWS構成（Mermaid/テキスト図）: `docs/future-aws-architecture/README.md`
 
