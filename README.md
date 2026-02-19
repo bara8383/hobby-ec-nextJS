@@ -21,6 +21,25 @@ npm run dev
 
 `http://localhost:3000`
 
+## Node.js / npm 運用方針（LTS固定 + パッチ追随）
+
+- Node.js は **22系 LTS** に固定（`.nvmrc` を唯一の基準とする）。
+- npm は Node 同梱版を原則利用（`packageManager: npm@10` / `engines` で許容範囲を明示）。
+- lockfile は `package-lock.json` を正として、依存更新は PR で差分レビューする。
+
+### セットアップ
+
+```bash
+nvm use
+npm ci
+npm run dev
+```
+
+## CI / Docker での固定
+
+- CI は `.github/workflows/ci.yml` で `.nvmrc` を読み込み、`check-latest: true` で 22 系最新パッチを利用します。
+- Docker はベースイメージに `node:22-*`（本番は `*-slim` 推奨）を指定し、ビルド/実行で同一メジャーを利用してください。
+
 ## ローカル起動（Container）
 
 ```bash
