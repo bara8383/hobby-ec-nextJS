@@ -23,14 +23,14 @@ cp .env.example .env
 docker compose -f docker-compose.local.yml up --build
 ```
 
-- `web`（`node:22-alpine`）
-  - `npm install && npm run dev`
+- `web`（`node:22-bookworm-slim`）
+  - `npm ci && npm run dev`
   - 公開ポート: `3000:3000`
 - `db`（`postgres:16-alpine`）
   - 公開ポート: `5432:5432`
 - `localstack`（`localstack/localstack:3.8`）
   - 公開ポート: `4566:4566`
-  - `SERVICES=s3,sqs`
+  - `SERVICES=s3,sqs,dynamodb`
   - `./localstack/init` が ready hook として実行されます
 
 停止:
@@ -63,8 +63,8 @@ LocalStack init の実行内容（`localstack/init/01_create_resources.sh`）:
 
 補足:
 
-- `docker-compose.local.yml` の `SERVICES` は `s3,sqs` です。
-- そのため、スクリプト内の DynamoDB 作成処理は実行環境によって結果が変わる可能性があります（スクリプトは `|| true` で継続する実装）。
+- `docker-compose.local.yml` の `SERVICES` は `s3,sqs,dynamodb` です。
+- `localstack/init/01_create_resources.sh` の DynamoDB テーブル作成と整合しており、ローカル起動時に必要なテーブルを初期化できます。
 
 ## 5. 起動確認（URL / curl / docker compose ps / logs）
 
@@ -102,5 +102,9 @@ docker compose -f docker-compose.local.yml logs -f localstack
   - 対処: web からは `db:5432` と `http://localstack:4566` を使用
 
 - 症状: LocalStack 起動後に DynamoDB 関連が期待通り作成されない
-  - 原因: `SERVICES=s3,sqs` 設定により DynamoDB が有効化されていない可能性
-  - 対処: `docker compose -f docker-compose.local.yml logs -f localstack` で init 実行結果を確認し、必要なら LocalStack 設定を見直す
+  - 原因: 以前の設定で `SERVICES=s3,sqs` のまま起動していた、または古い volume が残っている
+  - 対処: `docker compose -f docker-compose.local.yml down -v` 実行後に再度 `docker compose -f docker-compose.local.yml up --build` し、`logs -f localstack` で `CreateTable` 成功を確認
+
+- 症状: `web` コンテナで `next dev` が `SIGBUS` で終了する
+  - 原因: `node:22-alpine`（musl）環境依存で Next.js 開発サーバーが不安定になる場合がある
+  - 対処: `web` イメージを `node:22-bookworm-slim` にし、依存インストールは `npm ci` を使用
