@@ -1,7 +1,6 @@
 # ローカル開発手順（Docker Compose 前提）
-
-このドキュメントは、`git clone` 済みの状態から **Next.js(App Router) + Postgres + LocalStack(S3/SQS)** をローカル起動するための手順です。  
-日常開発は `docker-compose.local.yml`、本番近似確認は `docker-compose.yml` を利用します。
+  
+- 日常開発 : `docker-compose.local.yml`
 
 ## 1. 前提環境
 
@@ -9,20 +8,10 @@
 
 - Docker Desktop（macOS / Windows）または Docker Engine（Linux）
 - Docker Compose v2（`docker compose` コマンド）
-- Git
 
 > このリポジトリはコンテナ起動を推奨します。Node.js をホストに直接入れなくても起動できます。
 
-### OS 別の補足（差分がある点のみ）
-
-- **macOS**
-  - Docker Desktop を起動してから作業してください。
-- **Windows (WSL2)**
-  - Docker Desktop + WSL2 連携を有効化し、**WSL 側の Linux パス配下**（例: `~/src/...`）で作業してください。`/mnt/c` 配下は I/O が遅くなることがあります。
-- **Linux**
-  - `docker` / `docker compose` を sudo なしで実行するには、必要に応じてユーザーを `docker` グループに追加してください。
-
-## 2. まず `.env` を作成する（必須）
+## 2. `.env` を作成する
 
 `.env.example` をコピーして `.env` を作成します。
 
@@ -30,14 +19,7 @@
 cp .env.example .env
 ```
 
-最低限、以下が入っていることを確認してください。
-
-- `AWS_ENDPOINT_URL=http://localstack:4566`
-- `LOCAL_S3_BUCKET=hobby-ec-local-bucket`
-- `LOCAL_SQS_QUEUE_NAME=hobby-ec-local-queue`
-- `DATABASE_URL=postgresql://hobby_ec:hobby_ec@db:5432/hobby_ec_local`
-
-## 3. ローカル開発起動（推奨: `docker-compose.local.yml`）
+## 3. ローカル開発起動
 
 ### 起動
 
