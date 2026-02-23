@@ -6,18 +6,36 @@
 
 ---
 
+## 0. 再レビュー結果（正確性・表現チェック）
+
+### 概略
+
+1. 本ドキュメントは、主要な説明（受信/配信分離、署名検証、再接続復旧、冪等性）に**重大な誤りはなし**。
+2. ただし、Slack の「RTM」表現は実装方式の選択を誤解しやすいため、**Events API / Socket Mode 優先**が伝わるよう補正。
+3. 「返信可能時間」など仕様変更の影響を受けやすい表現は、**固定値を断定しない書き方**へ調整。
+4. 読み手の判断を迷わせる可能性がある箇所（配信保証・順序保証・SEOとの境界）を具体化。
+
+### 詳細（今回反映した改善）
+
+- Slack の説明を「RTMを主軸」と読めないように整理し、現在の一般的な選択肢（Events API / Socket Mode）を前面化。
+- LINE/Slack ともに「署名検証 + 再送/重複対策」を明示し、実装の必須要件を強調。
+- 「チャット画面 noindex」の意図を、SEO対象ページへのクロール集中という目的で補足。
+- 学習用途での最小構成に「イベントIDによる重複排除」と「カーソル再取得」を追記。
+
+---
+
 ## 1. 概要
 
 ### 概略
 
 1. リアルタイムチャットの本質は、**「低遅延な配信」+「順序と整合性の維持」+「再配信可能性」**の両立。
 2. LINE / Slack といった実運用サービスは、単一プロトコルではなく、**Push（即時通知）と Pull（履歴取得）を組み合わせる設計**を採用している。
-3. Next.js で EC サイトへ統合する場合は、表示層（RSC/Client）と配信基盤（WebSocket / Webhook / Queue）を責務分離する。
+3. Next.js で EC サイトへ統合する場合は、表示層（RSC/Client）と配信基盤（WebSocket / SSE / Webhook / Queue）を責務分離する。
 
 ### 詳細
 
 - LINE Messaging API は webhook ベースでイベントを受け取り、返信・プッシュメッセージ API で配信する構造が中心。
-- Slack は Events API / Socket Mode / Web API など複数経路を使い分ける構造で、運用要件に応じて接続方式を選択する。
+- Slack は主に Events API / Socket Mode / Web API を組み合わせて構成し、用途に応じて接続方式を選択する（RTM は既存資産向け文脈で扱われることが多い）。
 - どちらも「受信イベント処理」と「メッセージ保存・配信」を分離しており、信頼性と拡張性を担保している。
 
 ---
@@ -39,11 +57,12 @@
 - LINE は webhook 受信時に署名検証（`x-line-signature`）が必須。
 - Slack も署名検証（Signing Secret）が必須で、リプレイ耐性のため timestamp も検証する。
 - 受信直後に重い処理を行わず、キューへ積んで非同期処理することで遅延と失敗率を抑える。
+- 再送（redelivery / retry）を前提に、イベントID単位の重複排除を実装する。
 
 #### 2-2. 配信（Egress）
 
 - 即時性が必要な通知は WebSocket/SSE、履歴取得は HTTP API で分離する。
-- クライアント再接続時は「最後に受信したメッセージID」以降を再取得して欠損を埋める。
+- クライアント再接続時は「最後に受信したメッセージIDまたはカーソル」以降を再取得して欠損を埋める。
 - 既読・未読やタイピング状態などは、耐久保存の要否を分けて扱う（全件永続化しない設計が一般的）。
 
 #### 2-3. 整合性
@@ -74,7 +93,7 @@
 
 - webhook/event 署名検証（LINE/Slack とも必須）
 - メッセージ永続化 + 再取得 API（再接続時の欠損復旧）
-- 重複排除（idempotency）
+- 重複排除（idempotency / event-id）
 - 認可（会話参加者のみ閲覧・投稿可能）
 - 監査ログ（送信者・時刻・操作種別）
 
@@ -112,8 +131,8 @@
 
 ### 4-4. LINE/Slack 連携時の設計注意
 
-- LINE: webhook 受信から返信可能時間・送信 API 制約を意識し、同期処理を短く保つ。
-- Slack: rate limits と再送シグナル（retry）を前提に、失敗時再試行と重複抑止を実装する。
+- LINE: webhook 受信後は返信APIの利用制約（利用回数・有効期間など）を前提に、同期処理を短く保つ。
+- Slack: rate limits と retry シグナルを前提に、失敗時再試行と重複抑止を実装する。
 
 ### 4-5. SEO とチャットの共存
 
@@ -124,14 +143,15 @@
 
 ## 5. LINE / Slack 風チャットを学習実装する際の最小構成
 
-1. `POST /api/chat/events`（Webhook/Event受信 + 署名検証）
-2. `POST /api/chat/messages`（投稿API、認可あり）
+1. `POST /api/chat/events`（Webhook/Event受信 + 署名検証 + event-id重複排除）
+2. `POST /api/chat/messages`（投稿API、認可あり、idempotency key 対応）
 3. `GET /api/chat/messages?roomId=...&cursor=...`（履歴取得）
 4. `GET /api/chat/stream?roomId=...`（SSEまたはWS購読）
 5. DB テーブル:
    - rooms
    - room_members
    - messages（idempotency_key, created_at, sender_id）
+   - message_events（source_event_id など任意）
    - delivery_status（任意）
 
 ---
@@ -140,7 +160,7 @@
 
 - LINE Developers: Messaging API（Overview / Webhooks / Verify signature）  
   https://developers.line.biz/en/docs/messaging-api/
-- Slack API: Real Time Messaging（RTM 概要）, Events API, Socket Mode, Rate limits, Verifying requests from Slack  
+- Slack API: Overview / Events API / Socket Mode / Rate limits / Verifying requests from Slack  
   https://api.slack.com/
 - IETF RFC 6455: The WebSocket Protocol  
   https://datatracker.ietf.org/doc/html/rfc6455
