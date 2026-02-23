@@ -1,34 +1,26 @@
 import type { Metadata } from 'next';
-import { ChatWidget } from '@/components/ChatWidget';
+import { LineLikeChat } from '@/components/chat/LineLikeChat';
 import { Section } from '@/components/ui/Section';
 import { getCurrentUser } from '@/lib/auth/demo-session';
+import { ensureConversation } from '@/lib/chat/in-memory-chat-store';
 
 export const metadata: Metadata = {
   title: 'チャット相談',
-  description: '出品者・購入者・管理者の会話をリアルタイムに確認できます。',
+  description: '1対1チャットで購入前後の相談ができます。',
   robots: { index: false, follow: false }
 };
 
-export default async function ChatPage({
-  searchParams
-}: {
-  searchParams: Promise<{ conversationId?: string; message?: string }>;
-}) {
-  const params = await searchParams;
+export default async function ChatPage() {
   const user = await getCurrentUser();
-  const conversationId = params.conversationId?.trim() || 'buyer-support';
-  const preset = params.message ?? '';
+  const partnerId = user.id === 'seller-demo' ? 'buyer-demo' : 'seller-demo';
+  const conversation = ensureConversation(user.id, partnerId);
 
   return (
     <main>
-      <Section
-        className="hero"
-        title="リアルタイムチャット"
-        description="居心地の良さを優先した、購入前後の相談チャットです。"
-      >
-        <p className="hero-label">会話ID: {conversationId}</p>
+      <Section title="リアルタイムチャット" description="SSEで新着・既読を即時反映する最小実装です。">
+        <p className="hero-label">会話ID: {conversation.id}</p>
       </Section>
-      <ChatWidget initialMessage={preset} conversationId={conversationId} currentUserId={user.id} />
+      <LineLikeChat conversationId={conversation.id} currentUserId={user.id} />
     </main>
   );
 }
