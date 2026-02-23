@@ -4,7 +4,8 @@ import { issueSignedDownloadUrl } from '@/lib/storage/signed-url';
 
 export async function GET(_request: Request, context: { params: Promise<{ orderItemId: string }> }) {
   const { orderItemId } = await context.params;
-  const userId = 'user-demo';
+  const { getCurrentUser } = await import('@/lib/auth/demo-session');
+  const userId = (await getCurrentUser()).id;
 
   const item = getOrderItemForUser(orderItemId, userId);
 

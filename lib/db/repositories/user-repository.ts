@@ -2,11 +2,11 @@ import type { UserNotificationSettings, UserRecord } from '@/lib/db/schema/user'
 
 const users: UserRecord[] = [
   {
-    id: 'user-demo',
-    email: 'demo@example.com',
-    role: 'customer',
-    displayName: 'Demo User',
-    profileBio: '素材制作と配信を両立するクリエイターです。',
+    id: 'buyer-demo',
+    email: 'buyer@example.com',
+    roles: ['buyer'],
+    displayName: 'Calm Buyer',
+    profileBio: '静かな購買体験を重視するバイヤーです。',
     countryCode: 'JP',
     timezone: 'Asia/Tokyo',
     notifications: {
@@ -19,9 +19,26 @@ const users: UserRecord[] = [
     updatedAt: '2026-01-01T00:00:00.000Z'
   },
   {
+    id: 'seller-demo',
+    email: 'seller@example.com',
+    roles: ['seller', 'buyer'],
+    displayName: 'Studio Seller',
+    profileBio: '壁紙とBGMを販売しています。',
+    countryCode: 'JP',
+    timezone: 'Asia/Tokyo',
+    notifications: {
+      emailOrderUpdates: true,
+      emailProductNews: true,
+      chatSupportNotifications: true
+    },
+    passwordUpdatedAt: '2026-01-01T00:00:00.000Z',
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: '2026-01-01T00:00:00.000Z'
+  },
+  {
     id: 'admin-demo',
     email: 'admin@example.com',
-    role: 'admin',
+    roles: ['admin', 'seller', 'buyer'],
     displayName: 'Admin User',
     profileBio: '運営アカウント',
     countryCode: 'JP',

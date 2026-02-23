@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { products } from '@/data/products';
 import { createPaidOrder } from '@/lib/db/repositories/order-repository';
 import { issueDownloadGrant } from '@/lib/db/repositories/download-grant-repository';
-import { getUserById } from '@/lib/db/repositories/user-repository';
+import { getCurrentUser } from '@/lib/auth/demo-session';
 import { clearCart, readCart } from '@/lib/store/cart';
 import { Button, ButtonLink } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -11,10 +11,7 @@ import { Section } from '@/components/ui/Section';
 async function placeOrderAction() {
   'use server';
 
-  const user = getUserById('user-demo');
-  if (!user) {
-    throw new Error('valid userId is required');
-  }
+  const user = await getCurrentUser();
 
   const lines = (await readCart()).filter((line) => line.quantity > 0);
   if (lines.length === 0) {

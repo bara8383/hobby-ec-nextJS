@@ -19,8 +19,9 @@ function formatDate(value?: string) {
   return new Date(value).toLocaleDateString('ja-JP');
 }
 
-export default function OrdersPage() {
-  const userId = 'user-demo';
+export default async function OrdersPage() {
+  const { getCurrentUser } = await import('@/lib/auth/demo-session');
+  const userId = (await getCurrentUser()).id;
   const orders = listOrdersByUser(userId).sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
 
   return (

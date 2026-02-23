@@ -6,9 +6,10 @@ import {
   updateUserPasswordTimestamp,
   updateUserProfile
 } from '@/lib/db/repositories/user-repository';
+import { getCurrentUser } from '@/lib/auth/demo-session';
 
 const SETTINGS_PATH = '/mypage/settings';
-const USER_ID = 'user-demo';
+
 
 function normalizeCheckbox(value: FormDataEntryValue | null) {
   return value === 'on';
@@ -36,7 +37,8 @@ export async function updateProfileAction(formData: FormData) {
     redirect(`${SETTINGS_PATH}?section=profile&status=error`);
   }
 
-  updateUserProfile(USER_ID, {
+  const user = await getCurrentUser();
+  updateUserProfile(user.id, {
     displayName,
     profileBio,
     countryCode,
@@ -47,7 +49,8 @@ export async function updateProfileAction(formData: FormData) {
 }
 
 export async function updateNotificationsAction(formData: FormData) {
-  updateUserNotifications(USER_ID, {
+  const user = await getCurrentUser();
+  updateUserNotifications(user.id, {
     emailOrderUpdates: normalizeCheckbox(formData.get('emailOrderUpdates')),
     emailProductNews: normalizeCheckbox(formData.get('emailProductNews')),
     chatSupportNotifications: normalizeCheckbox(formData.get('chatSupportNotifications'))
@@ -65,7 +68,8 @@ export async function updatePasswordAction(formData: FormData) {
     redirect(`${SETTINGS_PATH}?section=security&status=error`);
   }
 
-  updateUserPasswordTimestamp(USER_ID);
+  const user = await getCurrentUser();
+  updateUserPasswordTimestamp(user.id);
 
   redirect(`${SETTINGS_PATH}?section=security&status=success`);
 }

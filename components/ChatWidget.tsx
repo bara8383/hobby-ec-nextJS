@@ -24,15 +24,15 @@ type StreamEvent =
       requestId: string;
     };
 
-const conversationId = 'support-demo';
-const demoUserId = 'user-demo';
 const maxRetryMs = 10000;
 
 type ChatWidgetProps = {
   initialMessage?: string;
+  conversationId: string;
+  currentUserId: string;
 };
 
-export function ChatWidget({ initialMessage }: ChatWidgetProps) {
+export function ChatWidget({ initialMessage, conversationId, currentUserId }: ChatWidgetProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [text, setText] = useState('');
   const [connection, setConnection] = useState<'connecting' | 'connected' | 'reconnecting'>('connecting');
@@ -50,7 +50,7 @@ export function ChatWidget({ initialMessage }: ChatWidgetProps) {
 
     const payload = (await response.json()) as { messages: ChatMessage[] };
     setMessages(payload.messages);
-  }, []);
+  }, [conversationId]);
 
   useEffect(() => {
     if (initialMessage?.trim()) {
@@ -59,8 +59,6 @@ export function ChatWidget({ initialMessage }: ChatWidgetProps) {
   }, [initialMessage]);
 
   useEffect(() => {
-    document.cookie = `chat_demo_user_id=${demoUserId}; path=/; max-age=86400`;
-
     let source: EventSource | null = null;
     let retryTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -101,7 +99,7 @@ export function ChatWidget({ initialMessage }: ChatWidgetProps) {
         clearTimeout(retryTimer);
       }
     };
-  }, [reloadHistory]);
+  }, [conversationId, reloadHistory]);
 
   const disabled = useMemo(() => text.trim().length === 0, [text]);
 
@@ -137,13 +135,13 @@ export function ChatWidget({ initialMessage }: ChatWidgetProps) {
   return (
     <section className="chat" aria-label="リアルタイムチャット">
       <header>
-        ショップチャット（リアルタイム）
+        チャット
         <small className="connection-status">状態: {connection}</small>
       </header>
       <div className="chat-messages">
         {messages.map((message) => (
-          <p key={message.messageId} className={`message ${message.senderId === demoUserId ? 'user' : 'staff'}`}>
-            {message.body}
+          <p key={message.messageId} className={`message ${message.senderId === currentUserId ? 'user' : 'staff'}`}>
+            <strong>{message.senderId === currentUserId ? 'あなた' : message.senderId}</strong>: {message.body}
           </p>
         ))}
       </div>
@@ -151,7 +149,7 @@ export function ChatWidget({ initialMessage }: ChatWidgetProps) {
         <Input
           value={text}
           onChange={(event) => setText(event.target.value)}
-          placeholder="配送や在庫について質問できます"
+          placeholder="丁寧な言葉で相談内容を送信してください"
           aria-label="メッセージ"
         />
         <Button type="submit" disabled={disabled}>

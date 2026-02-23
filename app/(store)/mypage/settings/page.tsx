@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getUserById } from '@/lib/db/repositories/user-repository';
+import { getCurrentUser } from '@/lib/auth/demo-session';
 import {
   updateNotificationsAction,
   updatePasswordAction,
@@ -52,7 +52,7 @@ export default async function AccountSettingsPage({
   searchParams: Promise<SearchParams>;
 }) {
   const resolvedSearchParams = await searchParams;
-  const user = getUserById('user-demo');
+  const user = await getCurrentUser();
 
   if (!user) {
     return (

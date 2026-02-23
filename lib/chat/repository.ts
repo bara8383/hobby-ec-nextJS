@@ -23,6 +23,14 @@ export async function ensureConversation(conversationId: string, participants: s
   return conversation;
 }
 
+export function listConversationsForUser(userId: string) {
+  return [...conversations.values()].filter((conversation) => conversation.participants.includes(userId));
+}
+
+export function listConversations() {
+  return [...conversations.values()];
+}
+
 export async function createMessageWithIdempotency(params: {
   conversationId: string;
   senderId: string;
@@ -81,7 +89,7 @@ export async function listConversationMessages(params: {
 }
 
 export async function ensureSupportConversationForUser(userId: string, conversationId: string) {
-  return ensureConversation(conversationId, [userId, 'staff-agent']);
+  return ensureConversation(conversationId, [userId, 'admin-demo']);
 }
 
 export function isParticipant(conversation: ChatConversation, userId: string) {

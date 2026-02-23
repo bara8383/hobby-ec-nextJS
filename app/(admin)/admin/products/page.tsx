@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { requireRole } from '@/lib/auth/demo-session';
 import { listProducts } from '@/lib/db/repositories/product-repository';
 
 export const metadata: Metadata = {
@@ -9,7 +10,8 @@ export const metadata: Metadata = {
   }
 };
 
-export default function AdminProductsPage() {
+export default async function AdminProductsPage() {
+  await requireRole('admin');
   const items = listProducts();
 
   return (

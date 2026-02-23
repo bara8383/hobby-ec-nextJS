@@ -23,7 +23,8 @@ export const metadata: Metadata = {
 
 export default async function LibraryDownloadPage({ params }: Props) {
   const { orderItemId } = await params;
-  const userId = 'user-demo';
+  const { getCurrentUser } = await import('@/lib/auth/demo-session');
+  const userId = (await getCurrentUser()).id;
 
   const item = getOrderItemForUser(orderItemId, userId);
 
