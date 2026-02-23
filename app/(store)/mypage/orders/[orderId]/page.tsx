@@ -29,7 +29,8 @@ function formatDate(value?: string) {
 
 export default async function OrderDetailPage({ params }: Props) {
   const { orderId } = await params;
-  const userId = 'user-demo';
+  const { getCurrentUser } = await import('@/lib/auth/demo-session');
+  const userId = (await getCurrentUser()).id;
   const order = getOrderForUser(orderId, userId);
 
   if (!order) {

@@ -1,4 +1,4 @@
-export type UserRole = 'customer' | 'admin';
+export type UserRole = 'buyer' | 'seller' | 'admin';
 
 export type UserNotificationSettings = {
   emailOrderUpdates: boolean;
@@ -9,7 +9,7 @@ export type UserNotificationSettings = {
 export type UserRecord = {
   id: string;
   email: string;
-  role: UserRole;
+  roles: UserRole[];
   displayName: string;
   profileBio?: string;
   countryCode: string;

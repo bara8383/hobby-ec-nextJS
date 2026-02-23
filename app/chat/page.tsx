@@ -1,31 +1,34 @@
 import type { Metadata } from 'next';
 import { ChatWidget } from '@/components/ChatWidget';
 import { Section } from '@/components/ui/Section';
+import { getCurrentUser } from '@/lib/auth/demo-session';
 
 export const metadata: Metadata = {
-  title: '購入前チャット相談',
-  description: '購入前の不明点をスタッフにチャットで相談できます。'
+  title: 'チャット相談',
+  description: '出品者・購入者・管理者の会話をリアルタイムに確認できます。',
+  robots: { index: false, follow: false }
 };
 
 export default async function ChatPage({
   searchParams
 }: {
-  searchParams: Promise<{ orderId?: string; message?: string }>;
+  searchParams: Promise<{ conversationId?: string; message?: string }>;
 }) {
   const params = await searchParams;
-  const preset = params.message ?? (params.orderId ? `注文ID: ${params.orderId}\nお問い合わせ内容: ` : '');
+  const user = await getCurrentUser();
+  const conversationId = params.conversationId?.trim() || 'buyer-support';
+  const preset = params.message ?? '';
 
   return (
     <main>
       <Section
         className="hero"
-        title="リアルタイムチャット相談"
-        description="在庫やライセンス範囲の質問を、SSEベースのセミリアルタイムチャットで受け付けています。"
+        title="リアルタイムチャット"
+        description="居心地の良さを優先した、購入前後の相談チャットです。"
       >
-        <p className="hero-label">購入前サポート</p>
-        {params.orderId ? <p>注文ID: {params.orderId} の問い合わせテンプレートを入力済みです。</p> : null}
+        <p className="hero-label">会話ID: {conversationId}</p>
       </Section>
-      <ChatWidget initialMessage={preset} />
+      <ChatWidget initialMessage={preset} conversationId={conversationId} currentUserId={user.id} />
     </main>
   );
 }

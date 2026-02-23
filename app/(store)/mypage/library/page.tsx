@@ -20,8 +20,9 @@ export const metadata: Metadata = {
   }
 };
 
-export default function LibraryPage() {
-  const userId = 'user-demo';
+export default async function LibraryPage() {
+  const { getCurrentUser } = await import('@/lib/auth/demo-session');
+  const userId = (await getCurrentUser()).id;
   const items = listPurchasedItemsByUser(userId);
 
   return (
