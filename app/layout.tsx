@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { SiteFooter } from '@/components/layout/SiteFooter';
 import { SiteHeader } from '@/components/layout/SiteHeader';
-import { Container } from '@/components/ui/Container';
 import { getCurrentUser } from '@/lib/auth/demo-session';
 import './globals.css';
 
@@ -38,17 +37,7 @@ export default async function RootLayout({
 
         {children}
 
-        <footer className="site-footer" aria-label="サイトフッター">
-          <Container className="site-footer-inner">
-            <p>© {new Date().getFullYear()} Digital Creator Market</p>
-            <nav aria-label="フッターナビゲーション">
-              <Link href="/legal/tokushoho">特定商取引法に基づく表記</Link>
-              <Link href="/legal/terms">利用規約</Link>
-              <Link href="/legal/privacy">プライバシーポリシー</Link>
-              <Link href="/contact">お問い合わせ</Link>
-            </nav>
-          </Container>
-        </footer>
+        <SiteFooter />
       </body>
     </html>
   );
