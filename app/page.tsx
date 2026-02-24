@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { HomeFilterSidebar } from '@/components/home/HomeFilterSidebar';
 import { HeroBackgroundSlideshow } from '@/components/home/HeroBackgroundSlideshow';
 import { ProductCard } from '@/components/ProductCard';
-import { HomeSearchBar } from '@/components/search/HomeSearchBar';
-import { allTags, getCategoryLabel, PRODUCT_CATEGORIES, products, type Product } from '@/data/products';
-import { searchProducts } from '@/lib/db/repositories/product-repository';
+import { HomeKeywordSearchBar } from '@/components/search/HomeKeywordSearchBar';
+import { allTags, getCategoryLabel, PRODUCT_CATEGORIES, products, searchProducts, type Product } from '@/data/products';
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -31,6 +31,17 @@ function readValue(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
+function readNumber(value: string | string[] | undefined) {
+  const rawValue = readValue(value);
+
+  if (!rawValue) {
+    return undefined;
+  }
+
+  const parsed = Number(rawValue);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : undefined;
+}
+
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const params = await searchParams;
   const q = readValue(params.q)?.trim();
@@ -51,16 +62,22 @@ export default async function HomePage({ searchParams }: Props) {
   const params = await searchParams;
   const q = readValue(params.q)?.trim() ?? '';
   const category = readValue(params.category)?.trim() ?? '';
+  const tag = readValue(params.tag)?.trim() ?? '';
+  const priceMin = readNumber(params.priceMin);
+  const priceMax = readNumber(params.priceMax);
   const sortValue = readValue(params.sort)?.trim();
-  const sort = sortValue === 'price_asc' || sortValue === 'price_desc' || sortValue === 'new' ? sortValue : 'new';
+  const sort = sortValue === 'price_asc' || sortValue === 'price_desc' || sortValue === 'newest' ? sortValue : 'newest';
 
   let items: Product[] = [];
   let errorMessage = '';
 
   try {
     items = searchProducts({
-      q,
+      query: q,
       category,
+      tag,
+      priceMin,
+      priceMax,
       sort
     });
   } catch {
@@ -91,7 +108,7 @@ export default async function HomePage({ searchParams }: Props) {
         <div className="hero-content">
           <p className="hero-label">Calm Digital Market</p>
           <h1>静かに選べる、やさしいデジタル素材ストア</h1>
-          <HomeSearchBar initialQuery={q} initialCategory={category} initialSort={sort} />
+          <HomeKeywordSearchBar initialQuery={q} />
           <p>
             余白を大切にした設計で、壁紙・写真・イラスト・デジタル音源を心地よく探せるECです。制作目的に合わせて比較しやすく、購入前の不安はリアルタイムチャットで解消できます。
           </p>
@@ -108,20 +125,25 @@ export default async function HomePage({ searchParams }: Props) {
 
       <section aria-label="ホーム商品一覧">
         <h2>ホーム商品一覧</h2>
-        <p className="section-description">キーワード・カテゴリ・並び順で絞り込みができます。URL共有でも同じ結果を再現できます。</p>
-        {errorMessage ? (
-          <p className="empty-state" role="alert">
-            {errorMessage}
-          </p>
-        ) : items.length === 0 ? (
-          <p className="empty-state">条件に一致する商品がありません。キーワードやカテゴリを変更してください。</p>
-        ) : (
-          <section className="grid" aria-label="ホーム商品検索結果">
-            {items.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </section>
-        )}
+        <p className="section-description">カテゴリ・タグ・価格帯・並び順を左のサイドバーで調整できます。URL共有でも同じ結果を再現できます。</p>
+        <div className="products-page">
+          <HomeFilterSidebar category={category} tag={tag} priceMin={priceMin} priceMax={priceMax} sort={sort} />
+          <div className="products-content">
+            {errorMessage ? (
+              <p className="empty-state" role="alert">
+                {errorMessage}
+              </p>
+            ) : items.length === 0 ? (
+              <p className="empty-state">条件に一致する商品がありません。フィルター条件を変更してください。</p>
+            ) : (
+              <section className="products-grid" aria-label="ホーム商品検索結果">
+                {items.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </section>
+            )}
+          </div>
+        </div>
       </section>
 
       <section className="value-badges" aria-label="価値訴求">
@@ -161,7 +183,7 @@ export default async function HomePage({ searchParams }: Props) {
       <section aria-label="注目商品">
         <h2>注目ピックアップ</h2>
         <p className="section-description">高単価で情報量の多い商品を中心に、制作現場で再利用しやすい素材を選定しています。</p>
-        <section className="grid" aria-label="注目商品一覧">
+        <section className="products-grid" aria-label="注目商品一覧">
           {featuredProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
