@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getCategoryLabel, getProductBySlug, products } from '@/data/products';
+import { getCurrentUser } from '@/lib/auth/demo-session';
+import { isGuest } from '@/lib/auth/permissions';
 import { AddToCartButton } from '@/components/product/AddToCartButton';
 import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 import { buildProductJsonLd } from '@/lib/seo/jsonld';
@@ -30,6 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ProductDetailPage({ params }: Props) {
+  const user = await getCurrentUser();
   const { slug } = await params;
   const product = getProductBySlug(slug);
 
@@ -38,6 +41,9 @@ export default async function ProductDetailPage({ params }: Props) {
   }
 
   const jsonLd = buildProductJsonLd(product);
+  const chatHref = isGuest(user)
+    ? `/login?next=${encodeURIComponent(`/products/${product.slug}`)}`
+    : `/chat?new=1&productId=${encodeURIComponent(product.id)}`;
 
   return (
     <main>
@@ -71,6 +77,9 @@ export default async function ProductDetailPage({ params }: Props) {
             <AddToCartButton productSlug={product.slug} />
             <ButtonLink href="/cart" variant="secondary">
               カートを見る
+            </ButtonLink>
+            <ButtonLink href={chatHref} variant="ghost">
+              この商品について相談
             </ButtonLink>
           </div>
         </Card>

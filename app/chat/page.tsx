@@ -64,6 +64,10 @@ export default async function ChatListPage({
               const partnerId = participants(conversation).find((id) => id !== user.id) ?? user.id;
               const partnerName = getUserById(partnerId)?.displayName ?? partnerId;
 
+              const productSlug =
+                conversation.productSlug ??
+                (conversation.productId ? getProductById(conversation.productId)?.slug : undefined);
+
               return (
                 <li key={conversation.id} style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 12 }}>
                   <Link href={`/chat/${conversation.id}`} style={{ display: 'grid', gap: 6, textDecoration: 'none' }}>
@@ -72,9 +76,7 @@ export default async function ChatListPage({
                     <span>最終更新: {formatDateTime(conversation.updatedAt)}</span>
                     {conversation.productId ? <span>商品ID: {conversation.productId}</span> : null}
                   </Link>
-                  {conversation.productSlug ? (
-                    <Link href={`/products/${conversation.productSlug}`}>商品詳細へ</Link>
-                  ) : null}
+                  {productSlug ? <Link href={`/products/${productSlug}`}>商品詳細へ</Link> : null}
                 </li>
               );
             })}
