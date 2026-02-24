@@ -2,7 +2,10 @@ export type Conversation = {
   id: string;
   userAId: string;
   userBId: string;
+  productId?: string;
+  productSlug?: string;
   createdAt: string;
+  updatedAt: string;
 };
 
 export type Message = {

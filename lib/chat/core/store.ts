@@ -35,10 +35,43 @@ export function ensureConversation(userAId: string, userBId: string) {
   const existing = conversations.get(id);
   if (existing) return existing;
 
-  const record: Conversation = { id, userAId, userBId, createdAt: nowIso() };
+  const now = nowIso();
+  const record: Conversation = { id, userAId, userBId, createdAt: now, updatedAt: now };
   conversations.set(id, record);
   messagesByConversation.set(id, []);
   return record;
+}
+
+export function listConversationsByUser(userId: string) {
+  return [...conversations.values()]
+    .filter((conversation) => isParticipant(conversation, userId))
+    .sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
+}
+
+export function findConversationByProduct(userId: string, productId: string) {
+  return (
+    [...conversations.values()].find(
+      (conversation) => isParticipant(conversation, userId) && conversation.productId === productId
+    ) ?? null
+  );
+}
+
+export function createConversation(params: { userId: string; productId: string; productSlug?: string; partnerUserId?: string }) {
+  const partnerUserId = params.partnerUserId ?? 'seller-demo';
+  const now = nowIso();
+  const conversation: Conversation = {
+    id: `conv_${randomUUID()}`,
+    userAId: params.userId,
+    userBId: partnerUserId,
+    productId: params.productId,
+    productSlug: params.productSlug,
+    createdAt: now,
+    updatedAt: now
+  };
+
+  conversations.set(conversation.id, conversation);
+  messagesByConversation.set(conversation.id, []);
+  return conversation;
 }
 
 export function findConversation(conversationId: string) {
@@ -58,6 +91,10 @@ export function createMessage(conversationId: string, senderId: string, text: st
   if (!messages) return null;
   const message: Message = { id: sortableMessageId(), conversationId, senderId, text, createdAt: nowIso() };
   messages.push(message);
+  const conversation = conversations.get(conversationId);
+  if (conversation) {
+    conversation.updatedAt = message.createdAt;
+  }
   return message;
 }
 
