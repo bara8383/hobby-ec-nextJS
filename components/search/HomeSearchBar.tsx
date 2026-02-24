@@ -60,6 +60,7 @@ export function HomeSearchBar({ initialQuery = '', initialCategory = '', initial
             className="ui-input"
             type="search"
             name="q"
+            aria-label="商品検索キーワード"
             defaultValue={initialQuery}
             placeholder="商品名やキーワードで検索"
             enterKeyHint="search"
@@ -87,7 +88,7 @@ export function HomeSearchBar({ initialQuery = '', initialCategory = '', initial
           </select>
         </label>
 
-        <button className="ui-button ui-button--primary" type="submit" disabled={isPending}>
+        <button className="ui-button ui-button--primary" type="submit" disabled={isPending} aria-label="検索を実行">
           検索
         </button>
       </div>
