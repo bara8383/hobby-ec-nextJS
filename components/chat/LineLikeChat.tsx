@@ -253,7 +253,11 @@ export function LineLikeChat({ conversationId, currentUserId }: { conversationId
       <header>
         LINE風チャット <small className="connection-status">状態: {status}</small>
       </header>
-      {error ? <p className="hero-label">{error}</p> : null}
+      {error ? (
+        <p className="hero-label" role="alert">
+          {error}
+        </p>
+      ) : null}
       <div ref={listRef} className="chat-messages" onScroll={onScroll}>
         {messages.map((message) => (
           <p key={message.id} className={`message ${message.senderId === currentUserId ? 'user' : 'staff'}`}>
@@ -263,8 +267,14 @@ export function LineLikeChat({ conversationId, currentUserId }: { conversationId
       </div>
       {showReadBadge ? <p className="hero-label">既読</p> : null}
       <form onSubmit={onSend} className="chat-form">
-        <Input value={text} onChange={(event) => setText(event.target.value)} maxLength={2000} />
-        <Button type="submit" disabled={!text.trim() || status === 'reauth-required'}>
+        <Input
+          value={text}
+          onChange={(event) => setText(event.target.value)}
+          maxLength={2000}
+          aria-label="チャットメッセージ"
+          placeholder="相談内容を入力"
+        />
+        <Button type="submit" disabled={!text.trim() || status === 'reauth-required'} aria-label="メッセージを送信">
           送信
         </Button>
       </form>

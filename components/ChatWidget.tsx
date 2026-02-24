@@ -156,7 +156,11 @@ export function ChatWidget({ initialMessage, conversationId, currentUserId }: Ch
           送信
         </Button>
       </form>
-      {postError ? <p className="chat-error">{postError}</p> : null}
+      {postError ? (
+        <p className="chat-error" role="alert">
+          {postError}
+        </p>
+      ) : null}
     </section>
   );
 }

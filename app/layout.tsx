@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { SkipLink } from '@/components/a11y/SkipLink';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { SiteHeader } from '@/components/layout/SiteHeader';
 import { getCurrentUser } from '@/lib/auth/demo-session';
@@ -33,9 +34,10 @@ export default async function RootLayout({
   return (
     <html lang="ja">
       <body>
+        <SkipLink />
         <SiteHeader currentUser={currentUser} />
 
-        {children}
+        <main id="main">{children}</main>
 
         <SiteFooter />
       </body>
