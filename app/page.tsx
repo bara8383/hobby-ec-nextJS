@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { HeroBackgroundSlideshow } from '@/components/home/HeroBackgroundSlideshow';
 import { ProductCard } from '@/components/ProductCard';
 import { HomeSearchBar } from '@/components/search/HomeSearchBar';
 import { allTags, getCategoryLabel, PRODUCT_CATEGORIES, products, type Product } from '@/data/products';
@@ -16,6 +17,15 @@ const PRICE_SHORTCUTS = [
 ];
 
 const featuredProducts = [...products].sort((a, b) => b.priceJpy - a.priceJpy).slice(0, 3);
+
+const createHeroPlaceholder = (gradient: string, accent: string) =>
+  `data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='${gradient.split(',')[0]}'/><stop offset='55%' stop-color='${gradient.split(',')[1]}'/><stop offset='100%' stop-color='${gradient.split(',')[2]}'/></linearGradient><linearGradient id='ac' x1='1' y1='0' x2='0' y2='1'><stop offset='0%' stop-color='${accent}' stop-opacity='0.42'/><stop offset='100%' stop-color='#ffffff' stop-opacity='0.12'/></linearGradient></defs><rect width='1920' height='1080' fill='url(#bg)'/><rect width='1920' height='1080' fill='url(#ac)'/></svg>`)}`;
+
+const HERO_IMAGES = [
+  { src: createHeroPlaceholder('#e5ddd0,#d2dacd,#ece5da', '#9ba88f'), alt: '' },
+  { src: createHeroPlaceholder('#d8dfd3,#c9c2b8,#e7ddd0', '#b09b83'), alt: '' },
+  { src: createHeroPlaceholder('#ddd2c6,#c5d0c4,#e6ddd3', '#8d9ead'), alt: '' }
+];
 
 function readValue(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
@@ -76,19 +86,23 @@ export default async function HomePage({ searchParams }: Props) {
   return (
     <main>
       <section className="hero">
-        <p className="hero-label">Calm Digital Market</p>
-        <h1>静かに選べる、やさしいデジタル素材ストア</h1>
-        <HomeSearchBar initialQuery={q} initialCategory={category} initialSort={sort} />
-        <p>
-          余白を大切にした設計で、壁紙・写真・イラスト・デジタル音源を心地よく探せるECです。制作目的に合わせて比較しやすく、購入前の不安はリアルタイムチャットで解消できます。
-        </p>
-        <div className="hero-cta-row" aria-label="主要導線">
-          <Link className="button-link" href="/products">
-            商品一覧を見る
-          </Link>
-          <Link className="button-link button-link-secondary" href="/search">
-            条件で探す
-          </Link>
+        <HeroBackgroundSlideshow images={HERO_IMAGES} intervalMs={10000} fadeMs={1000} />
+        <div className="hero-overlay" />
+        <div className="hero-content">
+          <p className="hero-label">Calm Digital Market</p>
+          <h1>静かに選べる、やさしいデジタル素材ストア</h1>
+          <HomeSearchBar initialQuery={q} initialCategory={category} initialSort={sort} />
+          <p>
+            余白を大切にした設計で、壁紙・写真・イラスト・デジタル音源を心地よく探せるECです。制作目的に合わせて比較しやすく、購入前の不安はリアルタイムチャットで解消できます。
+          </p>
+          <div className="hero-cta-row" aria-label="主要導線">
+            <Link className="button-link" href="/products">
+              商品一覧を見る
+            </Link>
+            <Link className="button-link button-link-secondary" href="/search">
+              条件で探す
+            </Link>
+          </div>
         </div>
       </section>
 

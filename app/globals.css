@@ -670,12 +670,46 @@ small,
 }
 
 .hero {
-  background: linear-gradient(140deg, #f8f5ed, #f2eee4);
+  position: relative;
+  overflow: hidden;
   border: 1px solid var(--color-border);
-  color: var(--color-text);
+  color: #1f1b16;
   border-radius: var(--radius-xl);
   padding: clamp(2rem, 5vw, 3.6rem);
   box-shadow: var(--shadow-sm);
+  background: #efebe3;
+  isolation: isolate;
+}
+
+.hero-slideshow,
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.hero-slideshow {
+  z-index: 0;
+}
+
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  transition-property: opacity;
+  transition-timing-function: ease-in-out;
+}
+
+.hero-slide-image {
+  object-fit: cover;
+}
+
+.hero-overlay {
+  z-index: 1;
+  background: rgba(250, 247, 240, 0.5);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
 }
 
 .hero .ui-section-title,
