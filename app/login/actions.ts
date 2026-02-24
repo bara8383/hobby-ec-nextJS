@@ -4,7 +4,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { DEMO_AUTH_COOKIE } from '@/lib/auth/demo-session';
 import { getUserById } from '@/lib/db/repositories/user-repository';
-import { CHAT_SESSION_COOKIE, issueChatSession } from '@/lib/chat/session-store';
+import { issueSessionCookie } from '@/lib/chat/core/session';
 
 export async function loginDemoAction(formData: FormData) {
   const userId = String(formData.get('userId') ?? '').trim();
@@ -22,14 +22,6 @@ export async function loginDemoAction(formData: FormData) {
     httpOnly: true
   });
 
-  const chatSession = issueChatSession(userId);
-  cookieStore.set(CHAT_SESSION_COOKIE, chatSession.sessionId, {
-    path: '/',
-    maxAge: 60 * 60 * 24 * 14,
-    sameSite: 'lax',
-    httpOnly: true,
-    secure: true
-  });
-
+  await issueSessionCookie(userId);
   redirect(next.startsWith('/') ? next : '/');
 }

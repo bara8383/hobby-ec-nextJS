@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { LineLikeChat } from '@/components/chat/LineLikeChat';
 import { Section } from '@/components/ui/Section';
 import { getCurrentUser } from '@/lib/auth/demo-session';
-import { ensureConversation } from '@/lib/chat/in-memory-chat-store';
+import { ensureConversation } from '@/lib/chat/core/store';
 
 export const metadata: Metadata = {
   title: 'チャット相談',
