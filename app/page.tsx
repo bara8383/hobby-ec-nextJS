@@ -1,6 +1,13 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ProductCard } from '@/components/ProductCard';
-import { allTags, getCategoryLabel, PRODUCT_CATEGORIES, products } from '@/data/products';
+import { HomeSearchBar } from '@/components/search/HomeSearchBar';
+import { allTags, getCategoryLabel, PRODUCT_CATEGORIES, products, type Product } from '@/data/products';
+import { searchProducts } from '@/lib/db/repositories/product-repository';
+
+type Props = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
 
 const PRICE_SHORTCUTS = [
   { label: '〜¥3,000', min: 0, max: 3000 },
@@ -8,10 +15,48 @@ const PRICE_SHORTCUTS = [
   { label: '¥6,001〜', min: 6001 }
 ];
 
-const sortedByNewest = [...products].sort((a, b) => (a.publishedAt < b.publishedAt ? 1 : -1));
 const featuredProducts = [...products].sort((a, b) => b.priceJpy - a.priceJpy).slice(0, 3);
 
-export default function HomePage() {
+function readValue(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const params = await searchParams;
+  const q = readValue(params.q)?.trim();
+
+  if (!q) {
+    return {};
+  }
+
+  return {
+    robots: {
+      index: false,
+      follow: true
+    }
+  };
+}
+
+export default async function HomePage({ searchParams }: Props) {
+  const params = await searchParams;
+  const q = readValue(params.q)?.trim() ?? '';
+  const category = readValue(params.category)?.trim() ?? '';
+  const sortValue = readValue(params.sort)?.trim();
+  const sort = sortValue === 'price_asc' || sortValue === 'price_desc' || sortValue === 'new' ? sortValue : 'new';
+
+  let items: Product[] = [];
+  let errorMessage = '';
+
+  try {
+    items = searchProducts({
+      q,
+      category,
+      sort
+    });
+  } catch {
+    errorMessage = '検索結果の取得に失敗しました。時間をおいて再度お試しください。';
+  }
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@graph': [
@@ -33,6 +78,7 @@ export default function HomePage() {
       <section className="hero">
         <p className="hero-label">Calm Digital Market</p>
         <h1>静かに選べる、やさしいデジタル素材ストア</h1>
+        <HomeSearchBar initialQuery={q} initialCategory={category} initialSort={sort} />
         <p>
           余白を大切にした設計で、壁紙・写真・イラスト・デジタル音源を心地よく探せるECです。制作目的に合わせて比較しやすく、購入前の不安はリアルタイムチャットで解消できます。
         </p>
@@ -46,6 +92,24 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section aria-label="ホーム商品一覧">
+        <h2>ホーム商品一覧</h2>
+        <p className="section-description">キーワード・カテゴリ・並び順で絞り込みができます。URL共有でも同じ結果を再現できます。</p>
+        {errorMessage ? (
+          <p className="empty-state" role="alert">
+            {errorMessage}
+          </p>
+        ) : items.length === 0 ? (
+          <p className="empty-state">条件に一致する商品がありません。キーワードやカテゴリを変更してください。</p>
+        ) : (
+          <section className="grid" aria-label="ホーム商品検索結果">
+            {items.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </section>
+        )}
+      </section>
+
       <section className="value-badges" aria-label="価値訴求">
         <p>即時ダウンロード対応</p>
         <p>商用利用可能ライセンスあり</p>
@@ -56,9 +120,9 @@ export default function HomePage() {
         <h2>カテゴリからゆっくり探す</h2>
         <p className="section-description">制作ジャンルごとに視線移動が少ない導線で、落ち着いて比較できます。</p>
         <div className="category-grid">
-          {PRODUCT_CATEGORIES.map((category) => (
-            <Link key={category} className="category-card" href={`/categories/${category}`}>
-              <strong>{getCategoryLabel(category)}</strong>
+          {PRODUCT_CATEGORIES.map((categoryOption) => (
+            <Link key={categoryOption} className="category-card" href={`/categories/${categoryOption}`}>
+              <strong>{getCategoryLabel(categoryOption)}</strong>
               <span>カテゴリ詳細へ進む</span>
             </Link>
           ))}
@@ -78,16 +142,6 @@ export default function HomePage() {
             </Link>
           ))}
         </div>
-      </section>
-
-      <section aria-label="新着商品">
-        <h2>新着商品</h2>
-        <p className="section-description">公開日の新しい順で、最新の制作素材をチェックできます。</p>
-        <section className="grid" aria-label="新着商品一覧">
-          {sortedByNewest.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </section>
       </section>
 
       <section aria-label="注目商品">
