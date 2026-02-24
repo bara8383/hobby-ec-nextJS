@@ -7,8 +7,13 @@ export const DEMO_AUTH_COOKIE = 'demo_account_id';
 
 export async function getCurrentUser(): Promise<UserRecord> {
   const cookieStore = await cookies();
-  const userId = cookieStore.get(DEMO_AUTH_COOKIE)?.value ?? 'buyer-demo';
-  return getUserById(userId) ?? listUsers()[0];
+  const userId = cookieStore.get(DEMO_AUTH_COOKIE)?.value;
+
+  if (!userId) {
+    return getUserById('guest') ?? listUsers()[0];
+  }
+
+  return getUserById(userId) ?? getUserById('guest') ?? listUsers()[0];
 }
 
 export async function requireRole(role: UserRole, redirectPath = '/login') {

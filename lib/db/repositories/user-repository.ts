@@ -51,7 +51,25 @@ const users: UserRecord[] = [
     passwordUpdatedAt: '2026-01-01T00:00:00.000Z',
     createdAt: '2026-01-01T00:00:00.000Z',
     updatedAt: '2026-01-01T00:00:00.000Z'
+  },
+  {
+    id: 'guest',
+    email: 'guest@example.com',
+    roles: [],
+    displayName: 'Guest User',
+    profileBio: '未ログインユーザー',
+    countryCode: 'JP',
+    timezone: 'Asia/Tokyo',
+    notifications: {
+      emailOrderUpdates: false,
+      emailProductNews: false,
+      chatSupportNotifications: false
+    },
+    passwordUpdatedAt: '2026-01-01T00:00:00.000Z',
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: '2026-01-01T00:00:00.000Z'
   }
+
 ];
 
 function updateUser(id: string, update: Partial<UserRecord>) {
