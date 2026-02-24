@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { SiteHeader } from '@/components/layout/SiteHeader';
 import { Container } from '@/components/ui/Container';
 import { getCurrentUser } from '@/lib/auth/demo-session';
 import './globals.css';
@@ -33,28 +34,7 @@ export default async function RootLayout({
   return (
     <html lang="ja">
       <body>
-        <header className="site-header" aria-label="サイトヘッダー">
-          <Container className="site-header-inner">
-            <Link href="/" className="site-logo">
-              Digital Creator Market
-            </Link>
-            <nav aria-label="主要ナビゲーション" className="site-nav">
-              <Link href="/products">商品一覧</Link>
-              <Link href="/search">条件検索</Link>
-              <Link href="/chat?conversationId=buyer-support">チャット</Link>
-              <Link href="/seller">出品者ページ</Link>
-              <Link href="/admin">管理者ページ</Link>
-              <Link href="/mypage/orders">注文履歴</Link>
-              <Link href="/mypage/settings">アカウント設定</Link>
-              <Link href="/login">ログイン切替</Link>
-            </nav>
-          </Container>
-          <Container>
-            <p className="hero-label" style={{ marginBottom: '0.5rem' }}>
-              ログイン中: {currentUser.displayName} / 権限: {currentUser.roles.join(', ')}
-            </p>
-          </Container>
-        </header>
+        <SiteHeader currentUser={currentUser} />
 
         {children}
 

@@ -15,7 +15,7 @@ export default async function LoginPage({
   searchParams: Promise<{ next?: string; status?: string }>;
 }) {
   const params = await searchParams;
-  const users = listUsers();
+  const users = listUsers().filter((user) => user.roles.length > 0);
 
   return (
     <main>
