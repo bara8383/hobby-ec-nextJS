@@ -1,4 +1,4 @@
-import { products, type Product } from '@/data/products';
+import { products, type DigitalCategory, type Product } from '@/data/products';
 import type { ProductRecord } from '@/lib/db/schema/product';
 
 export type ProductSearchParams = {
@@ -58,4 +58,20 @@ export function searchProducts(params: ProductSearchParams): Product[] {
 
 export function getProductById(productId: string) {
   return products.find((product) => product.id === productId);
+}
+
+export function listCategories(): DigitalCategory[] {
+  return Array.from(new Set(products.map((product) => product.category))).sort();
+}
+
+export function listTags(): string[] {
+  return Array.from(new Set(products.flatMap((product) => product.tags))).sort((a, b) => a.localeCompare(b, 'ja'));
+}
+
+export function getLatestProducts(limit: number): Product[] {
+  const safeLimit = Math.max(0, Math.floor(limit));
+
+  return [...products]
+    .sort((a, b) => (a.publishedAt < b.publishedAt ? 1 : -1))
+    .slice(0, safeLimit);
 }
