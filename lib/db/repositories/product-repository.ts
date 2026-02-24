@@ -12,3 +12,7 @@ export function listProducts(): ProductRecord[] {
     tags: product.tags
   }));
 }
+
+export function getProductById(productId: string) {
+  return products.find((product) => product.id === productId);
+}
