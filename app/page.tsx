@@ -1,10 +1,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { HomeFilterSidebar } from '@/components/home/HomeFilterSidebar';
 import { HeroBackgroundSlideshow } from '@/components/home/HeroBackgroundSlideshow';
 import { ProductCard } from '@/components/ProductCard';
 import { HomeKeywordSearchBar } from '@/components/search/HomeKeywordSearchBar';
-import { allTags, getCategoryLabel, PRODUCT_CATEGORIES, products, searchProducts, type Product } from '@/data/products';
+import { allTags, getCategoryLabel, PRODUCT_CATEGORIES, products } from '@/data/products';
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -31,17 +30,6 @@ function readValue(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-function readNumber(value: string | string[] | undefined) {
-  const rawValue = readValue(value);
-
-  if (!rawValue) {
-    return undefined;
-  }
-
-  const parsed = Number(rawValue);
-  return Number.isFinite(parsed) && parsed >= 0 ? parsed : undefined;
-}
-
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const params = await searchParams;
   const q = readValue(params.q)?.trim();
@@ -61,28 +49,6 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 export default async function HomePage({ searchParams }: Props) {
   const params = await searchParams;
   const q = readValue(params.q)?.trim() ?? '';
-  const category = readValue(params.category)?.trim() ?? '';
-  const tag = readValue(params.tag)?.trim() ?? '';
-  const priceMin = readNumber(params.priceMin);
-  const priceMax = readNumber(params.priceMax);
-  const sortValue = readValue(params.sort)?.trim();
-  const sort = sortValue === 'price_asc' || sortValue === 'price_desc' || sortValue === 'newest' ? sortValue : 'newest';
-
-  let items: Product[] = [];
-  let errorMessage = '';
-
-  try {
-    items = searchProducts({
-      query: q,
-      category,
-      tag,
-      priceMin,
-      priceMax,
-      sort
-    });
-  } catch {
-    errorMessage = '検索結果の取得に失敗しました。時間をおいて再度お試しください。';
-  }
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -101,7 +67,7 @@ export default async function HomePage({ searchParams }: Props) {
   };
 
   return (
-    <main>
+    <main className="home-main">
       <section className="hero">
         <HeroBackgroundSlideshow images={HERO_IMAGES} intervalMs={10000} fadeMs={1000} />
         <div className="hero-overlay" />
@@ -112,47 +78,20 @@ export default async function HomePage({ searchParams }: Props) {
           <p>
             余白を大切にした設計で、壁紙・写真・イラスト・デジタル音源を心地よく探せるECです。制作目的に合わせて比較しやすく、購入前の不安はリアルタイムチャットで解消できます。
           </p>
-          <div className="hero-cta-row" aria-label="主要導線">
-            <Link className="button-link" href="/products">
-              商品一覧を見る
-            </Link>
-            <Link className="button-link button-link-secondary" href="/search">
-              条件で探す
-            </Link>
-          </div>
         </div>
       </section>
 
-      <section aria-label="ホーム商品一覧">
-        <h2>ホーム商品一覧</h2>
-        <p className="section-description">カテゴリ・タグ・価格帯・並び順を左のサイドバーで調整できます。URL共有でも同じ結果を再現できます。</p>
-        <div className="products-page">
-          <HomeFilterSidebar category={category} tag={tag} priceMin={priceMin} priceMax={priceMax} sort={sort} />
-          <div className="products-content">
-            {errorMessage ? (
-              <p className="empty-state" role="alert">
-                {errorMessage}
-              </p>
-            ) : items.length === 0 ? (
-              <p className="empty-state">条件に一致する商品がありません。フィルター条件を変更してください。</p>
-            ) : (
-              <section className="products-grid" aria-label="ホーム商品検索結果">
-                {items.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </section>
-            )}
-          </div>
-        </div>
+      <section className="home-featured-section" aria-label="注目商品">
+        <h2>注目ピックアップ</h2>
+        <p className="section-description">高単価で情報量の多い商品を中心に、制作現場で再利用しやすい素材を選定しています。</p>
+        <section className="products-grid" aria-label="注目商品一覧">
+          {featuredProducts.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </section>
       </section>
 
-      <section className="value-badges" aria-label="価値訴求">
-        <p>即時ダウンロード対応</p>
-        <p>商用利用可能ライセンスあり</p>
-        <p>購入前チャット相談OK</p>
-      </section>
-
-      <section aria-label="カテゴリ導線">
+      <section className="home-category-section" aria-label="カテゴリ導線">
         <h2>カテゴリからゆっくり探す</h2>
         <p className="section-description">制作ジャンルごとに視線移動が少ない導線で、落ち着いて比較できます。</p>
         <div className="category-grid">
@@ -165,7 +104,7 @@ export default async function HomePage({ searchParams }: Props) {
         </div>
       </section>
 
-      <section aria-label="価格帯導線">
+      <section className="home-price-section" aria-label="価格帯導線">
         <h2>価格帯ショートカット</h2>
         <p className="section-description">予算に合わせて、必要な素材を短時間で見つけられます。</p>
         <div className="quick-links">
@@ -180,17 +119,7 @@ export default async function HomePage({ searchParams }: Props) {
         </div>
       </section>
 
-      <section aria-label="注目商品">
-        <h2>注目ピックアップ</h2>
-        <p className="section-description">高単価で情報量の多い商品を中心に、制作現場で再利用しやすい素材を選定しています。</p>
-        <section className="products-grid" aria-label="注目商品一覧">
-          {featuredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </section>
-      </section>
-
-      <section aria-label="タグ導線">
+      <section className="home-tags-section" aria-label="タグ導線">
         <h2>人気タグ</h2>
         <p className="section-description">利用シーンをイメージしやすいタグで横断的に探せます。</p>
         <div className="quick-links">
