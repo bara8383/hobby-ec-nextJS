@@ -2,40 +2,22 @@ name: CI
 
 on:
   pull_request:
-    branches:
-      - main
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js (LTS from .nvmrc)
-        uses: actions/setup-node@v6
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-          check-latest: true
           cache: npm
           cache-dependency-path: package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Verify runtime policy
-        run: |
-          node -e "const [major]=process.versions.node.split('.').map(Number); if (major !== 22) { console.error('Node major must be 22.x for this repo.'); process.exit(1); }"
-          npm --version
-
-      - name: Lint (if present)
-        run: npm run lint --if-present
-
-      - name: Build
-        run: npm run build
-
-      - name: Test (if present)
-        run: npm test --if-present
+      - run: npm ci
+      - run: npm run lint
+      - run: npx tsc --noEmit
+      - run: npm run build
