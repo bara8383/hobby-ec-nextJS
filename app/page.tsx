@@ -17,6 +17,27 @@ const PRICE_SHORTCUTS = [
 
 const featuredProducts = [...products].sort((a, b) => b.priceJpy - a.priceJpy).slice(0, 3);
 
+const RANKING_UI_PATTERNS = [
+  {
+    title: 'ファーストビューに検索導線を固定',
+    detail: '国内ECデザインランキング上位で多い「最初の3秒で検索できる体験」を取り入れ、ヒーロー直下にキーワード検索を配置。'
+  },
+  {
+    title: '人気カテゴリをカードで可視化',
+    detail: '回遊率が高いサイトで多い「カテゴリ一覧の視認性重視」を採用し、視線移動が少ないカード型導線で比較しやすく。'
+  },
+  {
+    title: '予算・用途ショートカットを併設',
+    detail: 'コンバージョン上位サイトに見られる「迷いを減らすプリセット導線」として、価格帯と人気タグを同一画面で提示。'
+  }
+];
+
+const COZY_VALUES = [
+  '木漏れ日のような淡色トーン',
+  '角丸と余白を活かした安心感のあるカード',
+  '情報の密度を抑えた落ち着くタイポグラフィ'
+];
+
 const createHeroPlaceholder = (gradient: string, accent: string) =>
   `data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080'><defs><linearGradient id='bg' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='${gradient.split(',')[0]}'/><stop offset='55%' stop-color='${gradient.split(',')[1]}'/><stop offset='100%' stop-color='${gradient.split(',')[2]}'/></linearGradient><linearGradient id='ac' x1='1' y1='0' x2='0' y2='1'><stop offset='0%' stop-color='${accent}' stop-opacity='0.42'/><stop offset='100%' stop-color='#ffffff' stop-opacity='0.12'/></linearGradient></defs><rect width='1920' height='1080' fill='url(#bg)'/><rect width='1920' height='1080' fill='url(#ac)'/></svg>`)}`;
 
@@ -89,6 +110,27 @@ export default async function HomePage({ searchParams }: Props) {
             <ProductCard key={product.id} product={product} />
           ))}
         </section>
+      </section>
+
+      <section className="home-ranking-section" aria-label="人気EC UI要素">
+        <h2>ランキング上位ECの定番UIを、居心地よく再設計</h2>
+        <p className="section-description">
+          主要なECデザインランキングで頻出する「検索起点」「比較しやすいカテゴリ設計」「迷いを減らすショートカット導線」を、
+          穏やかな色調と余白で再構成しました。
+        </p>
+        <div className="ranking-pattern-grid">
+          {RANKING_UI_PATTERNS.map((pattern) => (
+            <article key={pattern.title} className="ranking-pattern-card">
+              <h3>{pattern.title}</h3>
+              <p>{pattern.detail}</p>
+            </article>
+          ))}
+        </div>
+        <div className="cozy-value-list" aria-label="居心地の良さを作る設計要素">
+          {COZY_VALUES.map((value) => (
+            <p key={value}>{value}</p>
+          ))}
+        </div>
       </section>
 
       <section className="home-category-section" aria-label="カテゴリ導線">

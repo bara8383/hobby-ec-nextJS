@@ -844,6 +844,10 @@ small,
   margin-top: var(--space-5);
 }
 
+.home-ranking-section {
+  margin-top: var(--space-6);
+}
+
 .home-featured-section {
   margin-top: var(--space-6);
 }
@@ -975,6 +979,7 @@ small,
 
 .value-badges,
 .category-grid,
+.ranking-pattern-grid,
 .settings-grid,
 .hub-grid,
 .faq-list,
@@ -1002,6 +1007,43 @@ small,
 
 .category-grid {
   grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+.ranking-pattern-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.ranking-pattern-card {
+  border: 1px solid #dbcdb9;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, #fdfaf4, #f6efe3);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+
+.ranking-pattern-card h3 {
+  margin-bottom: var(--space-2);
+}
+
+.ranking-pattern-card p {
+  margin: 0;
+  color: #5f5647;
+}
+
+.cozy-value-list {
+  margin-top: var(--space-4);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.cozy-value-list p {
+  margin: 0;
+  border: 1px solid #dfd4c5;
+  border-radius: var(--radius-pill);
+  background: #fffdf8;
+  color: #5d5344;
+  padding: 0.38rem 0.92rem;
 }
 
 .settings-grid {
