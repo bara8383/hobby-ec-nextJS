@@ -66,3 +66,72 @@ PR の本文は必ずこの順序・見出し名で記載する。
 ### 7) リスクとロールバック
 - 想定リスクを箇条書きで記載する。
 - 必要に応じてロールバック方法を記載する。
+
+## Self-Review Requirements
+
+Before finalizing any code change or documentation output, the agent MUST perform a self-review.
+
+The self-review must validate the following.
+
+### 1. AEO (AI Engine Optimization)
+
+Verify that content is optimized for AI systems and structured extraction.
+
+Checklist:
+
+- Structured data exists when applicable (JSON-LD)
+- FAQ schema used when appropriate
+- Semantic HTML structure exists (h1 → h2 → h3)
+- Content is machine-readable and logically structured
+- Internal links exist where relevant
+
+### 2. SEO Compatibility
+
+Ensure changes do not degrade SEO quality.
+
+Checklist:
+
+- structured data validity
+- proper heading hierarchy
+- no duplicate title or meta description
+
+### 3. CI Compatibility
+
+Ensure the change will not fail CI gates.
+
+Checklist:
+
+- lint passes
+- type checks pass
+- tests pass
+- AEO validation scripts pass
+
+If potential CI failure is detected, the agent MUST fix the issue before producing the final result.
+
+--------------------------------------------------
+
+## Self-Review Process
+
+Before producing the final result, the agent must internally perform the following steps:
+
+1. Implement the requested change
+2. Execute the self-review checklist
+3. Identify any issues
+4. Fix the issues
+5. Only then produce the final answer
+
+The self-review process must never be skipped.
+
+--------------------------------------------------
+
+## CI Alignment
+
+This repository assumes CI gates exist for:
+
+- AEO validation
+- SEO checks
+- build verification
+
+The agent must assume these checks exist and implement code that will pass them.
+
+--------------------------------------------------
