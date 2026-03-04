@@ -27,7 +27,9 @@ export function canSell(user: UserRecord) {
 
 export function getNavItems(user: UserRecord): SiteNavItem[] {
   const items: SiteNavItem[] = [
-    { href: '/', label: 'ホーム' }
+    { href: '/', label: 'ホーム' },
+    { href: '/deals', label: 'セール' },
+    { href: '/ranking', label: 'ランキング' }
   ];
 
   if (isAdmin(user)) {
