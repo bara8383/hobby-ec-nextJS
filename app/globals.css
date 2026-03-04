@@ -1252,3 +1252,48 @@ small,
     flex-direction: column;
   }
 }
+
+.deal-card {
+  background: linear-gradient(180deg, #fffdf8, #f7f1e6);
+}
+
+.deal-code {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-caption);
+  color: #6c604b;
+  font-weight: 700;
+}
+
+.ranking-list {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.ranking-list-item {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: minmax(140px, 180px) 1fr;
+  align-items: start;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: #fdfaf4;
+  padding: var(--space-4);
+}
+
+.ranking-meta {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.ranking-order {
+  margin: 0;
+  color: #725a37;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+@media (max-width: 820px) {
+  .ranking-list-item {
+    grid-template-columns: 1fr;
+  }
+}

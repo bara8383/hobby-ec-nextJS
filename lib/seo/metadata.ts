@@ -124,6 +124,22 @@ export function buildCategoryHubMetadata(): Metadata {
   });
 }
 
+
+export function buildDealsMetadata(): Metadata {
+  return buildMetadataTemplate({
+    title: 'セール・クーポン特集',
+    description: '期間限定セールやクーポン配布情報をまとめた特集ページです。',
+    canonicalPath: '/deals'
+  });
+}
+
+export function buildRankingMetadata(): Metadata {
+  return buildMetadataTemplate({
+    title: '人気ランキング',
+    description: '売れ筋・お気に入り登録数の高いデジタル商品のランキングです。',
+    canonicalPath: '/ranking'
+  });
+}
 export function buildTagHubMetadata(): Metadata {
   return buildMetadataTemplate({
     title: 'タグ一覧',

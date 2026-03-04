@@ -163,6 +163,10 @@ export default async function HomePage({ searchParams }: Props) {
 
       <section className="home-tags-section" aria-label="タグ導線">
         <h2>人気タグ</h2>
+        <div className="quick-links">
+          <Link href="/deals">セール・クーポン特集</Link>
+          <Link href="/ranking">人気ランキング</Link>
+        </div>
         <p className="section-description">利用シーンをイメージしやすいタグで横断的に探せます。</p>
         <div className="quick-links">
           {allTags.map((tag) => (
