@@ -29,6 +29,11 @@ export type Product = {
   specs: ProductSpec[];
   media: ProductMedia[];
   publishedAt: string;
+  sellerName: string;
+  sellerRating: number;
+  sellerSalesCount: number;
+  sellerResponseHours: number;
+  favoriteCount: number;
 };
 
 export type ProductSearchFilters = {
@@ -58,7 +63,12 @@ export const products: Product[] = [
       { key: 'file_count', label: '収録枚数', value: '20' }
     ],
     media: [{ type: 'image', url: '/samples/tokyo-night.jpg', alt: '東京夜景の壁紙サンプル' }],
-    publishedAt: '2026-01-20T09:00:00+09:00'
+    publishedAt: '2026-01-20T09:00:00+09:00',
+    sellerName: 'NightScape Studio',
+    sellerRating: 4.8,
+    sellerSalesCount: 218,
+    sellerResponseHours: 2,
+    favoriteCount: 146
   },
   {
     id: 'prod-002',
@@ -77,7 +87,12 @@ export const products: Product[] = [
       { key: 'file_count', label: '収録点数', value: '80' }
     ],
     media: [{ type: 'image', url: '/samples/nature-photo.jpg', alt: '自然風景写真のサンプル' }],
-    publishedAt: '2026-01-18T09:00:00+09:00'
+    publishedAt: '2026-01-18T09:00:00+09:00',
+    sellerName: 'NorthField Archive',
+    sellerRating: 4.9,
+    sellerSalesCount: 403,
+    sellerResponseHours: 4,
+    favoriteCount: 287
   },
   {
     id: 'prod-003',
@@ -96,7 +111,12 @@ export const products: Product[] = [
       { key: 'resolution', label: 'PNG最大解像度', value: '4096x4096' }
     ],
     media: [{ type: 'image', url: '/samples/flat-illustration.jpg', alt: 'フラットイラストのサンプル' }],
-    publishedAt: '2026-01-15T09:00:00+09:00'
+    publishedAt: '2026-01-15T09:00:00+09:00',
+    sellerName: 'Flatworks Lab',
+    sellerRating: 4.7,
+    sellerSalesCount: 152,
+    sellerResponseHours: 1,
+    favoriteCount: 121
   },
   {
     id: 'prod-004',
@@ -116,7 +136,12 @@ export const products: Product[] = [
       { key: 'sample_rate', label: 'サンプリング周波数', value: '48kHz / 24bit' }
     ],
     media: [{ type: 'audio', url: '/samples/lofi-preview.mp3', alt: 'Lo-fi BGM試聴サンプル' }],
-    publishedAt: '2026-01-10T09:00:00+09:00'
+    publishedAt: '2026-01-10T09:00:00+09:00',
+    sellerName: 'Lunar Beat Works',
+    sellerRating: 4.6,
+    sellerSalesCount: 96,
+    sellerResponseHours: 3,
+    favoriteCount: 83
   }
 ];
 
@@ -194,6 +219,23 @@ export function getCategoryLabel(category: DigitalCategory) {
     default:
       return 'デジタル商品';
   }
+}
+
+export function getRelatedProducts(target: Product, limit = 3) {
+  return products
+    .filter((product) => product.id !== target.id)
+    .sort((a, b) => {
+      if (a.category === target.category && b.category !== target.category) {
+        return -1;
+      }
+
+      if (a.category !== target.category && b.category === target.category) {
+        return 1;
+      }
+
+      return a.publishedAt < b.publishedAt ? 1 : -1;
+    })
+    .slice(0, limit);
 }
 
 export function isDigitalCategory(value: string): value is DigitalCategory {
