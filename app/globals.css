@@ -726,7 +726,7 @@ small,
   border-radius: var(--radius-xl);
   padding: clamp(0.7rem, 2vw, 1.2rem) clamp(2rem, 5vw, 3.6rem);
   box-shadow: var(--shadow-sm);
-  background: #efebe3;
+  background: #ede6d8;
   isolation: isolate;
 }
 
@@ -753,7 +753,7 @@ small,
 
 .hero-overlay {
   z-index: 1;
-  background: rgba(250, 247, 240, 0.58);
+  background: linear-gradient(90deg, rgba(248, 242, 233, 0.8), rgba(248, 242, 233, 0.42));
 }
 
 .hero-content {
@@ -769,12 +769,12 @@ small,
 .hero-label {
   margin: 0 0 var(--space-3);
   display: inline-block;
-  border: 1px solid #d5c8b1;
+  border: 1px solid #c8b9a1;
   border-radius: var(--radius-pill);
   padding: 0.3rem 0.72rem;
   font-size: var(--text-caption);
   background: rgba(255, 255, 255, 0.7);
-  color: #6e5f48;
+  color: #5d4f3c;
 }
 
 .hero-cta-row {
@@ -850,6 +850,74 @@ small,
 
 .home-featured-section {
   margin-top: var(--space-6);
+}
+
+.feature-topics {
+  margin-top: var(--space-4);
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.feature-topic-card {
+  border: 1px solid #d8cbb8;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(140deg, #f6efe4, #ffffff 70%);
+  padding: var(--space-4);
+}
+
+.feature-topic-card p {
+  margin: 0;
+  font-size: var(--text-caption);
+  letter-spacing: 0.08em;
+  color: #7b6c56;
+}
+
+.feature-topic-card h2 {
+  margin: var(--space-2) 0 0;
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
+.style-edit-section {
+  margin-top: var(--space-6);
+}
+
+.style-edit-grid {
+  margin-top: var(--space-4);
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.style-edit-card {
+  display: block;
+  text-decoration: none;
+  border: 1px solid #ddd3c5;
+  border-radius: var(--radius-lg);
+  background: #fff;
+  color: inherit;
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.style-edit-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.style-edit-card p {
+  margin: 0;
+  font-size: var(--text-caption);
+  letter-spacing: 0.08em;
+  color: #7b6f5d;
+}
+
+.style-edit-card h3 {
+  margin: var(--space-2) 0 0;
+  font-size: 1rem;
+  color: #3f372d;
 }
 
 .site-header,

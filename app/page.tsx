@@ -16,6 +16,7 @@ const PRICE_SHORTCUTS = [
 ];
 
 const featuredProducts = [...products].sort((a, b) => b.priceJpy - a.priceJpy).slice(0, 3);
+const newArrivalProducts = [...products].slice(0, 4);
 
 const RANKING_UI_PATTERNS = [
   {
@@ -29,6 +30,39 @@ const RANKING_UI_PATTERNS = [
   {
     title: '予算・用途ショートカットを併設',
     detail: 'コンバージョン上位サイトに見られる「迷いを減らすプリセット導線」として、価格帯と人気タグを同一画面で提示。'
+  }
+];
+
+const FEATURE_TOPICS = [
+  {
+    title: 'WEEKLY FOCUS',
+    copy: 'スタイリング提案のように、利用シーン別で素材をキュレーション。'
+  },
+  {
+    title: 'LIMITED DROP',
+    copy: '数量限定のプレミアム素材を毎週木曜に追加。'
+  },
+  {
+    title: 'EDITORIAL PICKS',
+    copy: 'niko and ... の読み物導線を参考に、背景ストーリー付きで紹介。'
+  }
+];
+
+const STYLE_CATEGORIES = [
+  {
+    title: 'MINIMAL GRAPHIC',
+    detail: '余白を活かしたUIやバナー制作用のミニマル素材。',
+    href: '/tags/ミニマル'
+  },
+  {
+    title: 'NATURAL PHOTO',
+    detail: 'ライフスタイル提案に合うナチュラルフォト素材。',
+    href: '/tags/ナチュラル'
+  },
+  {
+    title: 'MOTION SOUND',
+    detail: 'ショート動画向けに使いやすい短尺BGMとSE。',
+    href: '/tags/BGM'
   }
 ];
 
@@ -83,6 +117,27 @@ export default async function HomePage({ searchParams }: Props) {
         '@type': 'WebSite',
         name: 'Digital Creator Market',
         url: 'https://example.com'
+      },
+      {
+        '@type': 'FAQPage',
+        mainEntity: [
+          {
+            '@type': 'Question',
+            name: '商用利用できる素材はありますか？',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: '商品詳細のライセンス表記で商用可否を確認できます。迷った場合はチャットで相談可能です。'
+            }
+          },
+          {
+            '@type': 'Question',
+            name: '購入後すぐダウンロードできますか？',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: '決済完了後にマイページのライブラリから即時ダウンロードできます。'
+            }
+          }
+        ]
       }
     ]
   };
@@ -93,13 +148,23 @@ export default async function HomePage({ searchParams }: Props) {
         <HeroBackgroundSlideshow images={HERO_IMAGES} intervalMs={10000} fadeMs={1000} />
         <div className="hero-overlay" />
         <div className="hero-content">
-          <p className="hero-label">Calm Digital Market</p>
-          <h1>静かに選べる、やさしいデジタル素材ストア</h1>
+          <p className="hero-label">DIGITAL CREATOR MARKET</p>
+          <h1>毎日更新の特集で、欲しい素材にすぐ届く。</h1>
           <HomeKeywordSearchBar initialQuery={q} />
           <p>
-            余白を大切にした設計で、壁紙・写真・イラスト・デジタル音源を心地よく探せるECです。制作目的に合わせて比較しやすく、購入前の不安はリアルタイムチャットで解消できます。
+            niko and ... の編集感とユニクロの分かりやすい導線を取り入れ、特集・カテゴリ・価格帯を1画面に集約。
+            壁紙・写真・イラスト・デジタル音源をテンポ良く比較し、購入前の不安はリアルタイムチャットで素早く解消できます。
           </p>
         </div>
+      </section>
+
+      <section className="feature-topics" aria-label="特集トピック">
+        {FEATURE_TOPICS.map((topic) => (
+          <article key={topic.title} className="feature-topic-card">
+            <p>{topic.title}</p>
+            <h2>{topic.copy}</h2>
+          </article>
+        ))}
       </section>
 
       <section className="home-featured-section" aria-label="注目商品">
@@ -108,6 +173,29 @@ export default async function HomePage({ searchParams }: Props) {
         <section className="products-grid" aria-label="注目商品一覧">
           {featuredProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
+          ))}
+        </section>
+      </section>
+
+      <section className="style-edit-section" aria-label="スタイル別特集">
+        <h2>STYLE EDIT</h2>
+        <p className="section-description">用途だけでなくテイストから選べるよう、編集型のナビゲーションを用意しました。</p>
+        <div className="style-edit-grid">
+          {STYLE_CATEGORIES.map((style) => (
+            <Link key={style.title} href={style.href} className="style-edit-card">
+              <p>{style.title}</p>
+              <h3>{style.detail}</h3>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="home-featured-section" aria-label="新着商品">
+        <h2>新着アイテム</h2>
+        <p className="section-description">ユニクロの新作一覧のように、入荷した素材をひと目で確認できます。</p>
+        <section className="products-grid" aria-label="新着商品一覧">
+          {newArrivalProducts.map((product) => (
+            <ProductCard key={`new-${product.id}`} product={product} />
           ))}
         </section>
       </section>
