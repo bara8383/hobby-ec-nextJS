@@ -30,7 +30,16 @@ export function buildProductJsonLd(product: Product) {
       priceCurrency: 'JPY',
       price: product.priceJpy,
       availability: 'https://schema.org/InStock',
-      url: productUrl
+      url: productUrl,
+      seller: {
+        '@type': 'Organization',
+        name: product.sellerName
+      }
+    },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: product.sellerRating,
+      reviewCount: product.sellerSalesCount
     }
   };
 }
