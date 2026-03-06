@@ -1,10 +1,9 @@
 import { getCategoryLabel, type Product } from '@/data/products';
-
-const SITE_URL = 'https://example.com';
+import { SITE_ORIGIN } from '@/lib/seo/metadata';
 const BRAND_NAME = 'Digital Creator Market';
 
 function toAbsoluteUrl(path: string) {
-  return new URL(path, SITE_URL).toString();
+  return new URL(path, SITE_ORIGIN).toString();
 }
 
 export function buildProductJsonLd(product: Product) {

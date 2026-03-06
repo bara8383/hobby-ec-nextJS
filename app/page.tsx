@@ -4,6 +4,7 @@ import { HeroBackgroundSlideshow } from '@/components/home/HeroBackgroundSlidesh
 import { ProductCard } from '@/components/ProductCard';
 import { HomeKeywordSearchBar } from '@/components/search/HomeKeywordSearchBar';
 import { allTags, getCategoryLabel, PRODUCT_CATEGORIES, products } from '@/data/products';
+import { SITE_ORIGIN } from '@/lib/seo/metadata';
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -111,12 +112,12 @@ export default async function HomePage({ searchParams }: Props) {
       {
         '@type': 'Organization',
         name: 'Digital Creator Market',
-        url: 'https://example.com'
+        url: SITE_ORIGIN
       },
       {
         '@type': 'WebSite',
         name: 'Digital Creator Market',
-        url: 'https://example.com'
+        url: SITE_ORIGIN
       },
       {
         '@type': 'FAQPage',

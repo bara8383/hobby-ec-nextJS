@@ -1,4 +1,4 @@
-const SITE_ORIGIN = 'https://example.com';
+import { SITE_ORIGIN } from '@/lib/seo/metadata';
 
 export type BreadcrumbItem = {
   name: string;
