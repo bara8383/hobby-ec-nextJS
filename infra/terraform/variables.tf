@@ -4,7 +4,7 @@ variable "aws_region" {
 }
 
 variable "project_name" {
-  description = "Project name used in tags and IAM role names"
+  description = "Project name used in resource names"
   type        = string
 }
 
@@ -12,29 +12,12 @@ variable "env" {
   description = "Deployment environment"
   type        = string
   default     = "prod"
-
-  validation {
-    condition     = var.env == "prod"
-    error_message = "This Terraform stack only supports env=prod."
-  }
 }
 
 variable "instance_type" {
-  description = "EC2 instance type"
+  description = "ECS container instance type"
   type        = string
   default     = "t3.small"
-}
-
-variable "allow_ssh" {
-  description = "Allow inbound SSH when true"
-  type        = bool
-  default     = false
-}
-
-variable "ssh_cidr" {
-  description = "Allowed CIDR for SSH when allow_ssh=true"
-  type        = string
-  default     = "0.0.0.0/32"
 }
 
 variable "github_owner" {
@@ -56,4 +39,43 @@ variable "github_branch" {
 variable "github_thumbprints" {
   description = "GitHub OIDC root CA thumbprints"
   type        = list(string)
+}
+
+variable "container_port" {
+  description = "Application container port"
+  type        = number
+  default     = 3000
+}
+
+variable "public_ingress_cidrs" {
+  description = "Allowed CIDRs for inbound app traffic"
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
+}
+
+variable "ssm_parameters" {
+  description = "Non-secret runtime configuration values stored in SSM Parameter Store"
+  type        = map(string)
+  default = {
+    APP_ENV                = "prod"
+    AWS_REGION             = "ap-northeast-1"
+    SITE_URL               = "http://localhost:3000"
+    LOG_LEVEL              = "info"
+    CHAT_STORAGE_MODE      = "aws"
+    CHAT_CONVERSATIONS_TABLE = "ChatConversations"
+    CHAT_MESSAGES_TABLE    = "ChatMessages"
+    CHAT_USER_QUEUE_TABLE  = "ChatUserQueue"
+    CHAT_USER_QUEUE_PREFIX = "chat-user"
+  }
+}
+
+variable "secrets_manager_values" {
+  description = "Secret runtime values stored in AWS Secrets Manager"
+  type        = map(string)
+  sensitive   = true
+  default = {
+    DATABASE_URL   = ""
+    JWT_SECRET     = ""
+    SESSION_SECRET = ""
+  }
 }

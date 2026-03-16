@@ -1,19 +1,24 @@
-output "ec2_instance_id" {
-  description = "Web EC2 instance ID"
-  value       = aws_instance.web.id
-}
-
-output "ec2_public_ip" {
-  description = "Web EC2 public IP"
-  value       = aws_instance.web.public_ip
-}
-
 output "ci_role_arn" {
   description = "GitHub Actions OIDC role ARN"
   value       = aws_iam_role.ci.arn
 }
 
-output "ec2_role_arn" {
-  description = "EC2 IAM role ARN"
-  value       = aws_iam_role.ec2.arn
+output "ecs_cluster_name" {
+  description = "ECS cluster name"
+  value       = aws_ecs_cluster.main.name
+}
+
+output "ecs_service_name" {
+  description = "ECS service name"
+  value       = aws_ecs_service.app.name
+}
+
+output "ecr_repository_url" {
+  description = "ECR repository URL"
+  value       = aws_ecr_repository.app.repository_url
+}
+
+output "ecs_instance_public_ip" {
+  description = "ECS EC2 instance public IP"
+  value       = aws_instance.ecs.public_ip
 }
