@@ -23,10 +23,8 @@ function buildSearchCanonical(params: Record<string, string | string[] | undefin
   return `/search?${query.toString()}`;
 }
 
-export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  const params = await searchParams;
-
-  return buildSearchMetadata(buildSearchCanonical(params));
+export async function generateMetadata(): Promise<Metadata> {
+  return buildSearchMetadata();
 }
 
 export default async function SearchPage({ searchParams }: Props) {

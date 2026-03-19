@@ -5,29 +5,29 @@ export const metadata = buildHelpMetadata();
 
 const helpLinks = [
   {
-    title: '注文について',
-    description: '注文履歴・注文詳細・決済状況の確認方法を案内します。',
-    href: '/mypage/orders'
+    title: '商品の選び方',
+    description: 'カテゴリ、タグ、価格帯から用途に合う商品を探す方法です。',
+    href: '/products'
   },
   {
-    title: '配送・ダウンロードについて',
-    description: 'デジタル商品のダウンロード手順や再取得方法を確認できます。',
-    href: '/mypage/library'
+    title: 'ライセンス確認',
+    description: '商用利用や再配布可否を商品ページのライセンス表記で確認できます。',
+    href: '/faq'
   },
   {
-    title: '支払いについて',
-    description: '利用可能な支払い方法と請求タイミングを案内します。',
+    title: '支払いと提供時期',
+    description: '決済方法、請求タイミング、ダウンロード提供時期を確認できます。',
     href: '/legal/tokushoho'
   },
   {
-    title: '返品・キャンセルについて',
-    description: '返品ポリシーおよび問い合わせ前の確認事項をまとめています。',
+    title: '返品・キャンセル',
+    description: 'デジタル商品の返品条件と利用規約を確認できます。',
     href: '/legal/terms'
   },
   {
-    title: 'アカウントについて',
-    description: 'プロフィール・通知・セキュリティ設定の変更手順です。',
-    href: '/mypage/settings'
+    title: '個人情報と問い合わせ',
+    description: '個人情報の取り扱いと問い合わせ窓口の案内です。',
+    href: '/contact'
   }
 ];
 
@@ -35,7 +35,7 @@ export default function HelpPage() {
   return (
     <main>
       <h1>ヘルプセンター</h1>
-      <p className="section-description">カテゴリ別にサポート情報へアクセスできます。</p>
+      <p className="section-description">購入前後に必要な情報を、公開ページ単位で確認できるよう整理しています。</p>
       <section className="hub-grid" aria-label="ヘルプ導線">
         {helpLinks.map((link) => (
           <article key={link.title} className="hub-card">

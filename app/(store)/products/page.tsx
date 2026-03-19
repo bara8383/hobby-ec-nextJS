@@ -27,6 +27,10 @@ function buildProductsCanonical(params: Record<string, string | string[] | undef
   return query.toString() ? `/products?${query.toString()}` : '/products';
 }
 
+function hasIndexableFilters(params: Record<string, string | string[] | undefined>) {
+  return Object.values(params).every((value) => value == null || value === '');
+}
+
 function parseFilters(params: Record<string, string | string[] | undefined>): ProductSearchFilters {
   const priceMinRaw = readValue(params.priceMin);
   const priceMaxRaw = readValue(params.priceMax);
@@ -45,7 +49,10 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const params = await searchParams;
   const canonical = buildProductsCanonical(params);
 
-  return buildProductListingMetadata(canonical);
+  return buildProductListingMetadata({
+    canonicalPath: canonical,
+    isIndexable: hasIndexableFilters(params)
+  });
 }
 
 export default async function ProductsPage({ searchParams }: Props) {
@@ -71,7 +78,10 @@ export default async function ProductsPage({ searchParams }: Props) {
 
         <div className="products-content">
           <header className="products-toolbar">
-            <p className="products-count">Products ({items.length})</p>
+            <div>
+              <h1>商品一覧</h1>
+              <p className="products-count">公開商品数: {items.length}件</p>
+            </div>
             <ProductSort sort={filters.sort ?? 'newest'} />
           </header>
 

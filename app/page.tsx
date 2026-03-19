@@ -110,11 +110,6 @@ export default async function HomePage({ searchParams }: Props) {
     '@context': 'https://schema.org',
     '@graph': [
       {
-        '@type': 'Organization',
-        name: 'Digital Creator Market',
-        url: SITE_ORIGIN
-      },
-      {
         '@type': 'WebSite',
         name: 'Digital Creator Market',
         url: SITE_ORIGIN
