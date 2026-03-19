@@ -13,16 +13,16 @@ export function LegalPageTemplate({ title, lead, sections }: LegalPageTemplatePr
   return (
     <main>
       <h1>{title}</h1>
-      <p>{lead}</p>
+      <p className="section-description">{lead}</p>
 
-      <dl className="legal-list">
+      <section aria-label={`${title}の本文`}>
         {sections.map((item) => (
-          <div key={item.label} className="legal-item">
-            <dt>{item.label}</dt>
-            <dd>{item.value}</dd>
-          </div>
+          <article key={item.label} className="legal-item">
+            <h2>{item.label}</h2>
+            <p>{item.value}</p>
+          </article>
         ))}
-      </dl>
+      </section>
     </main>
   );
 }

@@ -1,9 +1,36 @@
 import { getCategoryLabel, type Product } from '@/data/products';
-import { SITE_ORIGIN } from '@/lib/seo/metadata';
-const BRAND_NAME = 'Digital Creator Market';
+import { SITE_NAME, SITE_ORIGIN, toAbsoluteUrl } from '@/lib/seo/metadata';
 
-function toAbsoluteUrl(path: string) {
-  return new URL(path, SITE_ORIGIN).toString();
+const SUPPORT_EMAIL = 'support@example.com';
+
+type FaqItem = {
+  question: string;
+  answer: string;
+};
+
+export function buildOrganizationJsonLd() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: SITE_NAME,
+    url: SITE_ORIGIN,
+    email: SUPPORT_EMAIL
+  };
+}
+
+export function buildFaqJsonLd(items: FaqItem[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: items.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.answer
+      }
+    }))
+  };
 }
 
 export function buildProductJsonLd(product: Product) {
@@ -21,7 +48,7 @@ export function buildProductJsonLd(product: Product) {
     sku: product.sku || product.slug,
     brand: {
       '@type': 'Brand',
-      name: BRAND_NAME
+      name: SITE_NAME
     },
     category: getCategoryLabel(product.category),
     keywords: product.tags.join(', '),

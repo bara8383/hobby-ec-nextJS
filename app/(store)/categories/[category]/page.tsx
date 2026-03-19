@@ -21,7 +21,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category } = await params;
   if (!isDigitalCategory(category)) {
-    return { title: 'カテゴリが見つかりません' };
+    return { title: 'カテゴリが見つかりません', robots: { index: false, follow: false } };
   }
 
   return buildCategoryMetadata(category);
@@ -46,8 +46,10 @@ export default async function CategoryPage({ params }: Props) {
           { name: categoryLabel, path: `/categories/${category}` }
         ]}
       />
-      <h1>{categoryLabel}</h1>
-      <p>カテゴリ特化ページとして、検索意図に合う商品をまとめています。</p>
+      <h1>{categoryLabel}一覧</h1>
+      <p className="section-description">
+        {categoryLabel}を用途・形式・ライセンスで比較しやすいように、公開商品をまとめています。
+      </p>
       <section className="grid" aria-label="カテゴリ商品一覧">
         {items.map((product) => (
           <ProductCard key={product.id} product={product} />
