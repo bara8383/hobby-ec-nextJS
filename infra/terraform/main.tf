@@ -267,6 +267,10 @@ resource "aws_ecs_task_definition" "app" {
           value = aws_ssm_parameter.app["SITE_URL"].value
         },
         {
+          name  = "NEXT_PUBLIC_SITE_ORIGIN"
+          value = aws_ssm_parameter.app["SITE_URL"].value
+        },
+        {
           name  = "CHAT_STORAGE_MODE"
           value = aws_ssm_parameter.app["CHAT_STORAGE_MODE"].value
         },
