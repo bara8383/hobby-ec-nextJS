@@ -52,11 +52,48 @@ jobs:
           docker push "$REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
           docker push "$REGISTRY/$ECR_REPOSITORY:latest"
 
-      - name: Force new ECS deployment
+      - name: Register ECS task definition revision with immutable image tag
+        env:
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          IMAGE_URI="$REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+          TASK_DEF_ARN="$(aws ecs describe-services \
+            --cluster "$ECS_CLUSTER" \
+            --services "$ECS_SERVICE" \
+            --query 'services[0].taskDefinition' \
+            --output text)"
+
+          aws ecs describe-task-definition \
+            --task-definition "$TASK_DEF_ARN" \
+            --query 'taskDefinition' \
+            --output json > task-definition.json
+
+          jq --arg IMAGE_URI "$IMAGE_URI" '
+            del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)
+            | .containerDefinitions |= map(
+              if .name == "app" then
+                .image = $IMAGE_URI
+              else
+                .
+              end
+            )
+          ' task-definition.json > task-definition-rendered.json
+
+          NEW_TASK_DEF_ARN="$(aws ecs register-task-definition \
+            --cli-input-json file://task-definition-rendered.json \
+            --query 'taskDefinition.taskDefinitionArn' \
+            --output text)"
+
+          echo "NEW_TASK_DEF_ARN=$NEW_TASK_DEF_ARN" >> "$GITHUB_ENV"
+
+      - name: Deploy ECS service with new task definition
         run: |
           aws ecs update-service \
             --cluster "$ECS_CLUSTER" \
             --service "$ECS_SERVICE" \
+            --task-definition "$NEW_TASK_DEF_ARN" \
             --force-new-deployment
           aws ecs wait services-stable \
             --cluster "$ECS_CLUSTER" \
