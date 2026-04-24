@@ -3,10 +3,11 @@ import { SkipLink } from '@/components/a11y/SkipLink';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { SiteHeader } from '@/components/layout/SiteHeader';
 import { getCurrentUser } from '@/lib/auth/demo-session';
+import { SITE_ORIGIN } from '@/lib/seo/metadata';
 import './globals.css';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://example.com'),
+  metadataBase: new URL(SITE_ORIGIN),
   title: {
     default: 'Digital Creator Market',
     template: '%s | Digital Creator Market'

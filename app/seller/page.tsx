@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { requireRole } from '@/lib/auth/demo-session';
-import { listSellerListings, listSoldItemsForSeller } from '@/lib/db/repositories/seller-repository';
+import { listSellerListings, listSoldItemsForSeller, registerTestListingForSeller } from '@/lib/db/repositories/seller-repository';
 
 export const metadata: Metadata = {
   title: '出品者ページ',
@@ -10,8 +10,20 @@ export const metadata: Metadata = {
   alternates: { canonical: '/seller' }
 };
 
-export default async function SellerPage() {
+type Props = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+function readParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export default async function SellerPage({ searchParams }: Props) {
   const user = await requireRole('seller');
+  const resolvedParams = searchParams ? await searchParams : {};
+  const shouldAddTestListing = readParam(resolvedParams.addTestListing) === '1';
+
+  const isAdded = shouldAddTestListing ? registerTestListingForSeller(user.id) : false;
   const listings = listSellerListings(user.id);
   const sold = listSoldItemsForSeller(user.id);
 
@@ -21,7 +33,18 @@ export default async function SellerPage() {
       <p>出品中の商品管理と、購入後のフォロー対応を行います。</p>
 
       <section>
-        <h2>出品中の商品</h2>
+        <h2>テスト導線</h2>
+        <p>
+          <Link href="/seller?addTestListing=1">テスト出品を1件追加する</Link>
+          （商品登録数の変化を確認）
+        </p>
+        {shouldAddTestListing ? (
+          <p>{isAdded ? 'テスト出品を追加しました。' : 'テスト出品はすでに追加済みです。'}</p>
+        ) : null}
+      </section>
+
+      <section>
+        <h2>出品中の商品（{listings.length}件）</h2>
         {listings.length === 0 ? <p>出品中の商品はありません。</p> : null}
         <ul>
           {listings.map((item) => (
@@ -38,7 +61,7 @@ export default async function SellerPage() {
         <ul>
           {sold.map(({ order, item }) => (
             <li key={item.id}>
-              注文 {order.id} / {item.productNameSnapshot} / 数量 {item.quantity} / 
+              注文 {order.id} / {item.productNameSnapshot} / 数量 {item.quantity} /{' '}
               <Link href={`/chat?conversationId=order-${order.id}`}>購入者とチャット</Link>
             </li>
           ))}

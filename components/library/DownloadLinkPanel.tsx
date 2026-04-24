@@ -20,7 +20,9 @@ export function DownloadLinkPanel({ orderItemId }: { orderItemId: string }) {
     setLoading(true);
     setError(null);
 
-    const response = await fetch(`/api/downloads/${orderItemId}`);
+    const response = await fetch(`/api/downloads/${orderItemId}`, {
+      method: 'POST'
+    });
     const body = (await response.json()) as DownloadPayload | { error: string };
 
     if (!response.ok) {

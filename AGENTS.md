@@ -1,8 +1,5 @@
 # AGENTS.md
 
-> Codex が実装時に最初に読む運用ルールです。迷ったらこのファイルを優先してください。
-
----
 
 ## このプロジェクトの設計・実装方針
 
@@ -10,7 +7,7 @@
 競合する場合は `1 > 2 > 3 > 4` の順で判断する。
 
 1. Next.js の最新設計を採用する。
-2. SEO を高度に最適化する。
+2. SEO / AEO を高度に最適化する。
 3. リアルタイムチャット機能を実装する。
 4. AWS に最小コストでデプロイする。
 
@@ -23,68 +20,19 @@
 
 ---
 
-## 技術的違和感の定義（起票対象の限定）
+## Development Workflow（作業フロー）
 
-PR「6) 提案・懸念点」および `docs/proposals.md` に記載する内容は、
-以下のいずれかに該当するもののみとする。
-
----
-
-### 1. codesが想定するECサイトのベストプラクティスとのズレ
-
-例：
-
-- 商品データ構造が将来拡張を考慮していない
-- SEO出力（metadata / 構造化データ / canonical 等）が不足している
-- 認証・ダウンロード制御が一般的な保護設計と乖離している
-- 責務分離が曖昧で将来肥大化する構造になっている
-- ルーティング設計がSEO前提になっていない
-- 重複ロジックや密結合が発生している
-
-※ 抽象的な「もっと良くできる」は対象外。
+1. Understand the task（タスク理解）
+2. Create an implementation plan（実装計画）
+3. Implement changes（実装）
+4. Run tests（テスト）
+5. Self-review（セルフレビュー）
+6. Report changes（変更報告）
+- make PR (refs to "PR template")
 
 ---
 
-### 2. 本プロジェクトの設計・実装方針とのズレ
-
-以下との矛盾のみ対象とする：
-
-- Next.js 最新設計の採用
-- SEO高度最適化方針
-- リアルタイムチャット拡張性確保
-- AWS最小コスト方針
-
-例：
-
-- App Router 前提なのに Pages Router 的実装
-- 不要な `use client` の多用
-- metadata API を使用せず旧式 Head を利用
-- キャッシュ戦略が一貫していない
-- 明らかにコスト増となる常時処理の追加
-
----
-
-## 起票禁止事項
-
-以下は提案・懸念点として記載してはならない：
-
-- ユーザー（オーナー）とのチャット内容の転記
-- 明示的に指示された仕様そのものへの疑義
-- 単なる将来アイデア
-- 一般論のみで repo 内根拠がないもの
-- 抽象的な改善提案のみで具体的対象がないもの
-
----
-
-## 起票時の必須条件
-
-- 必ず該当ファイル名または該当設計箇所を明記する。
-- 変更差分または既存コードを根拠とする。
-- 感想ではなく構造・設計上の論点として記載する。
-
----
-
-## PR 記載テンプレート
+## PR template (PR 記載テンプレート)
 
 PR の本文は必ずこの順序・見出し名で記載する。
 
@@ -113,9 +61,77 @@ PR の本文は必ずこの順序・見出し名で記載する。
 - AWS コスト影響（増減見込み）
 
 ### 6) 提案・懸念点
-- 本ファイルで定義された「技術的違和感」に該当するもののみ記載する。
-- `docs/proposals.md` に追記する。
+- repo内のコードにおいて、提案・懸念点を記載する。
 
 ### 7) リスクとロールバック
 - 想定リスクを箇条書きで記載する。
 - 必要に応じてロールバック方法を記載する。
+
+## Self-Review Requirements
+
+Before finalizing any code change or documentation output, the agent MUST perform a self-review.
+
+The self-review must validate the following.
+
+### 1. AEO (AI Engine Optimization)
+
+Verify that content is optimized for AI systems and structured extraction.
+
+Checklist:
+
+- Structured data exists when applicable (JSON-LD)
+- FAQ schema used when appropriate
+- Semantic HTML structure exists (h1 → h2 → h3)
+- Content is machine-readable and logically structured
+- Internal links exist where relevant
+
+### 2. SEO Compatibility
+
+Ensure changes do not degrade SEO quality.
+
+Checklist:
+
+- structured data validity
+- proper heading hierarchy
+- no duplicate title or meta description
+
+### 3. CI Compatibility
+
+Ensure the change will not fail CI gates.
+
+Checklist:
+
+- lint passes
+- type checks pass
+- tests pass
+- AEO validation scripts pass
+
+If potential CI failure is detected, the agent MUST fix the issue before producing the final result.
+
+--------------------------------------------------
+
+## Self-Review Process
+
+Before producing the final result, the agent must internally perform the following steps:
+
+1. Implement the requested change
+2. Execute the self-review checklist
+3. Identify any issues
+4. Fix the issues
+5. Only then produce the final answer
+
+The self-review process must never be skipped.
+
+--------------------------------------------------
+
+## CI Alignment
+
+This repository assumes CI gates exist for:
+
+- AEO validation
+- SEO checks
+- build verification
+
+The agent must assume these checks exist and implement code that will pass them.
+
+--------------------------------------------------

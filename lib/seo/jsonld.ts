@@ -1,10 +1,9 @@
 import { getCategoryLabel, type Product } from '@/data/products';
-
-const SITE_URL = 'https://example.com';
+import { SITE_ORIGIN } from '@/lib/seo/metadata';
 const BRAND_NAME = 'Digital Creator Market';
 
 function toAbsoluteUrl(path: string) {
-  return new URL(path, SITE_URL).toString();
+  return new URL(path, SITE_ORIGIN).toString();
 }
 
 export function buildProductJsonLd(product: Product) {
@@ -31,7 +30,16 @@ export function buildProductJsonLd(product: Product) {
       priceCurrency: 'JPY',
       price: product.priceJpy,
       availability: 'https://schema.org/InStock',
-      url: productUrl
+      url: productUrl,
+      seller: {
+        '@type': 'Organization',
+        name: product.sellerName
+      }
+    },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: product.sellerRating,
+      reviewCount: product.sellerSalesCount
     }
   };
 }

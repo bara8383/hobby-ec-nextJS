@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { getCategoryLabel, type DigitalCategory, type Product } from '@/data/products';
 
-export const SITE_ORIGIN = 'https://example.com';
+export const SITE_ORIGIN =
+  process.env.NEXT_PUBLIC_SITE_ORIGIN?.replace(/\/$/, '') ?? 'http://localhost:3000';
 const SITE_NAME = 'Digital Creator Market';
 
 type MetadataTemplateInput = {
@@ -124,6 +125,22 @@ export function buildCategoryHubMetadata(): Metadata {
   });
 }
 
+
+export function buildDealsMetadata(): Metadata {
+  return buildMetadataTemplate({
+    title: 'セール・クーポン特集',
+    description: '期間限定セールやクーポン配布情報をまとめた特集ページです。',
+    canonicalPath: '/deals'
+  });
+}
+
+export function buildRankingMetadata(): Metadata {
+  return buildMetadataTemplate({
+    title: '人気ランキング',
+    description: '売れ筋・お気に入り登録数の高いデジタル商品のランキングです。',
+    canonicalPath: '/ranking'
+  });
+}
 export function buildTagHubMetadata(): Metadata {
   return buildMetadataTemplate({
     title: 'タグ一覧',

@@ -2,7 +2,7 @@ import { getOrderItemForUser } from '@/lib/db/repositories/order-repository';
 import { consumeDownloadGrant, issueDownloadGrant } from '@/lib/db/repositories/download-grant-repository';
 import { issueSignedDownloadUrl } from '@/lib/storage/signed-url';
 
-export async function GET(_request: Request, context: { params: Promise<{ orderItemId: string }> }) {
+export async function POST(_request: Request, context: { params: Promise<{ orderItemId: string }> }) {
   const { orderItemId } = await context.params;
   const { getCurrentUser } = await import('@/lib/auth/demo-session');
   const userId = (await getCurrentUser()).id;
@@ -49,6 +49,9 @@ export async function GET(_request: Request, context: { params: Promise<{ orderI
       consumedCount: consumed.grant.downloadedCount,
       grantExpiresAt: consumed.grant.expiresAt
     },
-    { status: 200 }
+    {
+      status: 200,
+      headers: { 'Cache-Control': 'no-store' }
+    }
   );
 }
