@@ -1,5 +1,6 @@
 node_modules
 .next
+.terraform
 npm-debug.log*
 .env*
 !.env.example

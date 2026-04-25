@@ -1,8 +1,3 @@
-output "ci_role_arn" {
-  description = "GitHub Actions OIDC role ARN"
-  value       = aws_iam_role.ci.arn
-}
-
 output "ecs_cluster_name" {
   description = "ECS cluster name"
   value       = aws_ecs_cluster.main.name
