@@ -24,7 +24,6 @@ locals {
   task_family    = "${local.name_prefix}-task"
   ecr_repo_name  = "${local.name_prefix}-app"
   log_group_name = "/ecs/${local.name_prefix}"
-  github_subject = "repo:${var.github_owner}/${var.github_repo}:ref:refs/heads/${var.github_branch}"
 
   ssm_parameter_arns = {
     for key, value in aws_ssm_parameter.app :
@@ -35,6 +34,8 @@ locals {
     for key, value in aws_secretsmanager_secret.app :
     key => value.arn
   }
+
+  secret_keys = toset(nonsensitive(keys(var.secrets_manager_values)))
 
   common_tags = {
     Project = var.project_name
@@ -69,18 +70,18 @@ resource "aws_ssm_parameter" "app" {
 }
 
 resource "aws_secretsmanager_secret" "app" {
-  for_each = var.secrets_manager_values
+  for_each = local.secret_keys
 
-  name                    = "${var.project_name}/${var.env}/${lower(each.key)}"
+  name                    = "${var.project_name}/${var.env}/${lower(each.value)}"
   recovery_window_in_days = 0
   tags                    = local.common_tags
 }
 
 resource "aws_secretsmanager_secret_version" "app" {
-  for_each = var.secrets_manager_values
+  for_each = local.secret_keys
 
-  secret_id     = aws_secretsmanager_secret.app[each.key].id
-  secret_string = each.value
+  secret_id     = aws_secretsmanager_secret.app[each.value].id
+  secret_string = var.secrets_manager_values[each.value]
 }
 
 resource "aws_iam_role" "ecs_instance" {
@@ -198,13 +199,13 @@ resource "aws_iam_role_policy" "task_execution_runtime" {
     Version = "2012-10-17",
     Statement = [
       {
-        Effect = "Allow",
-        Action = ["ssm:GetParameters", "ssm:GetParameter"],
+        Effect   = "Allow",
+        Action   = ["ssm:GetParameters", "ssm:GetParameter"],
         Resource = values(local.ssm_parameter_arns)
       },
       {
-        Effect = "Allow",
-        Action = ["secretsmanager:GetSecretValue"],
+        Effect   = "Allow",
+        Action   = ["secretsmanager:GetSecretValue"],
         Resource = values(local.secret_arns)
       }
     ]
@@ -345,79 +346,4 @@ resource "aws_ecs_service" "app" {
   ]
 
   tags = local.common_tags
-}
-
-resource "aws_iam_openid_connect_provider" "github" {
-  url             = "https://token.actions.githubusercontent.com"
-  client_id_list  = ["sts.amazonaws.com"]
-  thumbprint_list = var.github_thumbprints
-  tags            = local.common_tags
-}
-
-resource "aws_iam_role" "ci" {
-  name = "${local.name_prefix}-github-actions-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [{
-      Effect = "Allow",
-      Principal = {
-        Federated = aws_iam_openid_connect_provider.github.arn
-      },
-      Action = "sts:AssumeRoleWithWebIdentity",
-      Condition = {
-        StringEquals = {
-          "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com",
-          "token.actions.githubusercontent.com:sub" = local.github_subject
-        }
-      }
-    }]
-  })
-
-  tags = local.common_tags
-}
-
-resource "aws_iam_role_policy" "ci_inline" {
-  name = "${local.name_prefix}-ci-policy"
-  role = aws_iam_role.ci.id
-
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Sid    = "EcrPush",
-        Effect = "Allow",
-        Action = [
-          "ecr:GetAuthorizationToken",
-          "ecr:BatchCheckLayerAvailability",
-          "ecr:CompleteLayerUpload",
-          "ecr:InitiateLayerUpload",
-          "ecr:PutImage",
-          "ecr:UploadLayerPart",
-          "ecr:BatchGetImage"
-        ],
-        Resource = "*"
-      },
-      {
-        Sid    = "EcsUpdateService",
-        Effect = "Allow",
-        Action = [
-          "ecs:UpdateService",
-          "ecs:DescribeServices",
-          "ecs:DescribeTaskDefinition",
-          "ecs:RegisterTaskDefinition"
-        ],
-        Resource = "*"
-      },
-      {
-        Sid    = "IamPassRoleForTaskDefs",
-        Effect = "Allow",
-        Action = ["iam:PassRole"],
-        Resource = [
-          aws_iam_role.task_execution.arn,
-          aws_iam_role.task.arn
-        ]
-      }
-    ]
-  })
 }

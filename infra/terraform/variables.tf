@@ -21,24 +21,27 @@ variable "instance_type" {
 }
 
 variable "github_owner" {
-  description = "GitHub organization or user name"
+  description = "Deprecated bootstrap-era variable kept only for backward compatibility"
   type        = string
+  default     = ""
 }
 
 variable "github_repo" {
-  description = "GitHub repository name"
+  description = "Deprecated bootstrap-era variable kept only for backward compatibility"
   type        = string
+  default     = ""
 }
 
 variable "github_branch" {
-  description = "GitHub branch allowed to assume OIDC role"
+  description = "Deprecated bootstrap-era variable kept only for backward compatibility"
   type        = string
-  default     = "main"
+  default     = ""
 }
 
 variable "github_thumbprints" {
-  description = "GitHub OIDC root CA thumbprints"
+  description = "Deprecated bootstrap-era variable kept only for backward compatibility"
   type        = list(string)
+  default     = []
 }
 
 variable "container_port" {
@@ -57,15 +60,15 @@ variable "ssm_parameters" {
   description = "Non-secret runtime configuration values stored in SSM Parameter Store"
   type        = map(string)
   default = {
-    APP_ENV                = "prod"
-    AWS_REGION             = "ap-northeast-1"
-    SITE_URL               = "http://localhost:3000"
-    LOG_LEVEL              = "info"
-    CHAT_STORAGE_MODE      = "aws"
+    APP_ENV                  = "prod"
+    AWS_REGION               = "ap-northeast-1"
+    SITE_URL                 = "http://localhost:3000"
+    LOG_LEVEL                = "info"
+    CHAT_STORAGE_MODE        = "aws"
     CHAT_CONVERSATIONS_TABLE = "ChatConversations"
-    CHAT_MESSAGES_TABLE    = "ChatMessages"
-    CHAT_USER_QUEUE_TABLE  = "ChatUserQueue"
-    CHAT_USER_QUEUE_PREFIX = "chat-user"
+    CHAT_MESSAGES_TABLE      = "ChatMessages"
+    CHAT_USER_QUEUE_TABLE    = "ChatUserQueue"
+    CHAT_USER_QUEUE_PREFIX   = "chat-user"
   }
 }
 
