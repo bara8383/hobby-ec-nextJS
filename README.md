@@ -63,6 +63,27 @@ terraform apply -var-file=terraform.tfvars
 
 bootstrap 完了後、出力された `github_actions_role_arn` / state bucket / lock table を使って、GitHub Secrets / Variables を設定します。
 
+### bootstrap が 403 で止まったとき
+
+`aws_iam_openid_connect_provider.github` の作成で 403 が出た場合は、実行中の SSO ロールに IAM 作成権限が不足しています。
+
+最低限、次の権限が必要です。
+
+- `iam:CreateOpenIDConnectProvider`
+- `iam:GetOpenIDConnectProvider`
+- `iam:TagOpenIDConnectProvider`
+- `iam:CreateRole`
+- `iam:GetRole`
+- `iam:TagRole`
+- `iam:PutRolePolicy`
+- `iam:GetRolePolicy`
+
+S3 bucket / DynamoDB table が途中まで成功していても、`infra/terraform/bootstrap/terraform.tfstate` はそのまま保持してください。
+権限付与後に `terraform plan -var-file=terraform.tfvars` と `terraform apply -var-file=terraform.tfvars` を再実行すれば、残りの IAM 3 リソースを継続作成できます。
+
+また、`infra/terraform/bootstrap/terraform.tfvars` の `github_owner` は実際の GitHub owner に合わせてください。
+本リポジトリでは `bara8383` です。ここが誤っていると apply 完了後も GitHub Actions の OIDC AssumeRole が失敗します。
+
 ## 本番スタック初回デプロイ手順（Terraform apply）
 
 `infra/terraform` は bootstrap 後に remote state 前提で利用します。

@@ -2,7 +2,7 @@ aws_region   = "ap-northeast-1"
 project_name = "hobby-ec"
 env          = "prod"
 
-github_owner  = "your-github-owner"
+github_owner  = "bara8383"
 github_repo   = "hobby-ec-nextJS"
 github_branch = "main"
 
