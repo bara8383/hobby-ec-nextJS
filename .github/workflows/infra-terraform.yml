@@ -7,7 +7,7 @@ on:
       - "infra/terraform/**"
       - ".github/workflows/infra-terraform.yml"
   pull_request:
-    branches: [main]
+    branches: [main, develop]
     paths:
       - "infra/terraform/**"
       - ".github/workflows/infra-terraform.yml"
@@ -23,7 +23,7 @@ env:
   TF_STATE_KEY: ${{ vars.TF_STATE_KEY != '' && vars.TF_STATE_KEY || 'infra/terraform/prod.tfstate' }}
 
 jobs:
-  terraform:
+  plan:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -73,9 +73,59 @@ jobs:
         run: terraform validate
 
       - name: Terraform plan
-        if: github.event_name == 'pull_request'
         run: terraform plan
 
+  apply:
+    if: github.event_name == 'workflow_dispatch'
+    needs: plan
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        working-directory: infra/terraform
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.11.4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_CI_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Render Terraform variables
+        run: |
+          cat > terraform.auto.tfvars.json <<EOF
+          {
+            "aws_region": "${{ vars.AWS_REGION }}",
+            "project_name": "${{ vars.TF_PROJECT_NAME }}",
+            "env": "${{ vars.TF_ENV }}",
+            "instance_type": "${{ vars.TF_INSTANCE_TYPE }}",
+            "container_port": ${{ vars.TF_CONTAINER_PORT }},
+            "public_ingress_cidrs": ${{ vars.TF_PUBLIC_INGRESS_CIDRS }},
+            "ssm_parameters": ${{ vars.TF_SSM_PARAMETERS_JSON }},
+            "secrets_manager_values": ${{ secrets.TF_SECRETS_MANAGER_VALUES_JSON }}
+          }
+          EOF
+
+      - name: Terraform init
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
+            -backend-config="key=${{ env.TF_STATE_KEY }}" \
+            -backend-config="region=${{ vars.AWS_REGION }}" \
+            -backend-config="dynamodb_table=${{ vars.TF_LOCK_TABLE }}" \
+            -backend-config="encrypt=true"
+
+      - name: Terraform fmt
+        run: terraform fmt -check -recursive
+
+      - name: Terraform validate
+        run: terraform validate
+
       - name: Terraform apply
-        if: github.event_name != 'pull_request'
         run: terraform apply -auto-approve

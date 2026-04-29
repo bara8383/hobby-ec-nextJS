@@ -108,8 +108,9 @@ Terraform 出力で以下を取得します。
 
 ## GitHub Actions デプロイ
 
-`.github/workflows/infra-terraform.yml` は Terraform の `plan/apply` を実行します。  
-`.github/workflows/deploy-ecs-ec2.yml` はアプリの build / image push / ECS 反映を実行します。
+`.github/workflows/ci.yml` は `develop` / `main` の PR と push で lint / typecheck / build を実行します。
+`.github/workflows/deploy-ecs-ec2.yml` は `main` push または手動実行でアプリの build / image push / ECS 反映を実行します。
+`.github/workflows/infra-terraform.yml` は PR / `main` push では Terraform の `plan` まで実行し、`apply` は手動実行 + `production` Environment 承認後のみ実行します。
 
 ### GitHub Variables
 
