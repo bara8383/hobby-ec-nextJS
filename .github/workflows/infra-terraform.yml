@@ -19,7 +19,7 @@ permissions:
   pull-requests: write
 
 env:
-  AWS_REGION: ${{ vars.AWS_REGION }}
+  AWS_REGION: ${{ vars.AWS_REGION || 'ap-northeast-1' }}
   TF_IN_AUTOMATION: true
   TF_STATE_KEY: ${{ vars.TF_STATE_KEY != '' && vars.TF_STATE_KEY || 'infra/terraform/prod.tfstate' }}
 
@@ -39,6 +39,32 @@ jobs:
       - uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: 1.11.4
+
+      - name: Validate Terraform configuration
+        env:
+          AWS_CI_ROLE_ARN: ${{ secrets.AWS_CI_ROLE_ARN }}
+          TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+          TF_LOCK_TABLE: ${{ vars.TF_LOCK_TABLE }}
+          TF_PROJECT_NAME: ${{ vars.TF_PROJECT_NAME }}
+          TF_ENV: ${{ vars.TF_ENV }}
+          TF_INSTANCE_TYPE: ${{ vars.TF_INSTANCE_TYPE }}
+          TF_CONTAINER_PORT: ${{ vars.TF_CONTAINER_PORT }}
+          TF_PUBLIC_INGRESS_CIDRS: ${{ vars.TF_PUBLIC_INGRESS_CIDRS }}
+          TF_SSM_PARAMETERS_JSON: ${{ vars.TF_SSM_PARAMETERS_JSON }}
+          TF_SECRETS_MANAGER_VALUES_JSON: ${{ secrets.TF_SECRETS_MANAGER_VALUES_JSON }}
+        run: |
+          missing=0
+
+          for name in AWS_CI_ROLE_ARN AWS_REGION TF_STATE_BUCKET TF_LOCK_TABLE TF_PROJECT_NAME TF_ENV TF_INSTANCE_TYPE TF_CONTAINER_PORT TF_PUBLIC_INGRESS_CIDRS TF_SSM_PARAMETERS_JSON TF_SECRETS_MANAGER_VALUES_JSON; do
+            if [ -z "${!name}" ]; then
+              echo "::error title=Missing GitHub configuration::$name is required for Terraform plan."
+              missing=1
+            fi
+          done
+
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
@@ -166,6 +192,32 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.11.4
+
+      - name: Validate Terraform configuration
+        env:
+          AWS_CI_ROLE_ARN: ${{ secrets.AWS_CI_ROLE_ARN }}
+          TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+          TF_LOCK_TABLE: ${{ vars.TF_LOCK_TABLE }}
+          TF_PROJECT_NAME: ${{ vars.TF_PROJECT_NAME }}
+          TF_ENV: ${{ vars.TF_ENV }}
+          TF_INSTANCE_TYPE: ${{ vars.TF_INSTANCE_TYPE }}
+          TF_CONTAINER_PORT: ${{ vars.TF_CONTAINER_PORT }}
+          TF_PUBLIC_INGRESS_CIDRS: ${{ vars.TF_PUBLIC_INGRESS_CIDRS }}
+          TF_SSM_PARAMETERS_JSON: ${{ vars.TF_SSM_PARAMETERS_JSON }}
+          TF_SECRETS_MANAGER_VALUES_JSON: ${{ secrets.TF_SECRETS_MANAGER_VALUES_JSON }}
+        run: |
+          missing=0
+
+          for name in AWS_CI_ROLE_ARN AWS_REGION TF_STATE_BUCKET TF_LOCK_TABLE TF_PROJECT_NAME TF_ENV TF_INSTANCE_TYPE TF_CONTAINER_PORT TF_PUBLIC_INGRESS_CIDRS TF_SSM_PARAMETERS_JSON TF_SECRETS_MANAGER_VALUES_JSON; do
+            if [ -z "${!name}" ]; then
+              echo "::error title=Missing GitHub configuration::$name is required for Terraform apply."
+              missing=1
+            fi
+          done
+
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
