@@ -9,16 +9,15 @@ permissions:
   id-token: write
   contents: read
 
-env:
-  AWS_REGION: ${{ vars.AWS_REGION }}
-  ECS_CLUSTER: ${{ vars.ECS_CLUSTER_NAME }}
-  ECS_SERVICE: ${{ vars.ECS_SERVICE_NAME }}
-  ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY_NAME }}
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: production
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION || 'ap-northeast-1' }}
+      ECS_CLUSTER: ${{ vars.ECS_CLUSTER_NAME }}
+      ECS_SERVICE: ${{ vars.ECS_SERVICE_NAME }}
+      ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY_NAME }}
     concurrency:
       group: deploy-production
       cancel-in-progress: false
@@ -36,6 +35,23 @@ jobs:
 
       - name: Build app
         run: npm run build
+
+      - name: Validate deployment configuration
+        env:
+          AWS_CI_ROLE_ARN: ${{ secrets.AWS_CI_ROLE_ARN }}
+        run: |
+          missing=0
+
+          for name in AWS_CI_ROLE_ARN AWS_REGION ECS_CLUSTER ECS_SERVICE ECR_REPOSITORY; do
+            if [ -z "${!name}" ]; then
+              echo "::error title=Missing GitHub configuration::$name is required for ECS deployment."
+              missing=1
+            fi
+          done
+
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
