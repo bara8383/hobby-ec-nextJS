@@ -18,6 +18,10 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
 

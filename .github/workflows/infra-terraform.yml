@@ -16,6 +16,7 @@ on:
 permissions:
   id-token: write
   contents: read
+  pull-requests: write
 
 env:
   AWS_REGION: ${{ vars.AWS_REGION }}
@@ -25,6 +26,9 @@ env:
 jobs:
   plan:
     runs-on: ubuntu-latest
+    concurrency:
+      group: terraform-plan-${{ github.ref }}
+      cancel-in-progress: true
     defaults:
       run:
         working-directory: infra/terraform
@@ -73,13 +77,85 @@ jobs:
         run: terraform validate
 
       - name: Terraform plan
-        run: terraform plan
+        id: plan
+        shell: bash
+        run: |
+          set -o pipefail
+          terraform plan -no-color -input=false 2>&1 | tee terraform-plan.txt
+
+      - name: Add Terraform plan to job summary
+        if: always()
+        run: |
+          {
+            echo "## Terraform plan"
+            echo
+            echo '```'
+            if [ -f terraform-plan.txt ]; then
+              sed -n '1,500p' terraform-plan.txt
+            else
+              echo "Terraform plan output was not generated."
+            fi
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comment Terraform plan on PR
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require("fs");
+            const marker = "<!-- terraform-plan-comment -->";
+            const planPath = "infra/terraform/terraform-plan.txt";
+            const plan = fs.existsSync(planPath)
+              ? fs.readFileSync(planPath, "utf8")
+              : "Terraform plan output was not generated.";
+            const maxLength = 60000;
+            const clipped = plan.length > maxLength
+              ? `${plan.slice(0, maxLength)}\n\n...truncated...`
+              : plan;
+            const body = [
+              marker,
+              "## Terraform plan",
+              "",
+              "```",
+              clipped,
+              "```",
+            ].join("\n");
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const comments = await github.rest.issues.listComments({
+              owner,
+              repo,
+              issue_number,
+              per_page: 100,
+            });
+            const previous = comments.data.find((comment) =>
+              comment.body?.includes(marker)
+            );
+            if (previous) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: previous.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body,
+              });
+            }
 
   apply:
     if: github.event_name == 'workflow_dispatch'
     needs: plan
     runs-on: ubuntu-latest
     environment: production
+    concurrency:
+      group: terraform-production
+      cancel-in-progress: false
     defaults:
       run:
         working-directory: infra/terraform
