@@ -39,7 +39,7 @@
 
 | 保存先 | 例 | 取り扱い |
 |---|---|---|
-| Secrets Manager | `DATABASE_URL`, `JWT_SECRET`, `SESSION_SECRET`, OAuth secret, API secret, webhook secret, private key, password/token | 漏洩時に重大事故へ直結する値 |
+| Secrets Manager | `DATABASE_URL`, `JWT_SECRET`, `SESSION_SECRET`, OAuth secret, API secret, webhook secret, private key, password/token | 漏洩時に重大事故へ直結する値。Terraform は secret の名前と ARN のみ管理し、値は AWS 側で登録する |
 | SSM Parameter Store | `APP_ENV`, `AWS_REGION`, `SITE_URL`, `LOG_LEVEL`, `CHAT_STORAGE_MODE`, 各種 table/bucket/queue 名 | 非機密の環境依存設定 |
 
 ## 初回 bootstrap 手順（Terraform apply）
@@ -131,9 +131,9 @@ Terraform 出力で以下を取得します。
 ### GitHub Secrets
 
 - `AWS_CI_ROLE_ARN`（bootstrap 出力 `github_actions_role_arn`）
-- `TF_SECRETS_MANAGER_VALUES_JSON`（JSON object 文字列）
 
 `infra-terraform.yml` はこれらの Variables / Secrets から `terraform.auto.tfvars.json` を組み立てて実行します。  
+`DATABASE_URL` / `JWT_SECRET` / `SESSION_SECRET` などの実値は GitHub に登録せず、AWS Secrets Manager で直接管理してください。
 ローカル apply を続けたい場合のみ、`infra/terraform/backend.hcl` と `infra/terraform/terraform.tfvars` をローカルに置いてください。
 
 ## 起動・停止・ログ・ロールバック

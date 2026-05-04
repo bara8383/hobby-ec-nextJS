@@ -51,11 +51,10 @@ jobs:
           TF_CONTAINER_PORT: ${{ vars.TF_CONTAINER_PORT }}
           TF_PUBLIC_INGRESS_CIDRS: ${{ vars.TF_PUBLIC_INGRESS_CIDRS }}
           TF_SSM_PARAMETERS_JSON: ${{ vars.TF_SSM_PARAMETERS_JSON }}
-          TF_SECRETS_MANAGER_VALUES_JSON: ${{ secrets.TF_SECRETS_MANAGER_VALUES_JSON }}
         run: |
           missing=0
 
-          for name in AWS_CI_ROLE_ARN AWS_REGION TF_STATE_BUCKET TF_LOCK_TABLE TF_PROJECT_NAME TF_ENV TF_INSTANCE_TYPE TF_CONTAINER_PORT TF_PUBLIC_INGRESS_CIDRS TF_SSM_PARAMETERS_JSON TF_SECRETS_MANAGER_VALUES_JSON; do
+          for name in AWS_CI_ROLE_ARN AWS_REGION TF_STATE_BUCKET TF_LOCK_TABLE TF_PROJECT_NAME TF_ENV TF_INSTANCE_TYPE TF_CONTAINER_PORT TF_PUBLIC_INGRESS_CIDRS TF_SSM_PARAMETERS_JSON; do
             if [ -z "${!name}" ]; then
               echo "::error title=Missing GitHub configuration::$name is required for Terraform plan."
               missing=1
@@ -82,8 +81,7 @@ jobs:
             "instance_type": "${{ vars.TF_INSTANCE_TYPE }}",
             "container_port": ${{ vars.TF_CONTAINER_PORT }},
             "public_ingress_cidrs": ${{ vars.TF_PUBLIC_INGRESS_CIDRS }},
-            "ssm_parameters": ${{ vars.TF_SSM_PARAMETERS_JSON }},
-            "secrets_manager_values": ${{ secrets.TF_SECRETS_MANAGER_VALUES_JSON }}
+            "ssm_parameters": ${{ vars.TF_SSM_PARAMETERS_JSON }}
           }
           EOF
 
@@ -204,11 +202,10 @@ jobs:
           TF_CONTAINER_PORT: ${{ vars.TF_CONTAINER_PORT }}
           TF_PUBLIC_INGRESS_CIDRS: ${{ vars.TF_PUBLIC_INGRESS_CIDRS }}
           TF_SSM_PARAMETERS_JSON: ${{ vars.TF_SSM_PARAMETERS_JSON }}
-          TF_SECRETS_MANAGER_VALUES_JSON: ${{ secrets.TF_SECRETS_MANAGER_VALUES_JSON }}
         run: |
           missing=0
 
-          for name in AWS_CI_ROLE_ARN AWS_REGION TF_STATE_BUCKET TF_LOCK_TABLE TF_PROJECT_NAME TF_ENV TF_INSTANCE_TYPE TF_CONTAINER_PORT TF_PUBLIC_INGRESS_CIDRS TF_SSM_PARAMETERS_JSON TF_SECRETS_MANAGER_VALUES_JSON; do
+          for name in AWS_CI_ROLE_ARN AWS_REGION TF_STATE_BUCKET TF_LOCK_TABLE TF_PROJECT_NAME TF_ENV TF_INSTANCE_TYPE TF_CONTAINER_PORT TF_PUBLIC_INGRESS_CIDRS TF_SSM_PARAMETERS_JSON; do
             if [ -z "${!name}" ]; then
               echo "::error title=Missing GitHub configuration::$name is required for Terraform apply."
               missing=1
@@ -235,8 +232,7 @@ jobs:
             "instance_type": "${{ vars.TF_INSTANCE_TYPE }}",
             "container_port": ${{ vars.TF_CONTAINER_PORT }},
             "public_ingress_cidrs": ${{ vars.TF_PUBLIC_INGRESS_CIDRS }},
-            "ssm_parameters": ${{ vars.TF_SSM_PARAMETERS_JSON }},
-            "secrets_manager_values": ${{ secrets.TF_SECRETS_MANAGER_VALUES_JSON }}
+            "ssm_parameters": ${{ vars.TF_SSM_PARAMETERS_JSON }}
           }
           EOF
 
