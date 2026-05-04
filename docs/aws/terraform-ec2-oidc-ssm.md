@@ -160,8 +160,8 @@ Repository の Settings で以下を設定します。
   - `TF_CONTAINER_PORT`
   - `TF_PUBLIC_INGRESS_CIDRS`（JSON 配列文字列）
   - `TF_SSM_PARAMETERS_JSON`（JSON object 文字列）
-- **Secrets**
-  - `TF_SECRETS_MANAGER_VALUES_JSON`（JSON object 文字列）
+
+Secrets Manager の実値（例: `DATABASE_URL`, `JWT_SECRET`, `SESSION_SECRET`）は GitHub Secrets に登録せず、AWS Secrets Manager で直接登録・更新します。Terraform は secret の名前、ARN、ECS task definition からの参照のみ管理します。
 
 ### 4-2. ワークフロー
 
@@ -169,6 +169,7 @@ Repository の Settings で以下を設定します。
   - `pull_request` で Terraform を `plan`
   - `push(main)` と `workflow_dispatch` で Terraform を `init/apply`
   - backend と tfvars は GitHub Variables / Secrets からその場で生成
+  - Secrets Manager の実値は Terraform 入力に含めない
   - 認証は `aws-actions/configure-aws-credentials@v6` + OIDC
 - `deploy-ec2-ssm.yml`
   - `push(main)` で SSM Run Command を実行

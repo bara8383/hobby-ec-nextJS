@@ -72,13 +72,12 @@ variable "ssm_parameters" {
   }
 }
 
-variable "secrets_manager_values" {
-  description = "Secret runtime values stored in AWS Secrets Manager"
-  type        = map(string)
-  sensitive   = true
-  default = {
-    DATABASE_URL   = ""
-    JWT_SECRET     = ""
-    SESSION_SECRET = ""
-  }
+variable "secret_names" {
+  description = "Runtime secret names created in AWS Secrets Manager. Secret values are managed outside Terraform."
+  type        = set(string)
+  default = [
+    "DATABASE_URL",
+    "JWT_SECRET",
+    "SESSION_SECRET",
+  ]
 }

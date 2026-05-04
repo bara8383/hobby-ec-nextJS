@@ -35,7 +35,7 @@ locals {
     key => value.arn
   }
 
-  secret_keys = toset(nonsensitive(keys(var.secrets_manager_values)))
+  secret_keys = var.secret_names
 
   common_tags = {
     Project = var.project_name
@@ -75,13 +75,6 @@ resource "aws_secretsmanager_secret" "app" {
   name                    = "${var.project_name}/${var.env}/${lower(each.value)}"
   recovery_window_in_days = 0
   tags                    = local.common_tags
-}
-
-resource "aws_secretsmanager_secret_version" "app" {
-  for_each = local.secret_keys
-
-  secret_id     = aws_secretsmanager_secret.app[each.value].id
-  secret_string = var.secrets_manager_values[each.value]
 }
 
 resource "aws_iam_role" "ecs_instance" {

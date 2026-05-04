@@ -57,7 +57,7 @@
 
 ### E. アプリ運用前提の未充足
 
-- `secrets_manager_values` のデフォルトが空文字（例: `DATABASE_URL`）で、実運用値投入が前提です。
+- Secrets Manager の secret value は Terraform 管理外のため、AWS Secrets Manager で実運用値の登録が必要です。
 - ECR にデプロイ対象イメージ（`:latest`）を push していない場合、サービスは正常稼働できません。
 - Terraform state バックエンド（S3 + DynamoDB lock）も未定義のため、チーム運用の衝突耐性が不足します。
 
@@ -109,13 +109,9 @@ cp terraform.tfvars.example terraform.tfvars
 
 最初に最低限チェックするキー:
 
-- `github_owner`, `github_repo`, `github_branch`
 - `ssm_parameters.SITE_URL`
-- `secrets_manager_values.DATABASE_URL`
-- `secrets_manager_values.JWT_SECRET`
-- `secrets_manager_values.SESSION_SECRET`
 
-> 注意: サンプル値（`replace-me` やダミー DB URL）のまま apply しないでください。
+Secrets Manager の実値は `terraform.tfvars` に書かず、AWS Secrets Manager で `DATABASE_URL` / `JWT_SECRET` / `SESSION_SECRET` を登録してください。
 
 ### ステップ 4: 前提不足を先に解消
 

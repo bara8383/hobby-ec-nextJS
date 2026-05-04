@@ -17,9 +17,3 @@ ssm_parameters = {
   CHAT_USER_QUEUE_TABLE   = "ChatUserQueue"
   CHAT_USER_QUEUE_PREFIX  = "chat-user"
 }
-
-secrets_manager_values = {
-  DATABASE_URL   = "postgresql://user:pass@host:5432/dbname"
-  JWT_SECRET     = "replace-me"
-  SESSION_SECRET = "replace-me"
-}
