@@ -41,6 +41,7 @@ jobs:
           terraform_version: 1.11.4
 
       - name: Validate Terraform configuration
+        if: github.event_name != 'pull_request'
         env:
           AWS_CI_ROLE_ARN: ${{ secrets.AWS_CI_ROLE_ARN }}
           TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
@@ -66,12 +67,14 @@ jobs:
           fi
 
       - name: Configure AWS credentials
+        if: github.event_name != 'pull_request'
         uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.AWS_CI_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Render Terraform variables
+        if: github.event_name != 'pull_request'
         run: |
           cat > terraform.auto.tfvars.json <<EOF
           {
@@ -85,7 +88,8 @@ jobs:
           }
           EOF
 
-      - name: Terraform init
+      - name: Terraform init with remote state
+        if: github.event_name != 'pull_request'
         run: |
           terraform init \
             -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
@@ -94,6 +98,10 @@ jobs:
             -backend-config="dynamodb_table=${{ vars.TF_LOCK_TABLE }}" \
             -backend-config="encrypt=true"
 
+      - name: Terraform init without backend
+        if: github.event_name == 'pull_request'
+        run: terraform init -backend=false -reconfigure
+
       - name: Terraform fmt
         run: terraform fmt -check -recursive
 
@@ -101,11 +109,24 @@ jobs:
         run: terraform validate
 
       - name: Terraform plan
+        if: github.event_name != 'pull_request'
         id: plan
         shell: bash
         run: |
           set -o pipefail
           terraform plan -no-color -input=false 2>&1 | tee terraform-plan.txt
+
+      - name: Write pull request Terraform validation summary
+        if: github.event_name == 'pull_request'
+        run: |
+          cat > terraform-plan.txt <<'EOF'
+          Terraform plan is skipped for pull_request events because the production-capable AWS OIDC role is not exposed to PR jobs.
+
+          Completed:
+          - terraform init -backend=false -reconfigure
+          - terraform fmt -check -recursive
+          - terraform validate
+          EOF
 
       - name: Add Terraform plan to job summary
         if: always()
