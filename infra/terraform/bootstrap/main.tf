@@ -1,8 +1,11 @@
 data "aws_caller_identity" "current" {}
 
 locals {
-  name_prefix    = "${var.project_name}-${var.env}"
-  github_subject = "repo:${var.github_owner}/${var.github_repo}:ref:refs/heads/${var.github_branch}"
+  name_prefix = "${var.project_name}-${var.env}"
+  github_subjects = [
+    "repo:${var.github_owner}/${var.github_repo}:ref:refs/heads/${var.github_branch}",
+    "repo:${var.github_owner}/${var.github_repo}:environment:${var.github_environment}",
+  ]
 
   common_tags = {
     Project = var.project_name
@@ -82,7 +85,7 @@ resource "aws_iam_role" "github_actions" {
       Condition = {
         StringEquals = {
           "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com",
-          "token.actions.githubusercontent.com:sub" = local.github_subject
+          "token.actions.githubusercontent.com:sub" = local.github_subjects
         }
       }
     }]

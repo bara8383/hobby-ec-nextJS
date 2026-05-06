@@ -30,6 +30,12 @@ variable "github_branch" {
   default     = "main"
 }
 
+variable "github_environment" {
+  description = "GitHub Actions environment allowed to assume OIDC role"
+  type        = string
+  default     = "production"
+}
+
 variable "github_thumbprints" {
   description = "GitHub OIDC root CA thumbprints"
   type        = list(string)
