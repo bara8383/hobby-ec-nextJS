@@ -38,7 +38,7 @@ export default async function RootLayout({
         <SkipLink />
         <SiteHeader currentUser={currentUser} />
 
-        <main id="main">{children}</main>
+        <div id="main">{children}</div>
 
         <SiteFooter />
       </body>
