@@ -1,40 +1,116 @@
 import type { Metadata } from 'next';
 import { ProductCard } from '@/components/ProductCard';
 import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
-import { searchProducts } from '@/data/products';
+import {
+  PRODUCT_CATEGORIES,
+  getCategoryLabel,
+  searchProducts,
+  type DigitalCategory,
+  type ProductSearchFilters
+} from '@/data/products';
 import { buildSearchMetadata } from '@/lib/seo/metadata';
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
+const FILTER_KEYS = ['q', 'category', 'tag', 'priceMin', 'priceMax', 'sort'] as const;
+const SORT_LABELS: Record<NonNullable<ProductSearchFilters['sort']>, string> = {
+  newest: '新着順',
+  price_asc: '価格の安い順',
+  price_desc: '価格の高い順'
+};
+
 function readValue(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-function buildSearchCanonical(params: Record<string, string | string[] | undefined>) {
-  const q = readValue(params.q);
-
-  if (!q) {
-    return '/search';
+function parsePrice(value: string | undefined) {
+  if (!value) {
+    return undefined;
   }
 
-  const query = new URLSearchParams({ q });
-  return `/search?${query.toString()}`;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : undefined;
+}
+
+function parseSort(value: string | undefined): ProductSearchFilters['sort'] {
+  return value === 'price_asc' || value === 'price_desc' || value === 'newest' ? value : 'newest';
+}
+
+function parseFilters(params: Record<string, string | string[] | undefined>): ProductSearchFilters {
+  return {
+    query: readValue(params.q)?.trim() || undefined,
+    category: readValue(params.category)?.trim() || undefined,
+    tag: readValue(params.tag)?.trim() || undefined,
+    priceMin: parsePrice(readValue(params.priceMin)),
+    priceMax: parsePrice(readValue(params.priceMax)),
+    sort: parseSort(readValue(params.sort))
+  };
+}
+
+function hasSearchParameters(params: Record<string, string | string[] | undefined>) {
+  return FILTER_KEYS.some((key) => Boolean(readValue(params[key])?.trim()));
+}
+
+function buildSearchCanonical(params: Record<string, string | string[] | undefined>) {
+  const query = new URLSearchParams();
+
+  FILTER_KEYS.forEach((key) => {
+    const value = readValue(params[key])?.trim();
+    if (value) {
+      query.set(key, value);
+    }
+  });
+
+  return query.toString() ? `/search?${query.toString()}` : '/search';
+}
+
+function buildActiveFilterLabels(filters: ProductSearchFilters) {
+  const labels: string[] = [];
+
+  if (filters.query) {
+    labels.push(`キーワード「${filters.query}」`);
+  }
+
+  if (filters.category) {
+    const category = filters.category as DigitalCategory;
+    const categoryLabel = PRODUCT_CATEGORIES.includes(category) ? getCategoryLabel(category) : filters.category;
+    labels.push(`カテゴリ「${categoryLabel}」`);
+  }
+
+  if (filters.tag) {
+    labels.push(`タグ「${filters.tag}」`);
+  }
+
+  if (typeof filters.priceMin === 'number') {
+    labels.push(`${filters.priceMin.toLocaleString('ja-JP')}円以上`);
+  }
+
+  if (typeof filters.priceMax === 'number') {
+    labels.push(`${filters.priceMax.toLocaleString('ja-JP')}円以下`);
+  }
+
+  labels.push(`並び替え「${SORT_LABELS[filters.sort ?? 'newest']}」`);
+
+  return labels;
 }
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const params = await searchParams;
 
-  return buildSearchMetadata(buildSearchCanonical(params));
+  return buildSearchMetadata(buildSearchCanonical(params), {
+    robots: hasSearchParameters(params) ? { index: false, follow: true } : undefined
+  });
 }
 
 export default async function SearchPage({ searchParams }: Props) {
   const params = await searchParams;
-  const q = readValue(params.q) ?? '';
+  const filters = parseFilters(params);
   const canonical = buildSearchCanonical(params);
+  const activeFilterLabels = buildActiveFilterLabels(filters);
 
-  const items = searchProducts({ query: q, sort: 'newest' });
+  const items = searchProducts(filters);
 
   return (
     <main>
@@ -45,9 +121,10 @@ export default async function SearchPage({ searchParams }: Props) {
         ]}
       />
       <h1>検索結果</h1>
-      <p>キーワード: {q || '未入力'}</p>
+      <p className="products-count">Search results ({items.length})</p>
+      <p>適用中の条件: {activeFilterLabels.join(' / ')}</p>
       {items.length === 0 ? (
-        <p>検索結果がありませんでした。別キーワードをお試しください。</p>
+        <p className="empty-state">条件に一致する商品がありません。キーワードや価格などの検索条件を調整してください。</p>
       ) : (
         <section className="grid" aria-label="検索結果商品一覧">
           {items.map((product) => (

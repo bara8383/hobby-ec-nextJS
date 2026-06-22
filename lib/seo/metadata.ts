@@ -93,11 +93,15 @@ export function buildTagMetadata(tag: string): Metadata {
   });
 }
 
-export function buildSearchMetadata(canonicalPath: string): Metadata {
+export function buildSearchMetadata(
+  canonicalPath: string,
+  options?: { robots?: Metadata['robots'] }
+): Metadata {
   return buildMetadataTemplate({
     title: '検索結果',
     description: 'サイト内検索結果ページです。',
     canonicalPath,
+    robots: options?.robots
   });
 }
 
