@@ -13,6 +13,8 @@
 
 ---
 
+## subagentの使用方法
+
 各 subagent の最終出力を、親 agent が次の規則で Markdown として保存してください。
 
 保存先:
@@ -32,3 +34,6 @@ docs/ai/output/product-review-packager/001-product-review-guide.md
 - subagent の出力を省略せず保存する
 - 親 agent の統合結果とは分離する
 
+---
+## 作業ルール
+- 作業ブランチを作成して、push & mergeを行う。直push禁止。
