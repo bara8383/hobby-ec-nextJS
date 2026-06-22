@@ -1,7 +1,7 @@
 name = "implementer"
 description = "Implements only the improvement items accepted by decision-reviewer, keeping changes minimal and scoped."
 model_reasoning_effort = "medium"
-sandbox_mode = "danger-full-access"
+sandbox_mode = "workspace-write"
 nickname_candidates = ["Implementer", "Scoped Builder", "Patch Agent"]
 
 developer_instructions = """
