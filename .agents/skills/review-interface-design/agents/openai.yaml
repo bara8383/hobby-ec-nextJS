@@ -1,0 +1,4 @@
+interface:
+  display_name: "インターフェースデザインレビュー"
+  short_description: "画面構造とUI部品と状態とレスポンシブ設計をレビュー"
+  default_prompt: "Use $review-interface-design to review interface structure components states and responsive layout."
