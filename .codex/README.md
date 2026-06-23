@@ -23,6 +23,7 @@ Codex 公式の custom agent 仕様に合わせ、各 agent は `.codex/agents/*
 - AI の採用判断を実装可能な作業に変換する
 - 採用案だけを実装する
 - 実装後に品質 / セキュリティ / 退行 / 意図ズレをレビューする
+- 実画面の視覚的完成度とインターフェース設計を、責務を分けてレビューする
 - 人間がプロダクトレビューしやすいように変更点・確認手順・判断ポイントを整理する
 - 人間レビュー内容から次の改善案を出す
 
@@ -32,10 +33,11 @@ Codex 公式の custom agent 仕様に合わせ、各 agent は `.codex/agents/*
 2. Codex: `decision-reviewer` が改善案を評価し、採用 / 却下 / 保留を決める
 3. Codex: `implementer` が `decision-reviewer` の採用案だけを実装する
 4. Codex: `quality-reviewer` が品質レビューする
-5. Codex: `product-review-packager` が人間レビュー用資料を作る
-6. 人間: 実際のプロダクトを触ってレビューし、AI の採用判断品質を監査する
-7. Codex: 人間レビューと監査結果をもとに `improvement-proposer` が次の改善案を出す
-8. 1 に戻る
+5. UI変更がある場合、Codex: `ui-design-reviewer` と `interface-design-reviewer` が担当範囲を分けてレビューする
+6. Codex: `product-review-packager` が人間レビュー用資料を作る
+7. 人間: 実際のプロダクトを触ってレビューし、AI の採用判断品質を監査する
+8. Codex: 人間レビューと監査結果をもとに `improvement-proposer` が次の改善案を出す
+9. 1 に戻る
 
 ## 各 agent の責務
 
@@ -74,6 +76,22 @@ Codex 公式の custom agent 仕様に合わせ、各 agent は `.codex/agents/*
 - 重大度つきで指摘する
 - 修正案は出してよいが、勝手に実装しない
 
+### ui-design-reviewer
+
+- `.agents/skills/review-ui-design/` のskillを必ず使用する
+- 配色、タイポグラフィ、アイコン、画像、装飾、ブランド表現をレビューする
+- UIの視覚的一貫性、印象、完成度を実画面またはスクリーンショットで評価する
+- 情報設計、コンポーネント配置、UI状態、操作フロー、実装品質は評価しない
+- `visual-design-reviewer` に相当する責務を、`ui-design-reviewer` という名前で担う
+
+### interface-design-reviewer
+
+- `.agents/skills/review-interface-design/` のskillを必ず使用する
+- 情報階層、レイアウト、コンポーネント、操作要素の識別性をレビューする
+- loading、empty、error、disabledなどの状態設計とレスポンシブ配置を評価する
+- 配色の美しさ、装飾、ブランド表現、コード品質は評価しない
+- UIデザイン上の視覚表現と重なる問題は、`ui-design-reviewer` への引き継ぎ事項として分離する
+
 ### product-review-packager
 
 - 人間が実際にプロダクトをレビューしやすいように整理する
@@ -88,6 +106,8 @@ Codex 公式の custom agent 仕様に合わせ、各 agent は `.codex/agents/*
 | 改善案が出たあと | `decision-reviewer` | 採用 / 却下 / 保留を判断し、実装 handoff を作る |
 | `decision-reviewer` が採用案を明示したあと | `implementer` | 採用案だけを小さく実装する |
 | 実装直後、人間が触る前 | `quality-reviewer` | 重大な品質・セキュリティ・退行リスクを先に潰す |
+| UI変更後、実画面を確認できるとき | `ui-design-reviewer` | 配色、タイポグラフィ、装飾、ブランド表現、視覚的完成度を確認する |
+| UI変更後、実画面と主要状態を確認できるとき | `interface-design-reviewer` | 画面構造、情報階層、UI部品、状態、レスポンシブ配置を確認する |
 | 人間レビューを依頼する直前 | `product-review-packager` | 確認手順と判断ポイントを整理する |
 | 人間レビューと AI 判断監査のフィードバック後 | `improvement-proposer` | 次サイクルの改善案に変換する |
 
@@ -136,7 +156,18 @@ Do not edit code.
 Return findings by severity with evidence and recommended fixes.
 ```
 
-### 例5: 人間レビュー用に整理する
+### 例5: UIデザインとインターフェースをレビューする
+
+```text
+Spawn ui-design-reviewer and interface-design-reviewer for the changed UI.
+Review the rendered screens and keep the responsibilities separate.
+ui-design-reviewer must evaluate only visual expression and aesthetic completeness.
+interface-design-reviewer must evaluate only interface structure, components, states, and responsive layout.
+Do not edit code.
+Return each review as standalone Japanese Markdown so the parent agent can save it under docs/ai/output/<agent-name>/.
+```
+
+### 例6: 人間レビュー用に整理する
 
 ```text
 Spawn product-review-packager.
@@ -149,8 +180,9 @@ Do not edit code.
 
 - 大きな方針変更は、`decision-reviewer` が通常ループで採用せず、人間監査または追加基準の整備に回してください。
 - `implementer` に渡す採用案は、`decision-reviewer` の handoff から箇条書きで明確にしてください。
-- `decision-reviewer`、`quality-reviewer`、`product-review-packager` は read-only 前提です。修正が必要な場合は、改善案または採用判断として再整理してから `implementer` に渡してください。
+- `decision-reviewer`、各reviewer、`product-review-packager` は read-only 前提です。修正が必要な場合は、改善案または採用判断として再整理してから `implementer` に渡してください。
 - UI 変更を含む場合は、可能なら `product-review-packager` に対象 URL、確認手順、スクリーンショット有無を整理させてください。
+- `ui-design-reviewer` と `interface-design-reviewer` の最終出力は、親 agent がそれぞれ `docs/ai/output/ui-design-reviewer/` と `docs/ai/output/interface-design-reviewer/` に連番で保存してください。
 - このリポジトリでは Next.js 最新設計、SEO / AEO、ecommerce UX、リアルタイムチャット、AWS 最小コスト、学習価値の判断軸を意識してください。
 - 人間は通常の採用判断者ではなく、AI 判断品質の監査者として、判断基準の不足やズレをフィードバックしてください。
-- agent 構成を増やしすぎると運用が複雑になるため、常駐 agent はこの 5 つに限定します。
+- reviewerを追加するときは責務の重複を避け、各agentの担当外を明示してください。

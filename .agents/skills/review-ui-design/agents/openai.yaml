@@ -1,0 +1,4 @@
+interface:
+  display_name: "UIデザインレビュー"
+  short_description: "実画面の視覚表現と美的完成度を証拠ベースでレビュー"
+  default_prompt: "Use $review-ui-design to review visual expression and aesthetic completeness."
