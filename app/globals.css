@@ -791,8 +791,21 @@ small,
   gap: var(--space-2);
 }
 
-.hero .home-search {
-  margin-top: var(--space-2);
+.home-search-section {
+  margin-top: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-5);
+}
+
+.home-search-section-copy {
+  max-width: 64ch;
+}
+
+.home-search-section .home-search {
+  margin-bottom: 0;
 }
 
 .home-search-row {

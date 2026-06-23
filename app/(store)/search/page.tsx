@@ -53,15 +53,32 @@ function hasSearchParameters(params: Record<string, string | string[] | undefine
   return FILTER_KEYS.some((key) => Boolean(readValue(params[key])?.trim()));
 }
 
-function buildSearchCanonical(params: Record<string, string | string[] | undefined>) {
+function buildSearchCanonical(filters: ProductSearchFilters) {
   const query = new URLSearchParams();
 
-  FILTER_KEYS.forEach((key) => {
-    const value = readValue(params[key])?.trim();
-    if (value) {
-      query.set(key, value);
-    }
-  });
+  if (filters.query) {
+    query.set('q', filters.query);
+  }
+
+  if (filters.category) {
+    query.set('category', filters.category);
+  }
+
+  if (filters.tag) {
+    query.set('tag', filters.tag);
+  }
+
+  if (typeof filters.priceMin === 'number') {
+    query.set('priceMin', String(filters.priceMin));
+  }
+
+  if (typeof filters.priceMax === 'number') {
+    query.set('priceMax', String(filters.priceMax));
+  }
+
+  if (filters.sort && filters.sort !== 'newest') {
+    query.set('sort', filters.sort);
+  }
 
   return query.toString() ? `/search?${query.toString()}` : '/search';
 }
@@ -99,7 +116,9 @@ function buildActiveFilterLabels(filters: ProductSearchFilters) {
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const params = await searchParams;
 
-  return buildSearchMetadata(buildSearchCanonical(params), {
+  const filters = parseFilters(params);
+
+  return buildSearchMetadata(buildSearchCanonical(filters), {
     robots: hasSearchParameters(params) ? { index: false, follow: true } : undefined
   });
 }
@@ -107,7 +126,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 export default async function SearchPage({ searchParams }: Props) {
   const params = await searchParams;
   const filters = parseFilters(params);
-  const canonical = buildSearchCanonical(params);
+  const canonical = buildSearchCanonical(filters);
   const activeFilterLabels = buildActiveFilterLabels(filters);
 
   const items = searchProducts(filters);
