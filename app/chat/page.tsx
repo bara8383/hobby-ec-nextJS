@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ButtonLink } from '@/components/ui/Button';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { Section } from '@/components/ui/Section';
@@ -56,7 +57,10 @@ export default async function ChatListPage({
     <main>
       <Section title="チャット一覧" description="商品に紐づく会話を選択して相談を続けられます。">
         {conversations.length === 0 ? (
-          <p className="hero-label">会話はまだありません。商品ページから新規相談を開始してください。</p>
+          <div className="empty-state chat-empty-state">
+            <p>会話はまだありません。商品ページから新規相談を開始してください。</p>
+            <ButtonLink href="/products">相談できる商品を探す</ButtonLink>
+          </div>
         ) : (
           <ul style={{ display: 'grid', gap: 12, margin: 0, padding: 0, listStyle: 'none' }}>
             {conversations.map((conversation) => {

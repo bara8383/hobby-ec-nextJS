@@ -139,9 +139,16 @@ export default async function SearchPage({ searchParams }: Props) {
           { name: '検索', path: canonical }
         ]}
       />
-      <h1>検索結果</h1>
-      <p className="products-count">Search results ({items.length})</p>
-      <p>適用中の条件: {activeFilterLabels.join(' / ')}</p>
+      <section className="search-results-hero" aria-labelledby="search-results-title">
+        <p className="hero-label">SEARCH RESULTS</p>
+        <h1 id="search-results-title">{filters.query ? `「${filters.query}」の検索結果` : '検索結果'}</h1>
+        <p className="products-count">該当 {items.length} 件</p>
+        <ul className="active-filter-list" aria-label="適用中の検索条件">
+          {activeFilterLabels.map((label) => (
+            <li key={label}>{label}</li>
+          ))}
+        </ul>
+      </section>
       {items.length === 0 ? (
         <p className="empty-state">条件に一致する商品がありません。キーワードや価格などの検索条件を調整してください。</p>
       ) : (

@@ -44,7 +44,7 @@ export function getNavItems(user: UserRecord): SiteNavItem[] {
     return [
       ...items,
       { href: '/chat', label: 'チャット' },
-      { href: '/login', label: 'マイページ（ログイン）' }
+      { href: '/login', label: 'ログイン' }
     ];
   }
 
