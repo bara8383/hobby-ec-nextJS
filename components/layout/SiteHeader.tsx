@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Container } from '@/components/ui/Container';
-import { getNavItems, isGuest } from '@/lib/auth/permissions';
+import { getNavItems } from '@/lib/auth/permissions';
 import type { UserRecord } from '@/lib/db/schema/user';
 
 type SiteHeaderProps = {
@@ -23,12 +23,6 @@ export function SiteHeader({ currentUser }: SiteHeaderProps) {
             </Link>
           ))}
         </nav>
-      </Container>
-      <Container>
-        <p className="hero-label" style={{ marginBottom: '0.5rem' }}>
-          ログイン中: {currentUser.displayName} / 権限:{' '}
-          {isGuest(currentUser) ? 'guest' : currentUser.roles.join(', ')}
-        </p>
       </Container>
     </header>
   );

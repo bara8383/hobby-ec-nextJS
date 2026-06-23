@@ -151,12 +151,22 @@ export default async function HomePage({ searchParams }: Props) {
         <div className="hero-content">
           <p className="hero-label">DIGITAL CREATOR MARKET</p>
           <h1>毎日更新の特集で、欲しい素材にすぐ届く。</h1>
-          <HomeKeywordSearchBar initialQuery={q} />
           <p>
-            niko and ... の編集感とユニクロの分かりやすい導線を取り入れ、特集・カテゴリ・価格帯を1画面に集約。
-            壁紙・写真・イラスト・デジタル音源をテンポ良く比較し、購入前の不安はリアルタイムチャットで素早く解消できます。
+            niko and ... の編集感とユニクロの分かりやすい導線を取り入れ、特集・カテゴリ・価格帯を落ち着いて比較できる
+            デジタル素材マーケットです。購入前の不安はリアルタイムチャットで素早く解消できます。
           </p>
         </div>
+      </section>
+
+      <section className="home-search-section" aria-labelledby="home-search-title">
+        <div className="home-search-section-copy">
+          <p className="hero-label">SEARCH</p>
+          <h2 id="home-search-title">素材をキーワードで探す</h2>
+          <p className="section-description">
+            商品名・用途・タグから、必要な壁紙・写真・イラスト・音源へすぐ移動できます。
+          </p>
+        </div>
+        <HomeKeywordSearchBar initialQuery={q} />
       </section>
 
       <section className="feature-topics" aria-label="特集トピック">
